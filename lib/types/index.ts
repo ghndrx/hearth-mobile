@@ -3,7 +3,7 @@ export interface User {
   username: string;
   displayName: string;
   avatar?: string;
-  email?: string;
+  email: string;
   bio?: string;
   status?: "online" | "offline" | "idle" | "dnd" | "invisible";
   createdAt?: string;

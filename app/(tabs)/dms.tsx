@@ -92,13 +92,16 @@ const mockConversations: Conversation[] = [
 function ConversationItem({
   conversation,
   isDark,
+  onPress,
 }: {
   conversation: Conversation;
   isDark: boolean;
+  onPress: () => void;
 }) {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
+      onPress={onPress}
       className={`
         flex-row 
         items-center 
@@ -240,7 +243,11 @@ export default function DMsScreen() {
         data={filteredConversations}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ConversationItem conversation={item} isDark={isDark} />
+          <ConversationItem
+            conversation={item}
+            isDark={isDark}
+            onPress={() => router.push(`/chat/${item.id}`)}
+          />
         )}
         refreshControl={
           <RefreshControl

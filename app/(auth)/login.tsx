@@ -77,6 +77,7 @@ export default function LoginScreen() {
         id: "1",
         username: "user",
         displayName: "User",
+        email: email,
       });
 
       router.replace("/(tabs)");

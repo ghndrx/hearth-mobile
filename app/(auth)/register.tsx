@@ -129,6 +129,7 @@ export default function RegisterScreen() {
         id: "1",
         username: username,
         displayName: username,
+        email: email,
       });
 
       router.replace("/(tabs)");
