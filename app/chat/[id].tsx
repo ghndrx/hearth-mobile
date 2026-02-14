@@ -16,6 +16,11 @@ import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "../../components/ui/Avatar";
 import { MessageBubble, Message } from "../../components/chat/MessageBubble";
+import {
+  AttachmentPicker,
+  AttachmentPreviewStrip,
+  Attachment,
+} from "../../components/chat/AttachmentPicker";
 
 interface ChatParticipant {
   id: string;
@@ -100,6 +105,8 @@ export default function ChatScreen() {
   const [isTyping, setIsTyping] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [showReactionModal, setShowReactionModal] = useState(false);
+  const [showAttachmentPicker, setShowAttachmentPicker] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const typingAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -132,7 +139,14 @@ export default function ChatScreen() {
   const otherParticipant = mockParticipants.find((p) => p.id !== "2");
 
   const sendMessage = useCallback(() => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim() && pendingAttachments.length === 0) return;
+
+    const messageAttachments = pendingAttachments.map((att) => ({
+      type: att.type as "image" | "file" | "audio",
+      uri: att.uri,
+      name: att.name,
+      size: att.size,
+    }));
 
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -142,10 +156,12 @@ export default function ChatScreen() {
       timestamp: new Date(),
       isCurrentUser: true,
       status: "sending",
+      attachments: messageAttachments.length > 0 ? messageAttachments : undefined,
     };
 
     setMessages((prev) => [...prev, newMessage]);
     setInputText("");
+    setPendingAttachments([]);
 
     setTimeout(() => {
       setMessages((prev) =>
@@ -162,7 +178,18 @@ export default function ChatScreen() {
         ),
       );
     }, 1500);
-  }, [inputText]);
+  }, [inputText, pendingAttachments]);
+
+  const handleAttachmentsSelected = useCallback((attachments: Attachment[]) => {
+    setPendingAttachments((prev) => {
+      const combined = [...prev, ...attachments];
+      return combined.slice(0, 10); // Max 10 attachments
+    });
+  }, []);
+
+  const handleRemoveAttachment = useCallback((id: string) => {
+    setPendingAttachments((prev) => prev.filter((att) => att.id !== id));
+  }, []);
 
   const handleReaction = useCallback((messageId: string, emoji: string) => {
     setMessages((prev) =>
@@ -358,18 +385,34 @@ export default function ChatScreen() {
           </View>
         )}
 
+        {/* Attachment Preview */}
+        <AttachmentPreviewStrip
+          attachments={pendingAttachments}
+          onRemove={handleRemoveAttachment}
+        />
+
         <View
           className={`
-            flex-row items-center px-4 py-3 border-t
+            flex-row items-center px-4 py-3 ${pendingAttachments.length === 0 ? "border-t" : ""}
             ${isDark ? "bg-dark-800 border-dark-700" : "bg-white border-gray-200"}
           `}
         >
-          <TouchableOpacity className="mr-3">
+          <TouchableOpacity
+            className="mr-3"
+            onPress={() => setShowAttachmentPicker(true)}
+          >
             <Ionicons
               name="add-circle-outline"
               size={28}
-              color={isDark ? "#80848e" : "#6b7280"}
+              color={pendingAttachments.length > 0 ? "#5865f2" : isDark ? "#80848e" : "#6b7280"}
             />
+            {pendingAttachments.length > 0 && (
+              <View className="absolute -top-1 -right-1 w-4 h-4 bg-brand rounded-full items-center justify-center">
+                <Text className="text-white text-[10px] font-bold">
+                  {pendingAttachments.length}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
 
           <View
@@ -382,7 +425,7 @@ export default function ChatScreen() {
               className={`flex-1 text-base ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
-              placeholder="Type a message..."
+              placeholder={pendingAttachments.length > 0 ? "Add a caption..." : "Type a message..."}
               placeholderTextColor={isDark ? "#80848e" : "#9ca3af"}
               value={inputText}
               onChangeText={setInputText}
@@ -400,17 +443,17 @@ export default function ChatScreen() {
 
           <TouchableOpacity
             onPress={sendMessage}
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() && pendingAttachments.length === 0}
             className={`
               w-10 h-10 rounded-full items-center justify-center
-              ${inputText.trim() ? "bg-brand" : isDark ? "bg-dark-700" : "bg-gray-200"}
+              ${inputText.trim() || pendingAttachments.length > 0 ? "bg-brand" : isDark ? "bg-dark-700" : "bg-gray-200"}
             `}
           >
             <Ionicons
               name="send"
               size={20}
               color={
-                inputText.trim() ? "white" : isDark ? "#4e5058" : "#9ca3af"
+                inputText.trim() || pendingAttachments.length > 0 ? "white" : isDark ? "#4e5058" : "#9ca3af"
               }
             />
           </TouchableOpacity>
@@ -477,6 +520,14 @@ export default function ChatScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Attachment Picker Modal */}
+      <AttachmentPicker
+        visible={showAttachmentPicker}
+        onClose={() => setShowAttachmentPicker(false)}
+        onAttachmentsSelected={handleAttachmentsSelected}
+        maxAttachments={10 - pendingAttachments.length}
+      />
     </SafeAreaView>
   );
 }
