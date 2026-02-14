@@ -85,14 +85,13 @@ const mockMessages: Message[] = [
 ];
 
 export default function ChatScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  useLocalSearchParams<{ id: string }>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const flatListRef = useRef<FlatList>(null);
 
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [inputText, setInputText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
 
   const otherParticipant = mockParticipants.find((p) => p.id !== "2");
 

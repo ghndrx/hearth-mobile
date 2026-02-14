@@ -1,4 +1,4 @@
-import { View, Text, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LoadingSpinner } from "../components/ui";
 

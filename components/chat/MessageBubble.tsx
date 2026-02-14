@@ -35,7 +35,6 @@ interface MessageBubbleProps {
   message: Message;
   showAvatar?: boolean;
   onReaction?: (messageId: string, emoji: string) => void;
-  onReply?: (message: Message) => void;
   onLongPress?: (message: Message) => void;
   consecutive?: boolean;
 }
@@ -44,7 +43,6 @@ export function MessageBubble({
   message,
   showAvatar = true,
   onReaction,
-  onReply,
   onLongPress,
   consecutive = false,
 }: MessageBubbleProps) {
@@ -318,14 +316,12 @@ export function MessageBubble({
 interface MessageGroupProps {
   messages: Message[];
   onReaction?: (messageId: string, emoji: string) => void;
-  onReply?: (message: Message) => void;
   onLongPress?: (message: Message) => void;
 }
 
 export function MessageGroup({
   messages,
   onReaction,
-  onReply,
   onLongPress,
 }: MessageGroupProps) {
   return (
@@ -344,7 +340,6 @@ export function MessageGroup({
             message={message}
             showAvatar={!isConsecutive}
             onReaction={onReaction}
-            onReply={onReply}
             onLongPress={onLongPress}
             consecutive={isConsecutive}
           />

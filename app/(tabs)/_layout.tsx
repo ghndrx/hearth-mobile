@@ -1,9 +1,10 @@
-import { Tabs } from 'expo-router';
-import { useColorScheme } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from "expo-router";
+import React from "react";
+import { useColorScheme } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 type TabIconProps = {
-  name: React.ComponentProps<typeof Ionicons>['name'];
+  name: React.ComponentProps<typeof Ionicons>["name"];
   color: string;
   size: number;
 };
@@ -14,13 +15,13 @@ function TabIcon({ name, color, size }: TabIconProps) {
 
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
 
   const colors = {
-    background: isDark ? '#1e1f22' : '#ffffff',
-    border: isDark ? '#2b2d31' : '#e5e7eb',
-    inactive: isDark ? '#949ba4' : '#6b7280',
-    active: isDark ? '#5865f2' : '#4f46e5',
+    background: isDark ? "#1e1f22" : "#ffffff",
+    border: isDark ? "#2b2d31" : "#e5e7eb",
+    inactive: isDark ? "#949ba4" : "#6b7280",
+    active: isDark ? "#5865f2" : "#4f46e5",
   };
 
   return (
@@ -39,14 +40,14 @@ export default function TabsLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '500',
+          fontWeight: "500",
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Servers',
+          title: "Servers",
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="planet-outline" color={color} size={size} />
           ),
@@ -55,7 +56,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dms"
         options={{
-          title: 'DMs',
+          title: "DMs",
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="chatbubbles-outline" color={color} size={size} />
           ),
@@ -64,7 +65,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="notifications"
         options={{
-          title: 'Notifications',
+          title: "Notifications",
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="notifications-outline" color={color} size={size} />
           ),
@@ -73,7 +74,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="person-outline" color={color} size={size} />
           ),

@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, Badge } from "../../components/ui";
+import { Avatar } from "../../components/ui";
 
 interface Notification {
   id: string;
@@ -276,7 +276,7 @@ export default function NotificationsScreen() {
                 isDark ? "text-dark-400" : "text-gray-400"
               }`}
             >
-              You're all caught up!
+              You&apos;re all caught up!
             </Text>
           </View>
         )}

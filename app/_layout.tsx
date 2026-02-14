@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, useColorScheme } from "react-native";
+import { View, useColorScheme } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

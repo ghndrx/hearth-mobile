@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, SearchInput, Card } from "../../components/ui";
+import { Avatar, SearchInput } from "../../components/ui";
 
 interface Server {
   id: string;

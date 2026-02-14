@@ -199,7 +199,7 @@ export default function LoginScreen() {
 
           <View className="flex-row justify-center">
             <Text className={isDark ? "text-dark-200" : "text-gray-600"}>
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
             </Text>
             <Link href="/(auth)/register" asChild>
               <Text className="text-brand font-semibold">Sign Up</Text>

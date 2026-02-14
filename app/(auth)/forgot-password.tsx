@@ -93,7 +93,7 @@ export default function ForgotPasswordScreen() {
               isDark ? "text-dark-200" : "text-gray-600"
             }`}
           >
-            We've sent a password reset link to{"\n"}
+            We&apos;ve sent a password reset link to{"\n"}
             <Text className="font-semibold">{email}</Text>
           </Text>
           <Link href="/(auth)/login" asChild>
@@ -141,7 +141,7 @@ export default function ForgotPasswordScreen() {
                 isDark ? "text-dark-200" : "text-gray-600"
               }`}
             >
-              Enter your email and we'll send you{"\n"}a reset link
+              Enter your email and we&apos;ll send you{"\n"}a reset link
             </Text>
           </View>
 

@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useColorScheme } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 interface AvatarProps {
   uri?: string;

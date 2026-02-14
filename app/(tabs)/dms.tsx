@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, SearchInput, Badge } from "../../components/ui";
+import { Avatar, SearchInput } from "../../components/ui";
 
 interface Conversation {
   id: string;
@@ -190,11 +190,6 @@ export default function DMsScreen() {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1500);
   };
-
-  const totalUnread = mockConversations.reduce(
-    (sum, conv) => sum + conv.unreadCount,
-    0,
-  );
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? "bg-dark-900" : "bg-white"}`}>

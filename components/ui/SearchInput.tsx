@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput, type TextInputProps } from "react-native";
+import { View, TextInput, type TextInputProps } from "react-native";
 import { useColorScheme } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 

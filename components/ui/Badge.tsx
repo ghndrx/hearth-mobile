@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, type ViewProps } from "react-native";
+import { View, Text, type ViewProps } from "react-native";
 import { useColorScheme } from "react-native";
 
 interface BadgeProps extends ViewProps {
