@@ -8,14 +8,12 @@ import {
   useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthStore } from "../../lib/stores/auth";
-import { Button, Input, PasswordInput, Alert } from "../../components/ui";
+import { Button, Input, Alert } from "../../components/ui";
 
 interface FormErrors {
   email?: string;
-  password?: string;
   general?: string;
 }
 
@@ -30,26 +28,14 @@ function validateEmail(email: string): string | undefined {
   return undefined;
 }
 
-function validatePassword(password: string): string | undefined {
-  if (!password) {
-    return "Password is required";
-  }
-  if (password.length < 6) {
-    return "Password must be at least 6 characters";
-  }
-  return undefined;
-}
-
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const login = useAuthStore((state) => state.login);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -57,43 +43,68 @@ export default function LoginScreen() {
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
 
-    const passwordError = validatePassword(password);
-    if (passwordError) newErrors.password = passwordError;
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = async () => {
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
     setErrors({});
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      await login("mock_token_123", {
-        id: "1",
-        username: "user",
-        displayName: "User",
-      });
-
-      router.replace("/(tabs)");
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setIsSuccess(true);
     } catch (error) {
       setErrors({
-        general: "Invalid email or password. Please try again.",
+        general: "Failed to send reset link. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const clearFieldError = (field: keyof FormErrors) => {
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  if (isSuccess) {
+    return (
+      <SafeAreaView className={`flex-1 ${isDark ? "bg-dark-900" : "bg-white"}`}>
+        <View className="flex-1 items-center justify-center px-6">
+          <View
+            className={`
+              w-20 h-20 
+              rounded-full 
+              items-center 
+              justify-center 
+              mb-6
+              ${isDark ? "bg-green-500/20" : "bg-green-100"}
+            `}
+          >
+            <Ionicons name="checkmark" size={40} color="#22c55e" />
+          </View>
+          <Text
+            className={`text-2xl font-bold mb-2 ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            Check your email
+          </Text>
+          <Text
+            className={`text-base text-center mb-8 ${
+              isDark ? "text-dark-200" : "text-gray-600"
+            }`}
+          >
+            We've sent a password reset link to{"\n"}
+            <Text className="font-semibold">{email}</Text>
+          </Text>
+          <Link href="/(auth)/login" asChild>
+            <Text className="text-brand font-semibold text-base">
+              Back to Sign In
+            </Text>
+          </Link>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? "bg-dark-900" : "bg-white"}`}>
@@ -113,22 +124,24 @@ export default function LoginScreen() {
                 items-center 
                 justify-center 
                 mb-4
-                ${isDark ? "bg-brand" : "bg-brand"}
+                bg-brand
               `}
             >
-              <Ionicons name="chatbubbles" size={40} color="white" />
+              <Ionicons name="lock-closed" size={40} color="white" />
             </View>
             <Text
               className={`text-3xl font-bold mb-2 ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
-              Welcome back
+              Forgot password?
             </Text>
             <Text
-              className={`text-base ${isDark ? "text-dark-200" : "text-gray-600"}`}
+              className={`text-base text-center ${
+                isDark ? "text-dark-200" : "text-gray-600"
+              }`}
             >
-              Sign in to continue to Hearth
+              Enter your email and we'll send you{"\n"}a reset link
             </Text>
           </View>
 
@@ -148,10 +161,7 @@ export default function LoginScreen() {
             label="Email"
             placeholder="Enter your email"
             value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              clearFieldError("email");
-            }}
+            onChangeText={setEmail}
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"
@@ -168,28 +178,9 @@ export default function LoginScreen() {
             }
           />
 
-          <PasswordInput
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              clearFieldError("password");
-            }}
-            autoComplete="password"
-            editable={!isSubmitting}
-            error={errors.password}
-          />
-
-          <Link href="/(auth)/forgot-password" asChild>
-            <Text className="text-brand text-sm mb-6 self-end">
-              Forgot password?
-            </Text>
-          </Link>
-
           <Button
-            title="Sign In"
-            onPress={handleLogin}
+            title="Send Reset Link"
+            onPress={handleSubmit}
             isLoading={isSubmitting}
             fullWidth
             size="lg"
@@ -198,10 +189,10 @@ export default function LoginScreen() {
 
           <View className="flex-row justify-center">
             <Text className={isDark ? "text-dark-200" : "text-gray-600"}>
-              Don't have an account?{" "}
+              Remember your password?{" "}
             </Text>
-            <Link href="/(auth)/register" asChild>
-              <Text className="text-brand font-semibold">Sign Up</Text>
+            <Link href="/(auth)/login" asChild>
+              <Text className="text-brand font-semibold">Sign In</Text>
             </Link>
           </View>
         </ScrollView>
