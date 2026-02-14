@@ -8,7 +8,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar, SearchInput } from "../../components/ui";
 
@@ -63,6 +63,7 @@ function ServerItem({ server, isDark }: { server: Server; isDark: boolean }) {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
+      onPress={() => router.push(`/(tabs)/server/${server.id}`)}
       className={`
         flex-row 
         items-center 

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
+  Modal,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, router } from "expo-router";
@@ -85,13 +87,47 @@ const mockMessages: Message[] = [
 ];
 
 export default function ChatScreen() {
-  useLocalSearchParams<{ id: string }>();
+  const { id, server } = useLocalSearchParams<{
+    id: string;
+    server?: string;
+  }>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const flatListRef = useRef<FlatList>(null);
 
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [inputText, setInputText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [showReactionModal, setShowReactionModal] = useState(false);
+  const typingAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsTyping(true);
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(typingAnimation, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(typingAnimation, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+
+      setTimeout(() => {
+        setIsTyping(false);
+        typingAnimation.stopAnimation();
+      }, 3000);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const otherParticipant = mockParticipants.find((p) => p.id !== "2");
 
@@ -128,6 +164,54 @@ export default function ChatScreen() {
     }, 1500);
   }, [inputText]);
 
+  const handleReaction = useCallback((messageId: string, emoji: string) => {
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id !== messageId) return msg;
+
+        const existingReactions = msg.reactions || [];
+        const existingIndex = existingReactions.findIndex(
+          (r) => r.emoji === emoji,
+        );
+
+        if (existingIndex >= 0) {
+          const reaction = existingReactions[existingIndex];
+          if (reaction.userReacted) {
+            return {
+              ...msg,
+              reactions: existingReactions.filter((r) => r.emoji !== emoji),
+            };
+          } else {
+            const updatedReactions = [...existingReactions];
+            updatedReactions[existingIndex] = {
+              ...reaction,
+              count: reaction.count + 1,
+              userReacted: true,
+            };
+            return { ...msg, reactions: updatedReactions };
+          }
+        } else {
+          return {
+            ...msg,
+            reactions: [
+              ...existingReactions,
+              { emoji, count: 1, userReacted: true },
+            ],
+          };
+        }
+      }),
+    );
+    setShowReactionModal(false);
+    setSelectedMessage(null);
+  }, []);
+
+  const handleLongPress = useCallback((message: Message) => {
+    setSelectedMessage(message);
+    setShowReactionModal(true);
+  }, []);
+
+  const commonEmojis = ["👍", "❤️", "😂", "😮", "😢", "🎉", "🔥", "👏"];
+
   const renderMessage = useCallback(
     ({ item, index }: { item: Message; index: number }) => {
       const prevMessage = index > 0 ? messages[index - 1] : null;
@@ -142,10 +226,12 @@ export default function ChatScreen() {
           message={item}
           showAvatar={!isConsecutive}
           consecutive={isConsecutive}
+          onReaction={handleReaction}
+          onLongPress={handleLongPress}
         />
       );
     },
-    [messages],
+    [messages, handleReaction, handleLongPress],
   );
 
   return (
@@ -236,6 +322,42 @@ export default function ChatScreen() {
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
 
+        {isTyping && (
+          <View className={`px-4 py-2 ${isDark ? "bg-dark-900" : "bg-white"}`}>
+            <View className="flex-row items-center">
+              <Text
+                className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
+              >
+                Sarah is typing
+              </Text>
+              <View className="flex-row ml-1">
+                {[0, 1, 2].map((i) => (
+                  <Animated.View
+                    key={i}
+                    className={`w-1.5 h-1.5 rounded-full mx-0.5 ${isDark ? "bg-dark-400" : "bg-gray-400"}`}
+                    style={{
+                      opacity: typingAnimation.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: [0.3, 1, 0.3],
+                        extrapolate: "clamp",
+                      }),
+                      transform: [
+                        {
+                          translateY: typingAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -3],
+                            extrapolate: "clamp",
+                          }),
+                        },
+                      ],
+                    }}
+                  />
+                ))}
+              </View>
+            </View>
+          </View>
+        )}
+
         <View
           className={`
             flex-row items-center px-4 py-3 border-t
@@ -294,6 +416,67 @@ export default function ChatScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      <Modal
+        visible={showReactionModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowReactionModal(false)}
+      >
+        <TouchableOpacity
+          className="flex-1 bg-black/50 justify-center items-center"
+          activeOpacity={1}
+          onPress={() => setShowReactionModal(false)}
+        >
+          <View
+            className={`
+              rounded-2xl p-4 mx-8
+              ${isDark ? "bg-dark-800" : "bg-white"}
+            `}
+          >
+            <Text
+              className={`text-center mb-4 font-semibold ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Add Reaction
+            </Text>
+            <View className="flex-row flex-wrap justify-center">
+              {commonEmojis.map((emoji) => (
+                <TouchableOpacity
+                  key={emoji}
+                  onPress={() =>
+                    selectedMessage && handleReaction(selectedMessage.id, emoji)
+                  }
+                  className={`
+                    w-12 h-12 rounded-full items-center justify-center m-1
+                    ${isDark ? "bg-dark-700" : "bg-gray-100"}
+                  `}
+                >
+                  <Text className="text-2xl">{emoji}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {selectedMessage && (
+              <View className="mt-4 pt-4 border-t border-dark-700">
+                <TouchableOpacity
+                  onPress={() => {
+                    setMessages((prev) =>
+                      prev.filter((m) => m.id !== selectedMessage.id),
+                    );
+                    setShowReactionModal(false);
+                    setSelectedMessage(null);
+                  }}
+                  className="flex-row items-center justify-center py-2"
+                >
+                  <Ionicons name="trash-outline" size={20} color="#ef4444" />
+                  <Text className="text-red-500 ml-2">Delete Message</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }

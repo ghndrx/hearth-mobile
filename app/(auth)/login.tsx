@@ -6,10 +6,12 @@ import {
   Platform,
   ScrollView,
   useColorScheme,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import * as LocalAuthentication from "expo-local-authentication";
 import { useAuthStore } from "../../lib/stores/auth";
 import { Button, Input, PasswordInput, Alert } from "../../components/ui";
 
@@ -88,6 +90,59 @@ export default function LoginScreen() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleBiometricLogin = async () => {
+    try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      if (!compatible) {
+        setErrors({
+          general: "Biometric authentication is not available on this device.",
+        });
+        return;
+      }
+
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!enrolled) {
+        setErrors({
+          general:
+            "No biometric credentials found. Please set up biometrics first.",
+        });
+        return;
+      }
+
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to login",
+        fallbackLabel: "Use password",
+      });
+
+      if (result.success) {
+        await login("mock_token_123", {
+          id: "1",
+          username: "user",
+          displayName: "User",
+          email: "user@example.com",
+        });
+        router.replace("/(tabs)");
+      }
+    } catch (error) {
+      setErrors({
+        general: "Biometric authentication failed. Please try again.",
+      });
+    }
+  };
+
+  const handleSocialLogin = (provider: string) => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      login("mock_token_123", {
+        id: "1",
+        username: "user",
+        displayName: "User",
+        email: "user@example.com",
+      });
+      router.replace("/(tabs)");
+    }, 1000);
   };
 
   const clearFieldError = (field: keyof FormErrors) => {
@@ -194,8 +249,84 @@ export default function LoginScreen() {
             isLoading={isSubmitting}
             fullWidth
             size="lg"
-            className="mb-6"
+            className="mb-4"
           />
+
+          <TouchableOpacity
+            onPress={handleBiometricLogin}
+            className={`
+              flex-row items-center justify-center 
+              py-3 px-4 rounded-xl mb-6
+              ${isDark ? "bg-dark-800" : "bg-gray-100"}
+            `}
+          >
+            <Ionicons
+              name="finger-print-outline"
+              size={24}
+              color={isDark ? "#80848e" : "#6b7280"}
+            />
+            <Text
+              className={`ml-2 font-medium ${
+                isDark ? "text-dark-200" : "text-gray-600"
+              }`}
+            >
+              Login with Biometrics
+            </Text>
+          </TouchableOpacity>
+
+          <View className="flex-row items-center mb-6">
+            <View
+              className={`flex-1 h-px ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
+            />
+            <Text
+              className={`mx-4 text-sm ${isDark ? "text-dark-400" : "text-gray-400"}`}
+            >
+              or continue with
+            </Text>
+            <View
+              className={`flex-1 h-px ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
+            />
+          </View>
+
+          <View className="flex-row justify-center space-x-4 mb-6">
+            <TouchableOpacity
+              onPress={() => handleSocialLogin("google")}
+              disabled={isSubmitting}
+              className={`
+                w-14 h-14 rounded-full items-center justify-center
+                ${isDark ? "bg-dark-800" : "bg-white"}
+                border ${isDark ? "border-dark-700" : "border-gray-200"}
+              `}
+            >
+              <Ionicons name="logo-google" size={24} color="#DB4437" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleSocialLogin("apple")}
+              disabled={isSubmitting}
+              className={`
+                w-14 h-14 rounded-full items-center justify-center
+                ${isDark ? "bg-dark-800" : "bg-white"}
+                border ${isDark ? "border-dark-700" : "border-gray-200"}
+              `}
+            >
+              <Ionicons
+                name="logo-apple"
+                size={24}
+                color={isDark ? "#ffffff" : "#000000"}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleSocialLogin("discord")}
+              disabled={isSubmitting}
+              className={`
+                w-14 h-14 rounded-full items-center justify-center
+                ${isDark ? "bg-dark-800" : "bg-white"}
+                border ${isDark ? "border-dark-700" : "border-gray-200"}
+              `}
+            >
+              <Ionicons name="logo-discord" size={24} color="#5865F2" />
+            </TouchableOpacity>
+          </View>
 
           <View className="flex-row justify-center">
             <Text className={isDark ? "text-dark-200" : "text-gray-600"}>
