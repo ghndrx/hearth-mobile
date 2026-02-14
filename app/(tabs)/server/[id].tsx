@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, Badge } from "../../../components/ui";
+import { Avatar } from "../../../components/ui";
 
 interface Channel {
   id: string;
@@ -208,7 +208,7 @@ function MemberItem({
 }
 
 export default function ServerDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id: _id } = useLocalSearchParams<{ id: string }>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const [activeTab, setActiveTab] = useState<"channels" | "members">(

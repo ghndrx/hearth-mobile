@@ -132,7 +132,7 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleSocialLogin = (_provider: string) => {
     setIsSubmitting(true);
     setTimeout(() => {
       login("mock_token_123", {

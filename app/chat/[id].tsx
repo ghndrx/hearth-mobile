@@ -92,7 +92,7 @@ const mockMessages: Message[] = [
 ];
 
 export default function ChatScreen() {
-  const { id, server } = useLocalSearchParams<{
+  const { id: _id, server: _server } = useLocalSearchParams<{
     id: string;
     server?: string;
   }>();

@@ -9,12 +9,10 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
-  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
-import { Audio } from "expo-av";
 
 export interface Attachment {
   id: string;
@@ -112,7 +110,7 @@ export function AttachmentPicker({
           mimeType: asset.mimeType,
           width: asset.width,
           height: asset.height,
-          duration: asset.duration,
+          duration: asset.duration ?? undefined,
         };
         onAttachmentsSelected([attachment]);
         onClose();
@@ -146,7 +144,7 @@ export function AttachmentPicker({
           mimeType: asset.mimeType,
           width: asset.width,
           height: asset.height,
-          duration: asset.duration,
+          duration: asset.duration ?? undefined,
         }));
         onAttachmentsSelected(attachments);
         onClose();
