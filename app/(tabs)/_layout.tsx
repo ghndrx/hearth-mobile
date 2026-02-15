@@ -63,9 +63,18 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="friends"
+        options={{
+          title: "Friends",
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="people-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="notifications"
         options={{
-          title: "Notifications",
+          title: "Activity",
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="notifications-outline" color={color} size={size} />
           ),
@@ -78,6 +87,25 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <TabIcon name="person-outline" color={color} size={size} />
           ),
+        }}
+      />
+      {/* Hidden screens */}
+      <Tabs.Screen
+        name="server/[id]"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="server/settings"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
