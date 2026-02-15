@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../lib/stores/auth";
+import { useNotificationContext } from "../../lib/contexts/NotificationContext";
 import {
   ListItem,
   ListDivider,
@@ -22,10 +23,9 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const { user } = useAuthStore();
+  const { settings: notificationSettings, updateSettings, isPermissionGranted } = useNotificationContext();
 
-  const [notifications, setNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [sounds, setSounds] = useState(true);
   const [haptics, setHaptics] = useState(true);
   const [compactMode, setCompactMode] = useState(false);
   const [readReceipts, setReadReceipts] = useState(true);
@@ -108,11 +108,29 @@ export default function SettingsScreen() {
               ${isDark ? "border-dark-700" : "border-gray-200"}
             `}
           >
-            <SwitchItem
+            <ListItem
               title="Push Notifications"
-              subtitle="Receive push notifications for messages"
-              value={notifications}
-              onValueChange={setNotifications}
+              subtitle={
+                !isPermissionGranted
+                  ? "Permission required"
+                  : notificationSettings.enabled
+                    ? "Enabled"
+                    : "Disabled"
+              }
+              showChevron
+              onPress={() => router.push("/settings/notifications")}
+              leftIcon={
+                <Ionicons
+                  name="notifications-outline"
+                  size={22}
+                  color={isDark ? "#80848e" : "#6b7280"}
+                />
+              }
+              rightIcon={
+                !isPermissionGranted ? (
+                  <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
+                ) : undefined
+              }
             />
             <ListDivider />
             <SwitchItem
@@ -149,8 +167,8 @@ export default function SettingsScreen() {
             <SwitchItem
               title="Sounds"
               subtitle="Play notification sounds"
-              value={sounds}
-              onValueChange={setSounds}
+              value={notificationSettings.sounds}
+              onValueChange={(value) => updateSettings({ sounds: value })}
             />
             <ListDivider />
             <SwitchItem
