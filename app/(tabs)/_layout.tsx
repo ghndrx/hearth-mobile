@@ -72,6 +72,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="invites"
+        options={{
+          title: "Invites",
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="mail-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="notifications"
         options={{
           title: "Activity",

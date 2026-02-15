@@ -108,3 +108,17 @@ export interface VoiceChannel extends Channel {
   bitrate?: number;
   userLimit?: number;
 }
+
+export interface ServerInvite {
+  id: string;
+  server: {
+    id: string;
+    name: string;
+    icon?: string;
+    memberCount: number;
+    description?: string;
+  };
+  inviter: User;
+  expiresAt?: string;
+  createdAt: string;
+}
