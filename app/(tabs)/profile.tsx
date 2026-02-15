@@ -45,12 +45,12 @@ export default function ProfileScreen() {
   };
 
   const profileActions = [
-    { icon: "person-outline", label: "Edit Profile", onPress: () => {} },
+    { icon: "person-outline", label: "Edit Profile", onPress: () => router.push("/profile/edit") },
     { icon: "shield-outline", label: "Privacy & Safety", onPress: () => {} },
     {
       icon: "notifications-outline",
       label: "Notifications",
-      onPress: () => {},
+      onPress: () => router.push("/settings/notifications"),
     },
     { icon: "color-palette-outline", label: "Appearance", onPress: () => {} },
   ];
@@ -125,6 +125,20 @@ export default function ProfileScreen() {
           >
             @{user?.username || "username"}
           </Text>
+          {user?.bio && (
+            <Text
+              className={`
+                text-sm
+                mt-3
+                text-center
+                px-4
+                ${isDark ? "text-dark-300" : "text-gray-600"}
+              `}
+              numberOfLines={3}
+            >
+              {user.bio}
+            </Text>
+          )}
           <View className="flex-row mt-4 space-x-2">
             <Badge variant="primary" size="sm">
               Online
@@ -138,7 +152,7 @@ export default function ProfileScreen() {
             variant="secondary"
             size="sm"
             className="mt-4"
-            onPress={() => {}}
+            onPress={() => router.push("/profile/edit")}
             leftIcon={
               <Ionicons
                 name="create-outline"

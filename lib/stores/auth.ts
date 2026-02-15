@@ -7,6 +7,14 @@ interface User {
   displayName: string;
   avatar?: string;
   email: string;
+  bio?: string;
+}
+
+interface ProfileUpdate {
+  displayName?: string;
+  username?: string;
+  avatar?: string;
+  bio?: string;
 }
 
 interface AuthState {
@@ -19,6 +27,7 @@ interface AuthState {
   login: (token: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
   loadStoredAuth: () => Promise<void>;
+  updateProfile: (updates: ProfileUpdate) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, _get) => ({
@@ -54,5 +63,23 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
       console.error("Failed to load auth:", error);
       set({ isLoading: false });
     }
+  },
+
+  updateProfile: async (updates: ProfileUpdate) => {
+    const currentUser = useAuthStore.getState().user;
+    if (!currentUser) {
+      throw new Error("No user logged in");
+    }
+
+    const updatedUser: User = {
+      ...currentUser,
+      ...updates,
+    };
+
+    // Persist to secure store
+    await SecureStore.setItemAsync("user", JSON.stringify(updatedUser));
+
+    // Update state
+    set({ user: updatedUser });
   },
 }));
