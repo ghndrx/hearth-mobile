@@ -58,7 +58,7 @@ export default function ProfileScreen() {
   const supportActions = [
     { icon: "help-circle-outline", label: "Help Center", onPress: () => {} },
     { icon: "mail-outline", label: "Contact Support", onPress: () => {} },
-    { icon: "information-circle-outline", label: "About", onPress: () => {} },
+    { icon: "information-circle-outline", label: "About", onPress: () => router.push("/settings/about") },
   ];
 
   return (
