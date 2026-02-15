@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar, SearchInput } from "../../components/ui";
+import { CreateServerModal } from "../../components/server";
 
 interface Server {
   id: string;
@@ -121,8 +122,10 @@ export default function ServersScreen() {
   const isDark = colorScheme === "dark";
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [servers, setServers] = useState<Server[]>(mockServers);
 
-  const filteredServers = mockServers.filter((server) =>
+  const filteredServers = servers.filter((server) =>
     server.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -130,6 +133,18 @@ export default function ServersScreen() {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1500);
   };
+
+  const handleCreateServer = useCallback((newServer: { name: string; description: string; icon?: string; isPrivate: boolean }) => {
+    const server: Server = {
+      id: Date.now().toString(),
+      name: newServer.name,
+      icon: newServer.icon,
+      memberCount: 1,
+      unreadCount: 0,
+      isOnline: true,
+    };
+    setServers((prev) => [server, ...prev]);
+  }, []);
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? "bg-dark-900" : "bg-gray-50"}`}>
@@ -146,7 +161,7 @@ export default function ServersScreen() {
             backgroundColor: isDark ? "#1e1f22" : "#ffffff",
           },
           headerRight: () => (
-            <TouchableOpacity className="mr-4">
+            <TouchableOpacity className="mr-4" onPress={() => setShowCreateModal(true)}>
               <Ionicons
                 name="add-circle"
                 size={28}
@@ -199,6 +214,12 @@ export default function ServersScreen() {
             </Text>
           </View>
         )}
+      />
+
+      <CreateServerModal
+        visible={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreateServer={handleCreateServer}
       />
     </SafeAreaView>
   );
