@@ -54,6 +54,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="discover"
+        options={{
+          title: "Discover",
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="compass-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="dms"
         options={{
           title: "DMs",
