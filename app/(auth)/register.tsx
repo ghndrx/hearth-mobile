@@ -12,6 +12,7 @@ import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../lib/stores/auth";
 import { Button, Input, PasswordInput, Alert } from "../../components/ui";
+import * as authService from "../../lib/services/auth";
 
 interface FormErrors {
   username?: string;
@@ -123,19 +124,49 @@ export default function RegisterScreen() {
     setErrors({});
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // First register the user
+      const registerResponse = await authService.register(
+        email,
+        username,
+        password,
+        username // displayName defaults to username
+      );
 
-      await login("mock_token_123", {
-        id: "1",
-        username: username,
-        displayName: username,
-        email: email,
-      });
+      if (registerResponse.error) {
+        setErrors({
+          general: authService.getAuthErrorMessage(registerResponse.error.code),
+        });
+        return;
+      }
 
-      router.replace("/(tabs)");
+      // If registration returned a token, use it
+      if (registerResponse.data?.token) {
+        await login(registerResponse.data.token, registerResponse.data.user);
+        router.replace("/(tabs)");
+        return;
+      }
+
+      // Otherwise, log in with the new credentials
+      const loginResponse = await authService.login(email, password);
+
+      if (loginResponse.error) {
+        // Registration succeeded but login failed - redirect to login page
+        setErrors({
+          general: "Account created! Please log in.",
+        });
+        setTimeout(() => {
+          router.replace("/(auth)/login");
+        }, 1500);
+        return;
+      }
+
+      if (loginResponse.data) {
+        await login(loginResponse.data.token, loginResponse.data.user);
+        router.replace("/(tabs)");
+      }
     } catch (error) {
       setErrors({
-        general: "Registration failed. Please try again.",
+        general: "An unexpected error occurred. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -188,7 +219,7 @@ export default function RegisterScreen() {
           {errors.general && (
             <View className="mb-6">
               <Alert
-                variant="error"
+                variant={errors.general.includes("created") ? "success" : "error"}
                 message={errors.general}
                 onClose={() =>
                   setErrors((prev) => ({ ...prev, general: undefined }))

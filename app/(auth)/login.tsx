@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useAuthStore } from "../../lib/stores/auth";
 import { Button, Input, PasswordInput, Alert } from "../../components/ui";
+import * as authService from "../../lib/services/auth";
 
 interface FormErrors {
   email?: string;
@@ -73,19 +74,22 @@ export default function LoginScreen() {
     setErrors({});
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await authService.login(email, password);
 
-      await login("mock_token_123", {
-        id: "1",
-        username: "user",
-        displayName: "User",
-        email: email,
-      });
+      if (response.error) {
+        setErrors({
+          general: authService.getAuthErrorMessage(response.error.code),
+        });
+        return;
+      }
 
-      router.replace("/(tabs)");
+      if (response.data) {
+        await login(response.data.token, response.data.user);
+        router.replace("/(tabs)");
+      }
     } catch (error) {
       setErrors({
-        general: "Invalid email or password. Please try again.",
+        general: "An unexpected error occurred. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -117,13 +121,11 @@ export default function LoginScreen() {
       });
 
       if (result.success) {
-        await login("mock_token_123", {
-          id: "1",
-          username: "user",
-          displayName: "User",
-          email: "user@example.com",
+        // Biometric login would use stored credentials
+        // For now, show a message that this requires a saved session
+        setErrors({
+          general: "Please log in with email and password first to enable biometric login.",
         });
-        router.replace("/(tabs)");
       }
     } catch (error) {
       setErrors({
@@ -133,16 +135,10 @@ export default function LoginScreen() {
   };
 
   const handleSocialLogin = (_provider: string) => {
-    setIsSubmitting(true);
-    setTimeout(() => {
-      login("mock_token_123", {
-        id: "1",
-        username: "user",
-        displayName: "User",
-        email: "user@example.com",
-      });
-      router.replace("/(tabs)");
-    }, 1000);
+    // OAuth not yet implemented on backend
+    setErrors({
+      general: "Social login is not yet available.",
+    });
   };
 
   const clearFieldError = (field: keyof FormErrors) => {
