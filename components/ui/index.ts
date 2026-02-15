@@ -9,3 +9,12 @@ export { ListItem, ListSection, ListDivider } from "./List";
 export { SwitchItem } from "./Switch";
 export { Badge, NotificationBadge } from "./Badge";
 export { SearchInput } from "./SearchInput";
+
+// Settings components
+export {
+  SettingsScreen,
+  type SettingsScreenProps,
+  type SettingsSection,
+  type SettingsItem,
+  type SettingsHeaderProps,
+} from "../settings";
