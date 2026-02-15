@@ -11,8 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, SearchInput } from "../ui";
-import { CreateServerModal } from "./CreateServerModal";
+import { Avatar, SearchInput, Button } from "../ui";
 import type { Server } from "../../lib/types";
 
 interface ServerItemProps {
@@ -24,11 +23,7 @@ interface ServerItemProps {
 function ServerIcon({ server, isDark }: { server: Server; isDark: boolean }) {
   return (
     <View className="relative">
-      <Avatar
-        uri={server.icon}
-        name={server.name}
-        size="lg"
-      />
+      <Avatar uri={server.icon} name={server.name} size="lg" />
       {/* Online indicator dot */}
       <View
         className={`
@@ -80,7 +75,7 @@ function ServerItem({ server, isDark, onPress }: ServerItemProps) {
       `}
     >
       <ServerIcon server={server} isDark={isDark} />
-      
+
       <View className="flex-1 ml-4">
         <View className="flex-row items-center">
           <Text
@@ -92,7 +87,7 @@ function ServerItem({ server, isDark, onPress }: ServerItemProps) {
             {server.name}
           </Text>
         </View>
-        
+
         <View className="flex-row items-center mt-1">
           <Ionicons
             name="people-outline"
@@ -107,6 +102,17 @@ function ServerItem({ server, isDark, onPress }: ServerItemProps) {
             {server.memberCount.toLocaleString()} members
           </Text>
         </View>
+
+        {server.description && (
+          <Text
+            className={`text-xs mt-1 ${
+              isDark ? "text-dark-500" : "text-gray-400"
+            }`}
+            numberOfLines={1}
+          >
+            {server.description}
+          </Text>
+        )}
       </View>
 
       {server.unreadCount > 0 ? (
@@ -122,7 +128,13 @@ function ServerItem({ server, isDark, onPress }: ServerItemProps) {
   );
 }
 
-function EmptyState({ isDark, hasSearch }: { isDark: boolean; hasSearch: boolean }) {
+function EmptyState({
+  isDark,
+  hasSearch,
+}: {
+  isDark: boolean;
+  hasSearch: boolean;
+}) {
   return (
     <View className="items-center justify-center py-20 px-8">
       <View
@@ -206,6 +218,59 @@ function CreateServerButton({ isDark, onPress }: CreateServerButtonProps) {
   );
 }
 
+interface DiscoverServersButtonProps {
+  isDark: boolean;
+  onPress: () => void;
+}
+
+function DiscoverServersButton({
+  isDark,
+  onPress,
+}: DiscoverServersButtonProps) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={onPress}
+      className={`
+        flex-row 
+        items-center 
+        justify-center
+        p-4 
+        mx-4 
+        mb-3 
+        rounded-xl
+        ${isDark ? "bg-dark-800" : "bg-white"}
+        border
+        ${isDark ? "border-dark-700" : "border-gray-200"}
+      `}
+    >
+      <View
+        className={`
+          w-12 h-12 rounded-full items-center justify-center mr-3
+          ${isDark ? "bg-green-500/20" : "bg-green-500/10"}
+        `}
+      >
+        <Ionicons name="compass-outline" size={28} color="#22c55e" />
+      </View>
+      <View className="flex-1">
+        <Text
+          className={`text-base font-semibold ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
+        >
+          Discover Servers
+        </Text>
+        <Text
+          className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
+        >
+          Find communities to join
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={20} color="#22c55e" />
+    </TouchableOpacity>
+  );
+}
+
 interface ServerListScreenProps {
   /** Initial list of servers to display */
   servers?: Server[];
@@ -213,42 +278,51 @@ interface ServerListScreenProps {
   onServerPress?: (server: Server) => void;
   /** Callback when refresh is triggered */
   onRefresh?: () => Promise<void>;
-  /** Callback when a new server is created */
-  onServerCreated?: (server: { name: string; description: string; icon?: string; isPrivate: boolean }) => void;
+  /** Callback when create server button is pressed */
+  onCreateServer?: () => void;
+  /** Callback when discover servers button is pressed */
+  onDiscoverServers?: () => void;
   /** Whether the list is currently loading */
   isLoading?: boolean;
   /** Whether to show the search bar */
   showSearch?: boolean;
   /** Whether to show the create server button in the list */
   showCreateButton?: boolean;
+  /** Whether to show the discover servers button */
+  showDiscoverButton?: boolean;
   /** Header component to render at the top */
   ListHeaderComponent?: React.ComponentType | React.ReactElement | null;
+  /** Screen title */
+  title?: string;
 }
 
 export function ServerListScreen({
   servers = [],
   onServerPress,
   onRefresh,
-  onServerCreated,
+  onCreateServer,
+  onDiscoverServers,
   isLoading = false,
   showSearch = true,
   showCreateButton = true,
+  showDiscoverButton = true,
   ListHeaderComponent,
+  title = "Servers",
 }: ServerListScreenProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const filteredServers = useMemo(() => {
     if (!searchQuery.trim()) return servers;
-    
+
     const query = searchQuery.toLowerCase().trim();
-    return servers.filter((server) =>
-      server.name.toLowerCase().includes(query) ||
-      server.description?.toLowerCase().includes(query)
+    return servers.filter(
+      (server) =>
+        server.name.toLowerCase().includes(query) ||
+        server.description?.toLowerCase().includes(query),
     );
   }, [servers, searchQuery]);
 
@@ -263,6 +337,10 @@ export function ServerListScreen({
     });
   }, [filteredServers]);
 
+  const totalUnreadCount = useMemo(() => {
+    return servers.reduce((sum, server) => sum + (server.unreadCount || 0), 0);
+  }, [servers]);
+
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -272,23 +350,59 @@ export function ServerListScreen({
     }
   }, [onRefresh]);
 
-  const handleCreateServer = useCallback(
-    (newServer: { name: string; description: string; icon?: string; isPrivate: boolean }) => {
-      onServerCreated?.(newServer);
-      setShowCreateModal(false);
-    },
-    [onServerCreated]
-  );
+  const handleCreateServer = useCallback(() => {
+    if (onCreateServer) {
+      onCreateServer();
+    } else {
+      router.push("/server/create");
+    }
+  }, [onCreateServer]);
+
+  const handleDiscoverServers = useCallback(() => {
+    if (onDiscoverServers) {
+      onDiscoverServers();
+    } else {
+      router.push("/(tabs)/discover");
+    }
+  }, [onDiscoverServers]);
 
   const renderHeader = useCallback(() => {
     return (
       <View>
-        {ListHeaderComponent && (
-          typeof ListHeaderComponent === 'function' 
-            ? <ListHeaderComponent /> 
-            : ListHeaderComponent
-        )}
-        
+        {/* Title Section */}
+        <View className="px-4 pt-4 pb-2">
+          <View className="flex-row items-center justify-between">
+            <Text
+              className={`text-2xl font-bold ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
+              {title}
+            </Text>
+            {totalUnreadCount > 0 && (
+              <View className="bg-brand rounded-full px-3 py-1">
+                <Text className="text-white text-sm font-semibold">
+                  {totalUnreadCount > 99 ? "99+" : totalUnreadCount} unread
+                </Text>
+              </View>
+            )}
+          </View>
+          <Text
+            className={`text-sm mt-1 ${
+              isDark ? "text-dark-400" : "text-gray-500"
+            }`}
+          >
+            {servers.length} server{servers.length !== 1 ? "s" : ""}
+          </Text>
+        </View>
+
+        {ListHeaderComponent &&
+          (typeof ListHeaderComponent === "function" ? (
+            <ListHeaderComponent />
+          ) : (
+            ListHeaderComponent
+          ))}
+
         {showSearch && (
           <View className="px-4 py-3">
             <SearchInput
@@ -298,14 +412,18 @@ export function ServerListScreen({
             />
           </View>
         )}
-        
-        {showCreateButton && (
-          <CreateServerButton
+
+        {showDiscoverButton && (
+          <DiscoverServersButton
             isDark={isDark}
-            onPress={() => setShowCreateModal(true)}
+            onPress={handleDiscoverServers}
           />
         )}
-        
+
+        {showCreateButton && (
+          <CreateServerButton isDark={isDark} onPress={handleCreateServer} />
+        )}
+
         {sortedServers.length > 0 && (
           <View className="px-4 pb-2 pt-1">
             <Text
@@ -324,8 +442,14 @@ export function ServerListScreen({
     showSearch,
     searchQuery,
     showCreateButton,
+    showDiscoverButton,
     isDark,
     sortedServers.length,
+    servers.length,
+    totalUnreadCount,
+    title,
+    handleCreateServer,
+    handleDiscoverServers,
   ]);
 
   if (isLoading && servers.length === 0) {
@@ -337,9 +461,7 @@ export function ServerListScreen({
         edges={["bottom"]}
       >
         <ActivityIndicator size="large" color="#5865f2" />
-        <Text
-          className={`mt-4 ${isDark ? "text-dark-400" : "text-gray-500"}`}
-        >
+        <Text className={`mt-4 ${isDark ? "text-dark-400" : "text-gray-500"}`}>
           Loading servers...
         </Text>
       </SafeAreaView>
@@ -347,16 +469,15 @@ export function ServerListScreen({
   }
 
   return (
-    <View className={`flex-1 ${isDark ? "bg-dark-900" : "bg-gray-50"}`}>
+    <SafeAreaView
+      className={`flex-1 ${isDark ? "bg-dark-900" : "bg-gray-50"}`}
+      edges={["bottom"]}
+    >
       <FlatList
         data={sortedServers}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ServerItem
-            server={item}
-            isDark={isDark}
-            onPress={onServerPress}
-          />
+          <ServerItem server={item} isDark={isDark} onPress={onServerPress} />
         )}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
@@ -373,13 +494,7 @@ export function ServerListScreen({
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       />
-
-      <CreateServerModal
-        visible={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreateServer={handleCreateServer}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
 

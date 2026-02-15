@@ -1,226 +1,73 @@
-import { useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  useColorScheme,
-  RefreshControl,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Stack, router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { Avatar, SearchInput } from "../../components/ui";
-import { CreateServerModal } from "../../components/server";
-
-interface Server {
-  id: string;
-  name: string;
-  icon?: string;
-  memberCount: number;
-  unreadCount: number;
-  isOnline: boolean;
-}
+import { useState } from "react";
+import { ServerListScreen } from "../../components/server";
+import type { Server } from "../../lib/types";
 
 const mockServers: Server[] = [
   {
     id: "1",
     name: "Gaming Hub",
+    description: "A community for gamers to connect and play together",
     memberCount: 1234,
     unreadCount: 5,
     isOnline: true,
+    ownerId: "owner1",
+    createdAt: new Date().toISOString(),
   },
   {
     id: "2",
     name: "Tech Talk",
+    description: "Discuss the latest in technology and programming",
     memberCount: 567,
     unreadCount: 0,
     isOnline: true,
+    ownerId: "owner2",
+    createdAt: new Date().toISOString(),
   },
   {
     id: "3",
     name: "Design Community",
+    description: "Share your designs and get feedback",
     memberCount: 890,
     unreadCount: 12,
     isOnline: false,
+    ownerId: "owner3",
+    createdAt: new Date().toISOString(),
   },
   {
     id: "4",
     name: "Music Lovers",
+    description: "For music enthusiasts and artists",
     memberCount: 2345,
     unreadCount: 0,
     isOnline: true,
+    ownerId: "owner4",
+    createdAt: new Date().toISOString(),
   },
   {
     id: "5",
     name: "Book Club",
+    description: "Discuss your favorite books and discover new ones",
     memberCount: 456,
     unreadCount: 3,
     isOnline: false,
+    ownerId: "owner5",
+    createdAt: new Date().toISOString(),
   },
 ];
 
-function ServerItem({ server, isDark }: { server: Server; isDark: boolean }) {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={() => router.push(`/(tabs)/server/${server.id}`)}
-      className={`
-        flex-row 
-        items-center 
-        p-4 
-        mx-4 
-        mb-3 
-        rounded-xl
-        ${isDark ? "bg-dark-800" : "bg-white"}
-        border
-        ${isDark ? "border-dark-700" : "border-gray-200"}
-      `}
-    >
-      <Avatar
-        uri={server.icon}
-        name={server.name}
-        size="lg"
-        status={server.isOnline ? "online" : "offline"}
-        showStatus
-      />
-      <View className="flex-1 ml-4">
-        <Text
-          className={`text-base font-semibold ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {server.name}
-        </Text>
-        <Text
-          className={`text-sm mt-0.5 ${
-            isDark ? "text-dark-400" : "text-gray-500"
-          }`}
-        >
-          {server.memberCount.toLocaleString()} members
-        </Text>
-      </View>
-      {server.unreadCount > 0 ? (
-        <View className="bg-brand rounded-full min-w-[24px] h-6 items-center justify-center px-2">
-          <Text className="text-white text-xs font-bold">
-            {server.unreadCount > 99 ? "99+" : server.unreadCount}
-          </Text>
-        </View>
-      ) : (
-        <Ionicons
-          name="chevron-forward"
-          size={20}
-          color={isDark ? "#80848e" : "#9ca3af"}
-        />
-      )}
-    </TouchableOpacity>
-  );
-}
-
-export default function ServersScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  const [searchQuery, setSearchQuery] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+export default function ServersPage() {
   const [servers, setServers] = useState<Server[]>(mockServers);
 
-  const filteredServers = servers.filter((server) =>
-    server.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1500);
+  const handleRefresh = async () => {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
   };
 
-  const handleCreateServer = useCallback((newServer: { name: string; description: string; icon?: string; isPrivate: boolean }) => {
-    const server: Server = {
-      id: Date.now().toString(),
-      name: newServer.name,
-      icon: newServer.icon,
-      memberCount: 1,
-      unreadCount: 0,
-      isOnline: true,
-    };
-    setServers((prev) => [server, ...prev]);
-  }, []);
-
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? "bg-dark-900" : "bg-gray-50"}`}>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          headerTitle: "Servers",
-          headerTitleStyle: {
-            color: isDark ? "#ffffff" : "#111827",
-            fontSize: 20,
-            fontWeight: "bold",
-          },
-          headerStyle: {
-            backgroundColor: isDark ? "#1e1f22" : "#ffffff",
-          },
-          headerRight: () => (
-            <TouchableOpacity className="mr-4" onPress={() => setShowCreateModal(true)}>
-              <Ionicons
-                name="add-circle"
-                size={28}
-                color={isDark ? "#5865f2" : "#4f46e5"}
-              />
-            </TouchableOpacity>
-          ),
-        }}
-      />
-
-      <View className="px-4 py-4">
-        <SearchInput
-          placeholder="Search servers..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-      </View>
-
-      <FlatList
-        data={filteredServers}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ServerItem server={item} isDark={isDark} />}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={isDark ? "#5865f2" : "#4f46e5"}
-          />
-        }
-        ListEmptyComponent={() => (
-          <View className="items-center justify-center py-20">
-            <Ionicons
-              name="planet-outline"
-              size={64}
-              color={isDark ? "#4e5058" : "#d1d5db"}
-            />
-            <Text
-              className={`mt-4 text-lg font-medium ${
-                isDark ? "text-dark-300" : "text-gray-500"
-              }`}
-            >
-              No servers found
-            </Text>
-            <Text
-              className={`mt-1 text-sm ${
-                isDark ? "text-dark-400" : "text-gray-400"
-              }`}
-            >
-              Try adjusting your search
-            </Text>
-          </View>
-        )}
-      />
-
-      <CreateServerModal
-        visible={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreateServer={handleCreateServer}
-      />
-    </SafeAreaView>
+    <ServerListScreen
+      servers={servers}
+      onRefresh={handleRefresh}
+      title="My Servers"
+    />
   );
 }
