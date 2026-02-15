@@ -84,3 +84,27 @@ export interface Notification {
   read: boolean;
   createdAt: string;
 }
+
+export interface VoiceParticipant {
+  id: string;
+  user: User;
+  isMuted: boolean;
+  isDeafened: boolean;
+  isSpeaking: boolean;
+  isScreenSharing?: boolean;
+  isVideoOn?: boolean;
+  joinedAt: Date;
+}
+
+export interface VoiceState {
+  isMuted: boolean;
+  isDeafened: boolean;
+  isConnected: boolean;
+}
+
+export interface VoiceChannel extends Channel {
+  type: "voice";
+  participants?: VoiceParticipant[];
+  bitrate?: number;
+  userLimit?: number;
+}
