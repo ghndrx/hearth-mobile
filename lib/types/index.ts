@@ -122,3 +122,24 @@ export interface ServerInvite {
   expiresAt?: string;
   createdAt: string;
 }
+
+export interface Role {
+  id: string;
+  name: string;
+  color: string;
+  position: number;
+  permissions: string[];
+  isDefault?: boolean;
+}
+
+export interface ServerMember {
+  id: string;
+  user: User;
+  serverId: string;
+  nickname?: string;
+  roles: Role[];
+  joinedAt: string;
+  isMuted?: boolean;
+  isBanned?: boolean;
+  isOwner?: boolean;
+}

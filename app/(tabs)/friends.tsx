@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, SearchInput, Button, Badge } from "../../components/ui";
+import { Avatar, SearchInput, Button } from "../../components/ui";
 
 type FriendStatus = "online" | "idle" | "dnd" | "offline";
 
@@ -324,7 +324,9 @@ function AddFriendModal({
   isDark: boolean;
 }) {
   const [username, setUsername] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
 
   const handleSendRequest = useCallback(() => {
     if (!username.trim()) return;
@@ -418,7 +420,9 @@ function AddFriendModal({
             fullWidth
             className="mt-6"
             onPress={handleSendRequest}
-            disabled={!username.trim() || status === "loading" || status === "success"}
+            disabled={
+              !username.trim() || status === "loading" || status === "success"
+            }
           />
         </View>
       </View>
@@ -437,7 +441,11 @@ export default function FriendsScreen() {
   const [requests, setRequests] = useState<FriendRequest[]>(mockRequests);
 
   const tabs: { key: TabType; label: string; count?: number }[] = [
-    { key: "online", label: "Online", count: friends.filter((f) => f.status !== "offline").length },
+    {
+      key: "online",
+      label: "Online",
+      count: friends.filter((f) => f.status !== "offline").length,
+    },
     { key: "all", label: "All", count: friends.length },
     { key: "pending", label: "Pending", count: requests.length },
     { key: "blocked", label: "Blocked" },
@@ -447,7 +455,7 @@ export default function FriendsScreen() {
     const matchesSearch =
       friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       friend.username.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     if (activeTab === "online") {
       return matchesSearch && friend.status !== "offline";
     }
@@ -483,21 +491,24 @@ export default function FriendsScreen() {
     setTimeout(() => setRefreshing(false), 1500);
   };
 
-  const handleAcceptRequest = useCallback((id: string) => {
-    const request = requests.find((r) => r.id === id);
-    if (request) {
-      const newFriend: Friend = {
-        id: `f-${id}`,
-        name: request.name,
-        username: request.username,
-        avatar: request.avatar,
-        status: "online",
-        mutualServers: 0,
-      };
-      setFriends((prev) => [newFriend, ...prev]);
-      setRequests((prev) => prev.filter((r) => r.id !== id));
-    }
-  }, [requests]);
+  const handleAcceptRequest = useCallback(
+    (id: string) => {
+      const request = requests.find((r) => r.id === id);
+      if (request) {
+        const newFriend: Friend = {
+          id: `f-${id}`,
+          name: request.name,
+          username: request.username,
+          avatar: request.avatar,
+          status: "online",
+          mutualServers: 0,
+        };
+        setFriends((prev) => [newFriend, ...prev]);
+        setRequests((prev) => prev.filter((r) => r.id !== id));
+      }
+    },
+    [requests],
+  );
 
   const handleDeclineRequest = useCallback((id: string) => {
     setRequests((prev) => prev.filter((r) => r.id !== id));
@@ -663,7 +674,7 @@ export default function FriendsScreen() {
               isDark ? "text-dark-400" : "text-gray-400"
             }`}
           >
-            You haven't blocked anyone
+            You haven&apos;t blocked anyone
           </Text>
         </View>
       ) : (
@@ -728,7 +739,9 @@ export default function FriendsScreen() {
                   size="sm"
                   className="mt-4"
                   onPress={() => setShowAddModal(true)}
-                  leftIcon={<Ionicons name="person-add" size={16} color="white" />}
+                  leftIcon={
+                    <Ionicons name="person-add" size={16} color="white" />
+                  }
                 />
               )}
             </View>
