@@ -27,8 +27,20 @@ export interface Channel {
   name: string;
   type: "text" | "voice" | "announcement";
   serverId: string;
+  categoryId?: string;
   position: number;
+  unreadCount?: number;
+  isActive?: boolean;
   createdAt: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  serverId: string;
+  position: number;
+  channels: Channel[];
+  isCollapsed?: boolean;
 }
 
 export interface Message {
