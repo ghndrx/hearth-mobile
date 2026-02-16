@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import {
   View,
   Text,
@@ -62,7 +62,11 @@ interface VoiceControlsProps {
 // Participant Item Component
 // ============================================================================
 
-function ParticipantItem({ participant, isDark, onPress }: ParticipantItemProps) {
+function ParticipantItem({
+  participant,
+  isDark,
+  onPress,
+}: ParticipantItemProps) {
   const { user, isMuted, isDeafened, isSpeaking } = participant;
 
   return (
@@ -222,7 +226,12 @@ function VoiceControls({
         activeOpacity={0.7}
         className="w-16 h-16 rounded-full items-center justify-center mx-3 bg-red-500"
       >
-        <Ionicons name="call" size={28} color="white" style={{ transform: [{ rotate: "135deg" }] }} />
+        <Ionicons
+          name="call"
+          size={28}
+          color="white"
+          style={{ transform: [{ rotate: "135deg" }] }}
+        />
         <Text className="text-[10px] mt-1 text-white">Leave</Text>
       </TouchableOpacity>
     </View>
@@ -251,7 +260,7 @@ function EmptyState({ isDark }: { isDark: boolean }) {
           isDark ? "text-dark-400" : "text-gray-500"
         }`}
       >
-        You're the only one in this voice channel. Invite friends to join!
+        You&apos;re the only one in this voice channel. Invite friends to join!
       </Text>
     </View>
   );
@@ -261,7 +270,15 @@ function EmptyState({ isDark }: { isDark: boolean }) {
 // Connection Status Component
 // ============================================================================
 
-function ConnectionStatus({ isDark, channelName, serverName }: { isDark: boolean; channelName: string; serverName: string }) {
+function ConnectionStatus({
+  isDark,
+  channelName,
+  serverName,
+}: {
+  isDark: boolean;
+  channelName: string;
+  serverName: string;
+}) {
   return (
     <View
       className={`
@@ -272,16 +289,22 @@ function ConnectionStatus({ isDark, channelName, serverName }: { isDark: boolean
       <View className="flex-row items-center">
         <View className="w-3 h-3 rounded-full bg-green-500 mr-3" />
         <View className="flex-1">
-          <Text className={`font-semibold ${isDark ? "text-green-400" : "text-green-700"}`}>
+          <Text
+            className={`font-semibold ${isDark ? "text-green-400" : "text-green-700"}`}
+          >
             Voice Connected
           </Text>
-          <Text className={`text-sm mt-0.5 ${isDark ? "text-dark-400" : "text-gray-600"}`}>
+          <Text
+            className={`text-sm mt-0.5 ${isDark ? "text-dark-400" : "text-gray-600"}`}
+          >
             {channelName} • {serverName}
           </Text>
         </View>
         <View className="flex-row items-center">
           <View className="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse" />
-          <Text className={`text-xs ${isDark ? "text-dark-400" : "text-gray-500"}`}>
+          <Text
+            className={`text-xs ${isDark ? "text-dark-400" : "text-gray-500"}`}
+          >
             Live
           </Text>
         </View>
@@ -346,7 +369,8 @@ export function VoiceChannelScreen({
               <Text
                 className={`text-xs ${isDark ? "text-dark-400" : "text-gray-500"}`}
               >
-                {participants.length} {participants.length === 1 ? "participant" : "participants"}
+                {participants.length}{" "}
+                {participants.length === 1 ? "participant" : "participants"}
               </Text>
             </View>
           ),

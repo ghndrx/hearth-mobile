@@ -202,7 +202,7 @@ export default function AboutScreen() {
                   ${isDark ? "text-white" : "text-gray-900"}
                 `}
               >
-                What's New
+                What&apos;s New
               </Text>
             </View>
             <Text
@@ -212,10 +212,9 @@ export default function AboutScreen() {
                 ${isDark ? "text-dark-300" : "text-gray-600"}
               `}
             >
-              • Enhanced push notifications{"\n"}
-              • Improved chat performance{"\n"}
-              • New server customization options{"\n"}
-              • Bug fixes and stability improvements
+              • Enhanced push notifications{"\n"}• Improved chat performance
+              {"\n"}• New server customization options{"\n"}• Bug fixes and
+              stability improvements
             </Text>
             <TouchableOpacity
               className="mt-3"
@@ -376,8 +375,8 @@ export default function AboutScreen() {
                 ${isDark ? "text-dark-300" : "text-gray-600"}
               `}
             >
-              Built with ❤️ using React Native, Expo, and NativeWind.
-              Thanks to our amazing community of contributors and beta testers.
+              Built with ❤️ using React Native, Expo, and NativeWind. Thanks to
+              our amazing community of contributors and beta testers.
             </Text>
           </Card>
         </View>

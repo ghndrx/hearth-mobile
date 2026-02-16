@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { ListItem, ListDivider, SwitchItem, Button } from "../ui";
+import { ListItem, ListDivider, SwitchItem } from "../ui";
 
 export interface SettingsSection {
   title: string;

@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, SearchInput, Button } from "../ui";
+import { Avatar, SearchInput } from "../ui";
 import type { Server } from "../../lib/types";
 
 interface ServerItemProps {

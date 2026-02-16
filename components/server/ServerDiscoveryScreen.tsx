@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   useColorScheme,
   RefreshControl,
-  Image,
   TextInput,
   ScrollView,
 } from "react-native";
@@ -389,7 +388,6 @@ interface ServerDiscoveryScreenProps {
 
 export function ServerDiscoveryScreen({
   servers = mockPublicServers,
-  isLoading = false,
   onRefresh,
   onJoinServer,
 }: ServerDiscoveryScreenProps) {

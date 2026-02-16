@@ -5,7 +5,7 @@ import {
   SearchFilters,
   SearchResult,
 } from "../../components/search";
-import type { Channel, User, Message, Attachment } from "../../lib/types";
+import type { Channel, User } from "../../lib/types";
 
 // Mock data for development
 const mockChannels: Channel[] = [
@@ -110,7 +110,8 @@ const mockMessages: SearchResult[] = [
   },
   {
     id: "msg4",
-    content: "Important announcement: Server maintenance scheduled for tomorrow at 2 AM.",
+    content:
+      "Important announcement: Server maintenance scheduled for tomorrow at 2 AM.",
     authorId: "1",
     author: mockUsers[0],
     channelId: "2",
@@ -120,7 +121,8 @@ const mockMessages: SearchResult[] = [
   },
   {
     id: "msg5",
-    content: "Can someone help me with the login issue? I keep getting an error.",
+    content:
+      "Can someone help me with the login issue? I keep getting an error.",
     authorId: "2",
     author: mockUsers[1],
     channelId: "4",
@@ -149,7 +151,12 @@ export default function SearchRoute() {
   // Simulate search functionality
   const handleSearch = useCallback(
     async (query: string, filters: SearchFilters) => {
-      if (!query.trim() && !filters.channelId && !filters.userId && !filters.hasFile) {
+      if (
+        !query.trim() &&
+        !filters.channelId &&
+        !filters.userId &&
+        !filters.hasFile
+      ) {
         setResults([]);
         return;
       }
@@ -169,35 +176,35 @@ export default function SearchRoute() {
           (msg) =>
             msg.content.toLowerCase().includes(lowerQuery) ||
             msg.author?.displayName?.toLowerCase().includes(lowerQuery) ||
-            msg.author?.username?.toLowerCase().includes(lowerQuery)
+            msg.author?.username?.toLowerCase().includes(lowerQuery),
         );
       }
 
       // Channel filter
       if (filters.channelId) {
         filteredResults = filteredResults.filter(
-          (msg) => msg.channelId === filters.channelId
+          (msg) => msg.channelId === filters.channelId,
         );
       }
 
       // User filter
       if (filters.userId) {
         filteredResults = filteredResults.filter(
-          (msg) => msg.authorId === filters.userId
+          (msg) => msg.authorId === filters.userId,
         );
       }
 
       // Has file filter
       if (filters.hasFile) {
         filteredResults = filteredResults.filter(
-          (msg) => msg.attachments && msg.attachments.length > 0
+          (msg) => msg.attachments && msg.attachments.length > 0,
         );
       }
 
       setResults(filteredResults);
       setIsLoading(false);
     },
-    []
+    [],
   );
 
   const handleRefresh = useCallback(async () => {

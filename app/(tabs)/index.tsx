@@ -56,7 +56,7 @@ const mockServers: Server[] = [
 ];
 
 export default function ServersPage() {
-  const [servers, setServers] = useState<Server[]>(mockServers);
+  const [servers] = useState<Server[]>(mockServers);
 
   const handleRefresh = async () => {
     // Simulate API call

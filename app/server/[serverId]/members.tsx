@@ -3,7 +3,7 @@ import { View, Text, useColorScheme } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { MemberListScreen } from "../../../components/server/MemberListScreen";
 import { LoadingSpinner } from "../../../components/ui";
-import { api } from "../../../lib/services/api";
+
 import type { Server, ServerMember } from "../../../lib/types";
 
 // Mock data for development - replace with actual API calls
@@ -21,8 +21,20 @@ const mockMembers: ServerMember[] = [
     },
     serverId: "s1",
     roles: [
-      { id: "r1", name: "Owner", color: "#f59e0b", position: 100, permissions: ["*"] },
-      { id: "r2", name: "Admin", color: "#ef4444", position: 90, permissions: ["admin"] },
+      {
+        id: "r1",
+        name: "Owner",
+        color: "#f59e0b",
+        position: 100,
+        permissions: ["*"],
+      },
+      {
+        id: "r2",
+        name: "Admin",
+        color: "#ef4444",
+        position: 90,
+        permissions: ["admin"],
+      },
     ],
     joinedAt: "2024-01-01T00:00:00Z",
     isOwner: true,
@@ -39,7 +51,13 @@ const mockMembers: ServerMember[] = [
     },
     serverId: "s1",
     roles: [
-      { id: "r3", name: "Moderator", color: "#22c55e", position: 50, permissions: ["mod"] },
+      {
+        id: "r3",
+        name: "Moderator",
+        color: "#22c55e",
+        position: 50,
+        permissions: ["mod"],
+      },
     ],
     joinedAt: "2024-01-15T00:00:00Z",
   },
@@ -56,8 +74,21 @@ const mockMembers: ServerMember[] = [
     serverId: "s1",
     nickname: "The VIP",
     roles: [
-      { id: "r4", name: "VIP", color: "#a855f7", position: 30, permissions: [] },
-      { id: "r5", name: "Member", color: "#6b7280", position: 1, permissions: [], isDefault: true },
+      {
+        id: "r4",
+        name: "VIP",
+        color: "#a855f7",
+        position: 30,
+        permissions: [],
+      },
+      {
+        id: "r5",
+        name: "Member",
+        color: "#6b7280",
+        position: 1,
+        permissions: [],
+        isDefault: true,
+      },
     ],
     joinedAt: "2024-02-01T00:00:00Z",
   },
@@ -73,7 +104,14 @@ const mockMembers: ServerMember[] = [
     },
     serverId: "s1",
     roles: [
-      { id: "r5", name: "Member", color: "#6b7280", position: 1, permissions: [], isDefault: true },
+      {
+        id: "r5",
+        name: "Member",
+        color: "#6b7280",
+        position: 1,
+        permissions: [],
+        isDefault: true,
+      },
     ],
     joinedAt: "2024-02-10T00:00:00Z",
   },
@@ -89,7 +127,14 @@ const mockMembers: ServerMember[] = [
     },
     serverId: "s1",
     roles: [
-      { id: "r5", name: "Member", color: "#6b7280", position: 1, permissions: [], isDefault: true },
+      {
+        id: "r5",
+        name: "Member",
+        color: "#6b7280",
+        position: 1,
+        permissions: [],
+        isDefault: true,
+      },
     ],
     joinedAt: "2024-02-12T00:00:00Z",
   },
@@ -115,7 +160,7 @@ export default function ServerMembersPage() {
   const [error, setError] = useState<string | null>(null);
   const [server, setServer] = useState<Server | null>(null);
   const [members, setMembers] = useState<ServerMember[]>([]);
-  
+
   // TODO: Get from auth context
   const currentUserId = "u2"; // Mock current user as moderator
   const canKick = true; // Would check permissions
@@ -126,10 +171,10 @@ export default function ServerMembersPage() {
       // TODO: Replace with actual API calls
       // const serverRes = await api.get<Server>(`/servers/${serverId}`, true);
       // const membersRes = await api.get<ServerMember[]>(`/servers/${serverId}/members`, true);
-      
+
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
+
       setServer(mockServer);
       setMembers(mockMembers);
       setError(null);
@@ -151,10 +196,10 @@ export default function ServerMembersPage() {
   const handleKick = async (member: ServerMember) => {
     // TODO: Implement actual kick API call
     // await api.post(`/servers/${serverId}/members/${member.id}/kick`, {}, true);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 500));
-    
+
     // Remove from local state
     setMembers((prev) => prev.filter((m) => m.id !== member.id));
   };
@@ -162,10 +207,10 @@ export default function ServerMembersPage() {
   const handleBan = async (member: ServerMember) => {
     // TODO: Implement actual ban API call
     // await api.post(`/servers/${serverId}/members/${member.id}/ban`, {}, true);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 500));
-    
+
     // Remove from local state
     setMembers((prev) => prev.filter((m) => m.id !== member.id));
   };

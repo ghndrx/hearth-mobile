@@ -15,7 +15,7 @@ import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "../../lib/stores/auth";
-import { Avatar, Button, Input } from "../../components/ui";
+import { Avatar, Button } from "../../components/ui";
 
 interface FormErrors {
   displayName?: string;
@@ -58,7 +58,8 @@ export default function EditProfileScreen() {
     } else if (username.trim().length > 20) {
       newErrors.username = "Username must be less than 20 characters";
     } else if (!/^[a-zA-Z0-9_]+$/.test(username.trim())) {
-      newErrors.username = "Username can only contain letters, numbers, and underscores";
+      newErrors.username =
+        "Username can only contain letters, numbers, and underscores";
     }
 
     if (bio.length > 200) {
@@ -70,12 +71,13 @@ export default function EditProfileScreen() {
   }, [displayName, username, bio]);
 
   const handlePickImage = useCallback(async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
       Alert.alert(
         "Permission Required",
-        "Please allow access to your photo library to change your avatar."
+        "Please allow access to your photo library to change your avatar.",
       );
       return;
     }
@@ -99,7 +101,7 @@ export default function EditProfileScreen() {
     if (!permissionResult.granted) {
       Alert.alert(
         "Permission Required",
-        "Please allow access to your camera to take a photo."
+        "Please allow access to your camera to take a photo.",
       );
       return;
     }
@@ -170,7 +172,7 @@ export default function EditProfileScreen() {
             style: "destructive",
             onPress: () => router.back(),
           },
-        ]
+        ],
       );
     } else {
       router.back();
@@ -336,7 +338,9 @@ export default function EditProfileScreen() {
                       className={`flex-1 text-base ${isDark ? "text-white" : "text-gray-900"}`}
                       value={username}
                       onChangeText={(text) => {
-                        setUsername(text.toLowerCase().replace(/[^a-z0-9_]/g, ""));
+                        setUsername(
+                          text.toLowerCase().replace(/[^a-z0-9_]/g, ""),
+                        );
                         markChanged();
                       }}
                       placeholder="username"
@@ -395,7 +399,9 @@ export default function EditProfileScreen() {
                     style={{ minHeight: 80 }}
                   />
                   {errors.bio && (
-                    <Text className="text-red-500 text-xs mt-1">{errors.bio}</Text>
+                    <Text className="text-red-500 text-xs mt-1">
+                      {errors.bio}
+                    </Text>
                   )}
                 </View>
               </View>
@@ -494,10 +500,9 @@ export default function EditProfileScreen() {
                   isDark ? "text-dark-400" : "text-gray-500"
                 }`}
               >
-                • Your display name is how others see you in chat{"\n"}
-                • Usernames must be unique and can only contain letters, numbers,
-                and underscores{"\n"}
-                • Keep your bio friendly and welcoming
+                • Your display name is how others see you in chat{"\n"}•
+                Usernames must be unique and can only contain letters, numbers,
+                and underscores{"\n"}• Keep your bio friendly and welcoming
               </Text>
             </View>
           </View>

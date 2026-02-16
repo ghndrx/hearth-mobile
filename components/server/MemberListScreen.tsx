@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, SearchInput, Badge } from "../ui";
+import { Avatar, SearchInput } from "../ui";
 import type { ServerMember, Role, Server } from "../../lib/types";
 
 // ============================================================================
@@ -100,7 +100,8 @@ function RoleBadge({ role, size = "sm" }: RoleBadgeProps) {
 // ============================================================================
 
 function MemberItem({ member, isDark, onPress, onLongPress }: MemberItemProps) {
-  const displayName = member.nickname || member.user.displayName || member.user.username;
+  const displayName =
+    member.nickname || member.user.displayName || member.user.username;
   const status = member.user.status || "offline";
 
   // Get top roles (limit to 3 visible)
@@ -154,7 +155,7 @@ function MemberItem({ member, isDark, onPress, onLongPress }: MemberItemProps) {
             />
           )}
         </View>
-        
+
         {/* Username if different from display name */}
         {member.nickname && (
           <Text
@@ -219,7 +220,8 @@ function ActionSheet({
 }: ActionSheetProps) {
   if (!member) return null;
 
-  const displayName = member.nickname || member.user.displayName || member.user.username;
+  const displayName =
+    member.nickname || member.user.displayName || member.user.username;
 
   return (
     <Modal
@@ -228,10 +230,7 @@ function ActionSheet({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable
-        className="flex-1 justify-end bg-black/50"
-        onPress={onClose}
-      >
+      <Pressable className="flex-1 justify-end bg-black/50" onPress={onClose}>
         <Pressable
           className={`
             rounded-t-3xl
@@ -265,7 +264,9 @@ function ActionSheet({
             >
               {displayName}
             </Text>
-            <Text className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}>
+            <Text
+              className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
+            >
               @{member.user.username}
             </Text>
           </View>
@@ -311,11 +312,7 @@ function ActionSheet({
                   ${isDark ? "active:bg-dark-700" : "active:bg-gray-100"}
                 `}
               >
-                <Ionicons
-                  name="exit-outline"
-                  size={24}
-                  color="#f59e0b"
-                />
+                <Ionicons name="exit-outline" size={24} color="#f59e0b" />
                 <Text className="ml-4 text-base font-medium text-yellow-500">
                   Kick Member
                 </Text>
@@ -335,11 +332,7 @@ function ActionSheet({
                   ${isDark ? "active:bg-dark-700" : "active:bg-gray-100"}
                 `}
               >
-                <Ionicons
-                  name="ban-outline"
-                  size={24}
-                  color="#ef4444"
-                />
+                <Ionicons name="ban-outline" size={24} color="#ef4444" />
                 <Text className="ml-4 text-base font-medium text-red-500">
                   Ban Member
                 </Text>
@@ -377,7 +370,13 @@ function ActionSheet({
 // Empty State Component
 // ============================================================================
 
-function EmptyState({ isDark, isSearching }: { isDark: boolean; isSearching: boolean }) {
+function EmptyState({
+  isDark,
+  isSearching,
+}: {
+  isDark: boolean;
+  isSearching: boolean;
+}) {
   return (
     <View className="flex-1 items-center justify-center py-20">
       <Ionicons
@@ -416,7 +415,12 @@ interface RoleFilterProps {
   isDark: boolean;
 }
 
-function RoleFilterChip({ role, isSelected, onSelect, isDark }: RoleFilterProps) {
+function RoleFilterChip({
+  role,
+  isSelected,
+  onSelect,
+  isDark,
+}: RoleFilterProps) {
   const label = role ? role.name : "All";
   const color = role?.color || (isDark ? "#80848e" : "#6b7280");
 
@@ -430,13 +434,7 @@ function RoleFilterChip({ role, isSelected, onSelect, isDark }: RoleFilterProps)
         mr-2
         flex-row
         items-center
-        ${
-          isSelected
-            ? "bg-brand"
-            : isDark
-              ? "bg-dark-700"
-              : "bg-gray-200"
-        }
+        ${isSelected ? "bg-brand" : isDark ? "bg-dark-700" : "bg-gray-200"}
       `}
     >
       {role && (
@@ -447,11 +445,7 @@ function RoleFilterChip({ role, isSelected, onSelect, isDark }: RoleFilterProps)
       )}
       <Text
         className={`text-sm font-medium ${
-          isSelected
-            ? "text-white"
-            : isDark
-              ? "text-dark-200"
-              : "text-gray-700"
+          isSelected ? "text-white" : isDark ? "text-dark-200" : "text-gray-700"
         }`}
       >
         {label}
@@ -465,7 +459,6 @@ function RoleFilterChip({ role, isSelected, onSelect, isDark }: RoleFilterProps)
 // ============================================================================
 
 export function MemberListScreen({
-  server,
   members,
   currentUserId,
   canKick = false,
@@ -477,13 +470,17 @@ export function MemberListScreen({
 }: MemberListScreenProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<ServerMember | null>(null);
+  const [selectedMember, setSelectedMember] = useState<ServerMember | null>(
+    null,
+  );
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string | null>(
+    null,
+  );
+  const [_actionLoading, setActionLoading] = useState(false);
 
   // Get unique roles for filtering
   const allRoles = useMemo(() => {
@@ -506,7 +503,8 @@ export function MemberListScreen({
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter((member) => {
-        const displayName = member.nickname || member.user.displayName || member.user.username;
+        const displayName =
+          member.nickname || member.user.displayName || member.user.username;
         return (
           displayName.toLowerCase().includes(query) ||
           member.user.username.toLowerCase().includes(query)
@@ -517,7 +515,7 @@ export function MemberListScreen({
     // Apply role filter
     if (selectedRoleFilter) {
       result = result.filter((member) =>
-        member.roles.some((role) => role.id === selectedRoleFilter)
+        member.roles.some((role) => role.id === selectedRoleFilter),
       );
     }
 
@@ -544,10 +542,16 @@ export function MemberListScreen({
   // Group members by status (online first)
   const groupedMembers = useMemo(() => {
     const online = filteredMembers.filter(
-      (m) => m.user.status && m.user.status !== "offline" && m.user.status !== "invisible"
+      (m) =>
+        m.user.status &&
+        m.user.status !== "offline" &&
+        m.user.status !== "invisible",
     );
     const offline = filteredMembers.filter(
-      (m) => !m.user.status || m.user.status === "offline" || m.user.status === "invisible"
+      (m) =>
+        !m.user.status ||
+        m.user.status === "offline" ||
+        m.user.status === "invisible",
     );
     return { online, offline };
   }, [filteredMembers]);
@@ -573,7 +577,7 @@ export function MemberListScreen({
   const handleMemberLongPress = (member: ServerMember) => {
     // Don't show actions for self
     if (member.user.id === currentUserId) return;
-    
+
     setSelectedMember(member);
     setShowActionSheet(true);
   };
@@ -601,13 +605,16 @@ export function MemberListScreen({
               setShowActionSheet(false);
               setSelectedMember(null);
             } catch (error) {
-              RNAlert.alert("Error", "Failed to kick member. Please try again.");
+              RNAlert.alert(
+                "Error",
+                "Failed to kick member. Please try again.",
+              );
             } finally {
               setActionLoading(false);
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -640,7 +647,7 @@ export function MemberListScreen({
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -734,7 +741,8 @@ export function MemberListScreen({
         <Text
           className={`mt-3 text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
         >
-          {filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}
+          {filteredMembers.length} member
+          {filteredMembers.length !== 1 ? "s" : ""}
           {searchQuery || selectedRoleFilter ? " found" : ""}
         </Text>
       </View>
@@ -853,7 +861,9 @@ export function MemberList({
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<ServerMember | null>(null);
+  const [selectedMember, setSelectedMember] = useState<ServerMember | null>(
+    null,
+  );
   const [showActionSheet, setShowActionSheet] = useState(false);
 
   const handleRefresh = useCallback(async () => {

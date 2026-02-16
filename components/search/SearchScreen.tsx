@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -141,11 +141,7 @@ function FilterChip({
 // Search Result Item Component
 // ============================================================================
 
-function SearchResultItem({
-  result,
-  isDark,
-  onPress,
-}: SearchResultItemProps) {
+function SearchResultItem({ result, isDark, onPress }: SearchResultItemProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -204,7 +200,9 @@ function SearchResultItem({
                 `}
                 numberOfLines={1}
               >
-                {result.author?.displayName || result.author?.username || "Unknown User"}
+                {result.author?.displayName ||
+                  result.author?.username ||
+                  "Unknown User"}
               </Text>
               {result.channelName && (
                 <>
@@ -354,7 +352,7 @@ export function SearchScreen({
     (newQuery: string, newFilters: SearchFilters) => {
       onSearch?.(newQuery, newFilters);
     },
-    [onSearch]
+    [onSearch],
   );
 
   const handleQueryChange = useCallback(
@@ -362,7 +360,7 @@ export function SearchScreen({
       setQuery(text);
       handleSearch(text, filters);
     },
-    [filters, handleSearch]
+    [filters, handleSearch],
   );
 
   const handleFilterChange = useCallback(
@@ -379,7 +377,7 @@ export function SearchScreen({
       setFilters(newFilters);
       handleSearch(query, newFilters);
     },
-    [filters, query, handleSearch]
+    [filters, query, handleSearch],
   );
 
   const handleRefresh = useCallback(async () => {
@@ -401,7 +399,7 @@ export function SearchScreen({
         router.push(`/chat/${result.channelId}?messageId=${result.id}`);
       }
     },
-    [onResultPress]
+    [onResultPress],
   );
 
   const clearChannelFilter = () => {
@@ -424,7 +422,7 @@ export function SearchScreen({
         onPress={handleResultPress}
       />
     ),
-    [isDark, handleResultPress]
+    [isDark, handleResultPress],
   );
 
   const keyExtractor = useCallback((item: SearchResult) => item.id, []);
@@ -543,7 +541,10 @@ export function SearchScreen({
           </Text>
         </View>
       ) : results.length === 0 ? (
-        <EmptyState isDark={isDark} hasQuery={query.length > 0 || hasActiveFilters} />
+        <EmptyState
+          isDark={isDark}
+          hasQuery={query.length > 0 || hasActiveFilters}
+        />
       ) : (
         <FlatList
           data={results}
@@ -711,7 +712,10 @@ export function SearchScreen({
                     key={user.id}
                     onPress={() => {
                       handleFilterChange("userId", user.id);
-                      handleFilterChange("userName", user.displayName || user.username);
+                      handleFilterChange(
+                        "userName",
+                        user.displayName || user.username,
+                      );
                       setShowUserPicker(false);
                     }}
                     className={`

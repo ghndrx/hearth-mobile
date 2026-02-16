@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -122,20 +122,22 @@ function CategorySection({
   initialExpanded = true,
 }: CategorySectionProps) {
   const [isExpanded, setIsExpanded] = useState(
-    category.isCollapsed !== undefined ? !category.isCollapsed : initialExpanded
+    category.isCollapsed !== undefined
+      ? !category.isCollapsed
+      : initialExpanded,
   );
 
   const textChannels = category.channels.filter(
-    (c) => c.type === "text" || c.type === "announcement"
+    (c) => c.type === "text" || c.type === "announcement",
   );
   const voiceChannels = category.channels.filter((c) => c.type === "voice");
 
   // Sort channels by position
   const sortedTextChannels = [...textChannels].sort(
-    (a, b) => a.position - b.position
+    (a, b) => a.position - b.position,
   );
   const sortedVoiceChannels = [...voiceChannels].sort(
-    (a, b) => a.position - b.position
+    (a, b) => a.position - b.position,
   );
   const sortedChannels = [...sortedTextChannels, ...sortedVoiceChannels];
 
@@ -247,11 +249,11 @@ export function ChannelListScreen({
 
   // Sort categories by position
   const sortedCategories = [...categories].sort(
-    (a, b) => a.position - b.position
+    (a, b) => a.position - b.position,
   );
 
   // Get uncategorized channels (channels without a category)
-  const uncategorizedChannels = sortedCategories
+  const _uncategorizedChannels = sortedCategories
     .flatMap((c) => c.channels)
     .filter((ch) => !ch.categoryId);
 
@@ -428,7 +430,7 @@ export function ChannelList({
   }, [onRefresh]);
 
   const sortedCategories = [...categories].sort(
-    (a, b) => a.position - b.position
+    (a, b) => a.position - b.position,
   );
 
   if (sortedCategories.length === 0) {

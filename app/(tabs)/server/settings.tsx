@@ -8,7 +8,6 @@ import {
   useColorScheme,
   Alert,
   Image,
-  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -97,29 +96,170 @@ const mockRoles: ServerRole[] = [
 ];
 
 const mockChannels: ServerChannel[] = [
-  { id: "1", name: "welcome", type: "text", category: "Info", isPrivate: false, position: 0 },
-  { id: "2", name: "rules", type: "text", category: "Info", isPrivate: false, position: 1 },
-  { id: "3", name: "announcements", type: "announcement", category: "Info", isPrivate: false, position: 2 },
-  { id: "4", name: "general", type: "text", category: "Chat", isPrivate: false, position: 3 },
-  { id: "5", name: "off-topic", type: "text", category: "Chat", isPrivate: false, position: 4 },
-  { id: "6", name: "media", type: "text", category: "Chat", isPrivate: false, position: 5 },
-  { id: "7", name: "General Voice", type: "voice", category: "Voice", isPrivate: false, position: 6 },
-  { id: "8", name: "Music", type: "voice", category: "Voice", isPrivate: false, position: 7 },
-  { id: "9", name: "admin-chat", type: "text", category: "Staff", isPrivate: true, position: 8 },
-  { id: "10", name: "mod-logs", type: "text", category: "Staff", isPrivate: true, position: 9 },
+  {
+    id: "1",
+    name: "welcome",
+    type: "text",
+    category: "Info",
+    isPrivate: false,
+    position: 0,
+  },
+  {
+    id: "2",
+    name: "rules",
+    type: "text",
+    category: "Info",
+    isPrivate: false,
+    position: 1,
+  },
+  {
+    id: "3",
+    name: "announcements",
+    type: "announcement",
+    category: "Info",
+    isPrivate: false,
+    position: 2,
+  },
+  {
+    id: "4",
+    name: "general",
+    type: "text",
+    category: "Chat",
+    isPrivate: false,
+    position: 3,
+  },
+  {
+    id: "5",
+    name: "off-topic",
+    type: "text",
+    category: "Chat",
+    isPrivate: false,
+    position: 4,
+  },
+  {
+    id: "6",
+    name: "media",
+    type: "text",
+    category: "Chat",
+    isPrivate: false,
+    position: 5,
+  },
+  {
+    id: "7",
+    name: "General Voice",
+    type: "voice",
+    category: "Voice",
+    isPrivate: false,
+    position: 6,
+  },
+  {
+    id: "8",
+    name: "Music",
+    type: "voice",
+    category: "Voice",
+    isPrivate: false,
+    position: 7,
+  },
+  {
+    id: "9",
+    name: "admin-chat",
+    type: "text",
+    category: "Staff",
+    isPrivate: true,
+    position: 8,
+  },
+  {
+    id: "10",
+    name: "mod-logs",
+    type: "text",
+    category: "Staff",
+    isPrivate: true,
+    position: 9,
+  },
 ];
 
 const mockMembers: ServerMember[] = [
-  { id: "1", username: "alice_admin", displayName: "Alice", roles: ["Admin"], joinedAt: "2023-01-15", isOnline: true, isOwner: true },
-  { id: "2", username: "bob_mod", displayName: "Bob", roles: ["Moderator"], joinedAt: "2023-02-20", isOnline: true },
-  { id: "3", username: "charlie", displayName: "Charlie", roles: ["VIP", "Booster"], joinedAt: "2023-03-10", isOnline: false },
-  { id: "4", username: "diana", displayName: "Diana", roles: ["Moderator"], joinedAt: "2023-04-05", isOnline: true },
-  { id: "5", username: "eve_vip", displayName: "Eve", roles: ["VIP"], joinedAt: "2023-05-12", isOnline: false },
-  { id: "6", username: "frank", displayName: "Frank", roles: [], joinedAt: "2023-06-18", isOnline: true },
-  { id: "7", username: "grace", displayName: "Grace", roles: ["Booster"], joinedAt: "2023-07-22", isOnline: false },
-  { id: "8", username: "henry", displayName: "Henry", roles: [], joinedAt: "2023-08-30", isOnline: true },
-  { id: "9", username: "iris", displayName: "Iris", roles: ["VIP"], joinedAt: "2023-09-14", isOnline: false },
-  { id: "10", username: "jack", displayName: "Jack", roles: [], joinedAt: "2023-10-25", isOnline: true },
+  {
+    id: "1",
+    username: "alice_admin",
+    displayName: "Alice",
+    roles: ["Admin"],
+    joinedAt: "2023-01-15",
+    isOnline: true,
+    isOwner: true,
+  },
+  {
+    id: "2",
+    username: "bob_mod",
+    displayName: "Bob",
+    roles: ["Moderator"],
+    joinedAt: "2023-02-20",
+    isOnline: true,
+  },
+  {
+    id: "3",
+    username: "charlie",
+    displayName: "Charlie",
+    roles: ["VIP", "Booster"],
+    joinedAt: "2023-03-10",
+    isOnline: false,
+  },
+  {
+    id: "4",
+    username: "diana",
+    displayName: "Diana",
+    roles: ["Moderator"],
+    joinedAt: "2023-04-05",
+    isOnline: true,
+  },
+  {
+    id: "5",
+    username: "eve_vip",
+    displayName: "Eve",
+    roles: ["VIP"],
+    joinedAt: "2023-05-12",
+    isOnline: false,
+  },
+  {
+    id: "6",
+    username: "frank",
+    displayName: "Frank",
+    roles: [],
+    joinedAt: "2023-06-18",
+    isOnline: true,
+  },
+  {
+    id: "7",
+    username: "grace",
+    displayName: "Grace",
+    roles: ["Booster"],
+    joinedAt: "2023-07-22",
+    isOnline: false,
+  },
+  {
+    id: "8",
+    username: "henry",
+    displayName: "Henry",
+    roles: [],
+    joinedAt: "2023-08-30",
+    isOnline: true,
+  },
+  {
+    id: "9",
+    username: "iris",
+    displayName: "Iris",
+    roles: ["VIP"],
+    joinedAt: "2023-09-14",
+    isOnline: false,
+  },
+  {
+    id: "10",
+    username: "jack",
+    displayName: "Jack",
+    roles: [],
+    joinedAt: "2023-10-25",
+    isOnline: true,
+  },
 ];
 
 // Helper Components
@@ -148,58 +288,19 @@ function SettingSection({
   );
 }
 
-function SettingItem({
-  icon,
-  label,
-  value,
-  onPress,
+function Divider({
+  inset = false,
   isDark,
-  showChevron = true,
-  destructive = false,
 }: {
-  icon: string;
-  label: string;
-  value?: string | React.ReactNode;
-  onPress?: () => void;
+  inset?: boolean;
   isDark: boolean;
-  showChevron?: boolean;
-  destructive?: boolean;
 }) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={!onPress}
-      className="flex-row items-center px-4 py-3"
-    >
-      <Ionicons
-        name={icon as React.ComponentProps<typeof Ionicons>["name"]}
-        size={22}
-        color={destructive ? "#ef4444" : isDark ? "#80848e" : "#6b7280"}
-      />
-      <View className="flex-1 ml-3">
-        <Text
-          className={`font-medium ${destructive ? "text-red-500" : isDark ? "text-white" : "text-gray-900"}`}
-        >
-          {label}
-        </Text>
-        {value && typeof value === "string" && (
-          <Text className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}>
-            {value}
-          </Text>
-        )}
-      </View>
-      {showChevron && (
-        <Ionicons name="chevron-forward" size={20} color={isDark ? "#4e5058" : "#d1d5db"} />
-      )}
-    </TouchableOpacity>
-  );
-}
-
-function Divider({ inset = false, isDark }: { inset?: boolean; isDark: boolean }) {
   return (
     <View
       className={`h-px ${inset ? "ml-14" : ""}`}
-      style={{ backgroundColor: isDark ? "rgba(128,132,142,0.2)" : "rgba(0,0,0,0.1)" }}
+      style={{
+        backgroundColor: isDark ? "rgba(128,132,142,0.2)" : "rgba(0,0,0,0.1)",
+      }}
     />
   );
 }
@@ -216,7 +317,9 @@ function GeneralTab({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(settings.name);
-  const [editedDescription, setEditedDescription] = useState(settings.description);
+  const [editedDescription, setEditedDescription] = useState(
+    settings.description,
+  );
 
   const handleSaveChanges = () => {
     setSettings((prev) => ({
@@ -241,7 +344,7 @@ function GeneralTab({
             router.back();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -263,9 +366,14 @@ function GeneralTab({
                 className={`w-24 h-24 rounded-full items-center justify-center ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
               >
                 {settings.icon ? (
-                  <Image source={{ uri: settings.icon }} className="w-24 h-24 rounded-full" />
+                  <Image
+                    source={{ uri: settings.icon }}
+                    className="w-24 h-24 rounded-full"
+                  />
                 ) : (
-                  <Text className="text-4xl font-bold text-brand">{settings.name.charAt(0)}</Text>
+                  <Text className="text-4xl font-bold text-brand">
+                    {settings.name.charAt(0)}
+                  </Text>
                 )}
               </View>
               <View className="absolute bottom-0 right-0 w-8 h-8 rounded-full items-center justify-center bg-brand">
@@ -276,7 +384,9 @@ function GeneralTab({
             {isEditing ? (
               <View className="w-full mt-4 space-y-3">
                 <View>
-                  <Text className={`text-sm mb-2 ${isDark ? "text-dark-400" : "text-gray-600"}`}>
+                  <Text
+                    className={`text-sm mb-2 ${isDark ? "text-dark-400" : "text-gray-600"}`}
+                  >
                     Server Name
                   </Text>
                   <TextInput
@@ -288,7 +398,9 @@ function GeneralTab({
                   />
                 </View>
                 <View className="mt-3">
-                  <Text className={`text-sm mb-2 ${isDark ? "text-dark-400" : "text-gray-600"}`}>
+                  <Text
+                    className={`text-sm mb-2 ${isDark ? "text-dark-400" : "text-gray-600"}`}
+                  >
                     Description
                   </Text>
                   <TextInput
@@ -306,22 +418,36 @@ function GeneralTab({
                     onPress={() => setIsEditing(false)}
                     className="flex-1 py-3 rounded-lg bg-gray-600"
                   >
-                    <Text className="text-white text-center font-medium">Cancel</Text>
+                    <Text className="text-white text-center font-medium">
+                      Cancel
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={handleSaveChanges} className="flex-1 py-3 rounded-lg bg-brand ml-3">
-                    <Text className="text-white text-center font-medium">Save</Text>
+                  <TouchableOpacity
+                    onPress={handleSaveChanges}
+                    className="flex-1 py-3 rounded-lg bg-brand ml-3"
+                  >
+                    <Text className="text-white text-center font-medium">
+                      Save
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ) : (
               <>
-                <Text className={`text-xl font-bold mt-4 ${isDark ? "text-white" : "text-gray-900"}`}>
+                <Text
+                  className={`text-xl font-bold mt-4 ${isDark ? "text-white" : "text-gray-900"}`}
+                >
                   {settings.name}
                 </Text>
-                <Text className={`text-sm mt-1 text-center ${isDark ? "text-dark-400" : "text-gray-500"}`}>
+                <Text
+                  className={`text-sm mt-1 text-center ${isDark ? "text-dark-400" : "text-gray-500"}`}
+                >
                   {settings.description}
                 </Text>
-                <TouchableOpacity onPress={() => setIsEditing(true)} className="mt-3 px-4 py-2 rounded-lg bg-brand/10">
+                <TouchableOpacity
+                  onPress={() => setIsEditing(true)}
+                  className="mt-3 px-4 py-2 rounded-lg bg-brand/10"
+                >
                   <Text className="text-brand font-medium">Edit Server</Text>
                 </TouchableOpacity>
               </>
@@ -333,17 +459,33 @@ function GeneralTab({
       {/* Server Stats */}
       <SettingSection title="Statistics" isDark={isDark}>
         <View className="flex-row">
-          <View className={`flex-1 items-center py-4 border-r ${isDark ? "border-dark-700" : "border-gray-200"}`}>
+          <View
+            className={`flex-1 items-center py-4 border-r ${isDark ? "border-dark-700" : "border-gray-200"}`}
+          >
             <Text className="text-2xl font-bold text-brand">1,247</Text>
-            <Text className={`text-sm mt-1 ${isDark ? "text-dark-400" : "text-gray-500"}`}>Members</Text>
+            <Text
+              className={`text-sm mt-1 ${isDark ? "text-dark-400" : "text-gray-500"}`}
+            >
+              Members
+            </Text>
           </View>
-          <View className={`flex-1 items-center py-4 border-r ${isDark ? "border-dark-700" : "border-gray-200"}`}>
+          <View
+            className={`flex-1 items-center py-4 border-r ${isDark ? "border-dark-700" : "border-gray-200"}`}
+          >
             <Text className="text-2xl font-bold text-green-500">89</Text>
-            <Text className={`text-sm mt-1 ${isDark ? "text-dark-400" : "text-gray-500"}`}>Online</Text>
+            <Text
+              className={`text-sm mt-1 ${isDark ? "text-dark-400" : "text-gray-500"}`}
+            >
+              Online
+            </Text>
           </View>
           <View className="flex-1 items-center py-4">
             <Text className="text-2xl font-bold text-purple-500">10</Text>
-            <Text className={`text-sm mt-1 ${isDark ? "text-dark-400" : "text-gray-500"}`}>Channels</Text>
+            <Text
+              className={`text-sm mt-1 ${isDark ? "text-dark-400" : "text-gray-500"}`}
+            >
+              Channels
+            </Text>
           </View>
         </View>
       </SettingSection>
@@ -354,21 +496,27 @@ function GeneralTab({
           title="Public Server"
           subtitle="Show in server discovery"
           value={settings.isPublic}
-          onValueChange={(value) => setSettings((prev) => ({ ...prev, isPublic: value }))}
+          onValueChange={(value) =>
+            setSettings((prev) => ({ ...prev, isPublic: value }))
+          }
         />
         <Divider isDark={isDark} />
         <SwitchItem
           title="Verification Required"
           subtitle="Require email verification to join"
           value={settings.requireVerification}
-          onValueChange={(value) => setSettings((prev) => ({ ...prev, requireVerification: value }))}
+          onValueChange={(value) =>
+            setSettings((prev) => ({ ...prev, requireVerification: value }))
+          }
         />
         <Divider isDark={isDark} />
         <SwitchItem
           title="Allow Invites"
           subtitle="Let members create invite links"
           value={settings.allowInvites}
-          onValueChange={(value) => setSettings((prev) => ({ ...prev, allowInvites: value }))}
+          onValueChange={(value) =>
+            setSettings((prev) => ({ ...prev, allowInvites: value }))
+          }
         />
       </SettingSection>
 
@@ -378,7 +526,12 @@ function GeneralTab({
           <React.Fragment key={option}>
             {index > 0 && <Divider isDark={isDark} />}
             <TouchableOpacity
-              onPress={() => setSettings((prev) => ({ ...prev, defaultNotifications: option }))}
+              onPress={() =>
+                setSettings((prev) => ({
+                  ...prev,
+                  defaultNotifications: option,
+                }))
+              }
               className="flex-row items-center px-4 py-3"
             >
               <View
@@ -394,8 +547,14 @@ function GeneralTab({
                   <View className="w-2.5 h-2.5 rounded-full bg-brand" />
                 )}
               </View>
-              <Text className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
-                {option === "all" ? "All Messages" : option === "mentions" ? "Only @mentions" : "Nothing"}
+              <Text
+                className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+              >
+                {option === "all"
+                  ? "All Messages"
+                  : option === "mentions"
+                    ? "Only @mentions"
+                    : "Nothing"}
               </Text>
             </TouchableOpacity>
           </React.Fragment>
@@ -409,7 +568,9 @@ function GeneralTab({
           className={`flex-row items-center justify-center py-4 rounded-xl ${isDark ? "bg-orange-500/20" : "bg-orange-100"}`}
         >
           <Ionicons name="exit-outline" size={20} color="#f97316" />
-          <Text className="ml-2 font-semibold text-orange-500">Leave Server</Text>
+          <Text className="ml-2 font-semibold text-orange-500">
+            Leave Server
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -433,21 +594,28 @@ function RolesTab({ isDark }: { isDark: boolean }) {
       Alert.alert("Cannot Delete", "The @everyone role cannot be deleted.");
       return;
     }
-    Alert.alert("Delete Role", `Are you sure you want to delete the "${role?.name}" role?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => setRoles((prev) => prev.filter((r) => r.id !== roleId)),
-      },
-    ]);
+    Alert.alert(
+      "Delete Role",
+      `Are you sure you want to delete the "${role?.name}" role?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () =>
+            setRoles((prev) => prev.filter((r) => r.id !== roleId)),
+        },
+      ],
+    );
   };
 
   return (
     <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
       <SettingSection title={`Roles (${roles.length})`} isDark={isDark}>
         <View className="px-4 py-3">
-          <Text className={`text-sm ${isDark ? "text-dark-400" : "text-gray-600"}`}>
+          <Text
+            className={`text-sm ${isDark ? "text-dark-400" : "text-gray-600"}`}
+          >
             Manage permissions and colors for different member groups
           </Text>
         </View>
@@ -455,10 +623,15 @@ function RolesTab({ isDark }: { isDark: boolean }) {
           <React.Fragment key={role.id}>
             {index > 0 && <Divider inset isDark={isDark} />}
             <TouchableOpacity className="flex-row items-center px-4 py-3">
-              <View className="w-4 h-4 rounded-full mr-3" style={{ backgroundColor: role.color }} />
+              <View
+                className="w-4 h-4 rounded-full mr-3"
+                style={{ backgroundColor: role.color }}
+              />
               <View className="flex-1">
                 <View className="flex-row items-center">
-                  <Text className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+                  <Text
+                    className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+                  >
                     {role.name}
                   </Text>
                   {role.isDefault && (
@@ -467,16 +640,26 @@ function RolesTab({ isDark }: { isDark: boolean }) {
                     </Badge>
                   )}
                 </View>
-                <Text className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}>
-                  {role.memberCount} members • {role.permissions.length} permissions
+                <Text
+                  className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
+                >
+                  {role.memberCount} members • {role.permissions.length}{" "}
+                  permissions
                 </Text>
               </View>
               {!role.isDefault && (
-                <TouchableOpacity onPress={() => handleDeleteRole(role.id)} className="p-2 mr-1">
+                <TouchableOpacity
+                  onPress={() => handleDeleteRole(role.id)}
+                  className="p-2 mr-1"
+                >
                   <Ionicons name="trash-outline" size={18} color="#ef4444" />
                 </TouchableOpacity>
               )}
-              <Ionicons name="chevron-forward" size={20} color={isDark ? "#4e5058" : "#d1d5db"} />
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={isDark ? "#4e5058" : "#d1d5db"}
+              />
             </TouchableOpacity>
           </React.Fragment>
         ))}
@@ -505,7 +688,7 @@ function ChannelsTab({ isDark }: { isDark: boolean }) {
       acc[cat].push(channel);
       return acc;
     },
-    {} as Record<string, ServerChannel[]>
+    {} as Record<string, ServerChannel[]>,
   );
 
   const getChannelIcon = (type: string, isPrivate: boolean) => {
@@ -529,13 +712,26 @@ function ChannelsTab({ isDark }: { isDark: boolean }) {
               {index > 0 && <Divider inset isDark={isDark} />}
               <TouchableOpacity className="flex-row items-center px-4 py-3">
                 <Ionicons
-                  name={getChannelIcon(channel.type, channel.isPrivate) as React.ComponentProps<typeof Ionicons>["name"]}
+                  name={
+                    getChannelIcon(
+                      channel.type,
+                      channel.isPrivate,
+                    ) as React.ComponentProps<typeof Ionicons>["name"]
+                  }
                   size={20}
-                  color={channel.isPrivate ? "#f97316" : isDark ? "#80848e" : "#6b7280"}
+                  color={
+                    channel.isPrivate
+                      ? "#f97316"
+                      : isDark
+                        ? "#80848e"
+                        : "#6b7280"
+                  }
                 />
                 <View className="flex-1 ml-3">
                   <View className="flex-row items-center">
-                    <Text className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+                    <Text
+                      className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+                    >
                       {channel.name}
                     </Text>
                     {channel.isPrivate && (
@@ -544,11 +740,19 @@ function ChannelsTab({ isDark }: { isDark: boolean }) {
                       </Badge>
                     )}
                   </View>
-                  <Text className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}>
-                    {channel.type.charAt(0).toUpperCase() + channel.type.slice(1)} Channel
+                  <Text
+                    className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
+                  >
+                    {channel.type.charAt(0).toUpperCase() +
+                      channel.type.slice(1)}{" "}
+                    Channel
                   </Text>
                 </View>
-                <Ionicons name="reorder-three" size={24} color={isDark ? "#4e5058" : "#d1d5db"} />
+                <Ionicons
+                  name="reorder-three"
+                  size={24}
+                  color={isDark ? "#4e5058" : "#d1d5db"}
+                />
               </TouchableOpacity>
             </React.Fragment>
           ))}
@@ -565,8 +769,14 @@ function ChannelsTab({ isDark }: { isDark: boolean }) {
         <TouchableOpacity
           className={`flex-row items-center justify-center py-4 rounded-xl ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
         >
-          <Ionicons name="folder-open" size={20} color={isDark ? "#80848e" : "#6b7280"} />
-          <Text className={`ml-2 font-semibold ${isDark ? "text-dark-300" : "text-gray-600"}`}>
+          <Ionicons
+            name="folder-open"
+            size={20}
+            color={isDark ? "#80848e" : "#6b7280"}
+          />
+          <Text
+            className={`ml-2 font-semibold ${isDark ? "text-dark-300" : "text-gray-600"}`}
+          >
             Create Category
           </Text>
         </TouchableOpacity>
@@ -582,7 +792,7 @@ function MembersTab({ isDark }: { isDark: boolean }) {
   const filteredMembers = members.filter(
     (member) =>
       member.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.displayName.toLowerCase().includes(searchQuery.toLowerCase())
+      member.displayName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const onlineMembers = filteredMembers.filter((m) => m.isOnline);
@@ -593,10 +803,19 @@ function MembersTab({ isDark }: { isDark: boolean }) {
       Alert.alert("Cannot Kick", "You cannot kick the server owner.");
       return;
     }
-    Alert.alert("Kick Member", `Are you sure you want to kick ${member.displayName}?`, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Kick", style: "destructive", onPress: () => Alert.alert("Success", `${member.displayName} has been kicked.`) },
-    ]);
+    Alert.alert(
+      "Kick Member",
+      `Are you sure you want to kick ${member.displayName}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Kick",
+          style: "destructive",
+          onPress: () =>
+            Alert.alert("Success", `${member.displayName} has been kicked.`),
+        },
+      ],
+    );
   };
 
   const handleBanMember = (member: ServerMember) => {
@@ -604,10 +823,19 @@ function MembersTab({ isDark }: { isDark: boolean }) {
       Alert.alert("Cannot Ban", "You cannot ban the server owner.");
       return;
     }
-    Alert.alert("Ban Member", `Are you sure you want to ban ${member.displayName}? They will not be able to rejoin.`, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Ban", style: "destructive", onPress: () => Alert.alert("Success", `${member.displayName} has been banned.`) },
-    ]);
+    Alert.alert(
+      "Ban Member",
+      `Are you sure you want to ban ${member.displayName}? They will not be able to rejoin.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Ban",
+          style: "destructive",
+          onPress: () =>
+            Alert.alert("Success", `${member.displayName} has been banned.`),
+        },
+      ],
+    );
   };
 
   const getRoleColor = (roleName: string) => {
@@ -616,7 +844,10 @@ function MembersTab({ isDark }: { isDark: boolean }) {
   };
 
   const renderMember = (member: ServerMember) => (
-    <TouchableOpacity key={member.id} className="flex-row items-center px-4 py-3">
+    <TouchableOpacity
+      key={member.id}
+      className="flex-row items-center px-4 py-3"
+    >
       <View className="relative">
         <Avatar name={member.displayName} size="md" />
         <View
@@ -627,15 +858,24 @@ function MembersTab({ isDark }: { isDark: boolean }) {
       </View>
       <View className="flex-1 ml-3">
         <View className="flex-row items-center">
-          <Text className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
+          <Text
+            className={`font-medium ${isDark ? "text-white" : "text-gray-900"}`}
+          >
             {member.displayName}
           </Text>
           {member.isOwner && (
-            <Ionicons name="shield" size={14} color="#f59e0b" style={{ marginLeft: 4 }} />
+            <Ionicons
+              name="shield"
+              size={14}
+              color="#f59e0b"
+              style={{ marginLeft: 4 }}
+            />
           )}
         </View>
         <View className="flex-row items-center flex-wrap">
-          <Text className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}>
+          <Text
+            className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
+          >
             @{member.username}
           </Text>
           {member.roles.length > 0 && (
@@ -646,13 +886,21 @@ function MembersTab({ isDark }: { isDark: boolean }) {
                   className="px-1.5 py-0.5 rounded mr-1"
                   style={{ backgroundColor: getRoleColor(role) + "30" }}
                 >
-                  <Text style={{ color: getRoleColor(role), fontSize: 10, fontWeight: "600" }}>
+                  <Text
+                    style={{
+                      color: getRoleColor(role),
+                      fontSize: 10,
+                      fontWeight: "600",
+                    }}
+                  >
                     {role}
                   </Text>
                 </View>
               ))}
               {member.roles.length > 2 && (
-                <Text className={`text-xs ${isDark ? "text-dark-400" : "text-gray-500"}`}>
+                <Text
+                  className={`text-xs ${isDark ? "text-dark-400" : "text-gray-500"}`}
+                >
                   +{member.roles.length - 2}
                 </Text>
               )}
@@ -662,10 +910,16 @@ function MembersTab({ isDark }: { isDark: boolean }) {
       </View>
       {!member.isOwner && (
         <View className="flex-row">
-          <TouchableOpacity onPress={() => handleKickMember(member)} className="p-2">
+          <TouchableOpacity
+            onPress={() => handleKickMember(member)}
+            className="p-2"
+          >
             <Ionicons name="exit-outline" size={18} color="#f97316" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleBanMember(member)} className="p-2">
+          <TouchableOpacity
+            onPress={() => handleBanMember(member)}
+            className="p-2"
+          >
             <Ionicons name="ban" size={18} color="#ef4444" />
           </TouchableOpacity>
         </View>
@@ -687,7 +941,10 @@ function MembersTab({ isDark }: { isDark: boolean }) {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Online Members */}
         {onlineMembers.length > 0 && (
-          <SettingSection title={`Online — ${onlineMembers.length}`} isDark={isDark}>
+          <SettingSection
+            title={`Online — ${onlineMembers.length}`}
+            isDark={isDark}
+          >
             {onlineMembers.map((member, index) => (
               <React.Fragment key={member.id}>
                 {index > 0 && <Divider inset isDark={isDark} />}
@@ -699,7 +956,10 @@ function MembersTab({ isDark }: { isDark: boolean }) {
 
         {/* Offline Members */}
         {offlineMembers.length > 0 && (
-          <SettingSection title={`Offline — ${offlineMembers.length}`} isDark={isDark}>
+          <SettingSection
+            title={`Offline — ${offlineMembers.length}`}
+            isDark={isDark}
+          >
             {offlineMembers.map((member, index) => (
               <React.Fragment key={member.id}>
                 {index > 0 && <Divider inset isDark={isDark} />}
@@ -711,8 +971,14 @@ function MembersTab({ isDark }: { isDark: boolean }) {
 
         {filteredMembers.length === 0 && (
           <View className="items-center py-12">
-            <Ionicons name="search" size={48} color={isDark ? "#4e5058" : "#d1d5db"} />
-            <Text className={`mt-4 text-lg font-medium ${isDark ? "text-dark-400" : "text-gray-500"}`}>
+            <Ionicons
+              name="search"
+              size={48}
+              color={isDark ? "#4e5058" : "#d1d5db"}
+            />
+            <Text
+              className={`mt-4 text-lg font-medium ${isDark ? "text-dark-400" : "text-gray-500"}`}
+            >
               No members found
             </Text>
           </View>
@@ -739,12 +1005,18 @@ export default function ServerSettingsScreen() {
     defaultNotifications: "mentions",
   });
 
-  const [activeTab, setActiveTab] = useState<"general" | "roles" | "channels" | "members">("general");
+  const [activeTab, setActiveTab] = useState<
+    "general" | "roles" | "channels" | "members"
+  >("general");
 
   const tabs = [
     { key: "general" as const, icon: "settings-outline", label: "General" },
     { key: "roles" as const, icon: "shield-outline", label: "Roles" },
-    { key: "channels" as const, icon: "chatbubbles-outline", label: "Channels" },
+    {
+      key: "channels" as const,
+      icon: "chatbubbles-outline",
+      label: "Channels",
+    },
     { key: "members" as const, icon: "people-outline", label: "Members" },
   ];
 
@@ -755,9 +1027,15 @@ export default function ServerSettingsScreen() {
         className={`flex-row items-center justify-between px-4 py-3 ${isDark ? "bg-dark-900" : "bg-white"} border-b ${isDark ? "border-dark-800" : "border-gray-200"}`}
       >
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={28} color={isDark ? "#80848e" : "#6b7280"} />
+          <Ionicons
+            name="chevron-back"
+            size={28}
+            color={isDark ? "#80848e" : "#6b7280"}
+          />
         </TouchableOpacity>
-        <Text className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+        <Text
+          className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+        >
           Server Settings
         </Text>
         <View style={{ width: 28 }} />
@@ -779,11 +1057,21 @@ export default function ServerSettingsScreen() {
             <Ionicons
               name={tab.icon as React.ComponentProps<typeof Ionicons>["name"]}
               size={18}
-              color={activeTab === tab.key ? "#5865f2" : isDark ? "#80848e" : "#6b7280"}
+              color={
+                activeTab === tab.key
+                  ? "#5865f2"
+                  : isDark
+                    ? "#80848e"
+                    : "#6b7280"
+              }
             />
             <Text
               className={`ml-2 font-medium ${
-                activeTab === tab.key ? "text-brand" : isDark ? "text-dark-300" : "text-gray-600"
+                activeTab === tab.key
+                  ? "text-brand"
+                  : isDark
+                    ? "text-dark-300"
+                    : "text-gray-600"
               }`}
             >
               {tab.label}
@@ -793,7 +1081,13 @@ export default function ServerSettingsScreen() {
       </ScrollView>
 
       {/* Tab Content */}
-      {activeTab === "general" && <GeneralTab settings={settings} setSettings={setSettings} isDark={isDark} />}
+      {activeTab === "general" && (
+        <GeneralTab
+          settings={settings}
+          setSettings={setSettings}
+          isDark={isDark}
+        />
+      )}
       {activeTab === "roles" && <RolesTab isDark={isDark} />}
       {activeTab === "channels" && <ChannelsTab isDark={isDark} />}
       {activeTab === "members" && <MembersTab isDark={isDark} />}
