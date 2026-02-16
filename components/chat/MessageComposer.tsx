@@ -11,7 +11,11 @@ import {
   type TextInputContentSizeChangeEventData,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { AttachmentPicker, AttachmentPreviewStrip, type Attachment } from "./AttachmentPicker";
+import {
+  AttachmentPicker,
+  AttachmentPreviewStrip,
+  type Attachment,
+} from "./AttachmentPicker";
 
 interface TypingUser {
   id: string;
@@ -62,25 +66,29 @@ export function MessageComposer({
 }: MessageComposerProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  
+
   const [message, setMessage] = useState("");
   const [inputHeight, setInputHeight] = useState(44);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [isAttachmentPickerVisible, setIsAttachmentPickerVisible] = useState(false);
-  
+  const [isAttachmentPickerVisible, setIsAttachmentPickerVisible] =
+    useState(false);
+
   const inputRef = useRef<TextInput>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTypingRef = useRef(false);
-  
+
   // Typing indicator animation
   const typingDot1 = useRef(new Animated.Value(0)).current;
   const typingDot2 = useRef(new Animated.Value(0)).current;
   const typingDot3 = useRef(new Animated.Value(0)).current;
-  
+
   // Send button scale animation
   const sendButtonScale = useRef(new Animated.Value(1)).current;
 
-  const canSend = (message.trim().length > 0 || attachments.length > 0) && !disabled && !isSending;
+  const canSend =
+    (message.trim().length > 0 || attachments.length > 0) &&
+    !disabled &&
+    !isSending;
 
   // Animated typing dots
   useEffect(() => {
@@ -99,7 +107,7 @@ export function MessageComposer({
               duration: 300,
               useNativeDriver: true,
             }),
-          ])
+          ]),
         );
       };
 
@@ -112,6 +120,7 @@ export function MessageComposer({
       animation.start();
       return () => animation.stop();
     }
+    return undefined;
   }, [typingUsers.length, typingDot1, typingDot2, typingDot3]);
 
   // Handle typing state changes
@@ -120,12 +129,12 @@ export function MessageComposer({
       isTypingRef.current = true;
       onTypingChange?.(true);
     }
-    
+
     // Clear existing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     // Set new timeout to stop typing after 3 seconds of inactivity
     typingTimeoutRef.current = setTimeout(() => {
       isTypingRef.current = false;
@@ -152,7 +161,7 @@ export function MessageComposer({
   };
 
   const handleContentSizeChange = (
-    event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>
+    event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>,
   ) => {
     const { height } = event.nativeEvent.contentSize;
     // Clamp height between 44 and 120 (approximately 4 lines)
@@ -162,7 +171,7 @@ export function MessageComposer({
 
   const handleSend = () => {
     if (!canSend) return;
-    
+
     // Animate send button
     Animated.sequence([
       Animated.timing(sendButtonScale, {
@@ -181,14 +190,14 @@ export function MessageComposer({
     setMessage("");
     setAttachments([]);
     setInputHeight(44);
-    
+
     // Clear typing state
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
     isTypingRef.current = false;
     onTypingChange?.(false);
-    
+
     Keyboard.dismiss();
   };
 
@@ -208,7 +217,8 @@ export function MessageComposer({
   const getTypingText = (): string => {
     if (typingUsers.length === 0) return "";
     if (typingUsers.length === 1) return `${typingUsers[0].name} is typing`;
-    if (typingUsers.length === 2) return `${typingUsers[0].name} and ${typingUsers[1].name} are typing`;
+    if (typingUsers.length === 2)
+      return `${typingUsers[0].name} and ${typingUsers[1].name} are typing`;
     return `${typingUsers[0].name} and ${typingUsers.length - 1} others are typing`;
   };
 
@@ -346,9 +356,7 @@ export function MessageComposer({
         </View>
 
         {/* Send Button */}
-        <Animated.View
-          style={{ transform: [{ scale: sendButtonScale }] }}
-        >
+        <Animated.View style={{ transform: [{ scale: sendButtonScale }] }}>
           <TouchableOpacity
             onPress={handleSend}
             disabled={!canSend}
@@ -399,10 +407,13 @@ interface TypingIndicatorProps {
   className?: string;
 }
 
-export function TypingIndicator({ users, className = "" }: TypingIndicatorProps) {
+export function TypingIndicator({
+  users,
+  className = "",
+}: TypingIndicatorProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  
+
   const dot1 = useRef(new Animated.Value(0)).current;
   const dot2 = useRef(new Animated.Value(0)).current;
   const dot3 = useRef(new Animated.Value(0)).current;
@@ -423,7 +434,7 @@ export function TypingIndicator({ users, className = "" }: TypingIndicatorProps)
               duration: 300,
               useNativeDriver: true,
             }),
-          ])
+          ]),
         );
       };
 
@@ -436,13 +447,15 @@ export function TypingIndicator({ users, className = "" }: TypingIndicatorProps)
       animation.start();
       return () => animation.stop();
     }
+    return undefined;
   }, [users.length, dot1, dot2, dot3]);
 
   if (users.length === 0) return null;
 
   const getText = (): string => {
     if (users.length === 1) return `${users[0].name} is typing`;
-    if (users.length === 2) return `${users[0].name} and ${users[1].name} are typing`;
+    if (users.length === 2)
+      return `${users[0].name} and ${users[1].name} are typing`;
     return `${users[0].name} and ${users.length - 1} others are typing`;
   };
 
