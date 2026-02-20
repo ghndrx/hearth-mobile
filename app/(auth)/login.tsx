@@ -15,6 +15,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { useAuthStore } from "../../lib/stores/auth";
 import { Button, Input, PasswordInput, Alert } from "../../components/ui";
 import * as authService from "../../lib/services/auth";
+import { AnimatedView, ShakeAnimation } from "../../components/animations";
 
 interface FormErrors {
   email?: string;
@@ -51,6 +52,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shakeTrigger, setShakeTrigger] = useState(false);
 
   const login = useAuthStore((state) => state.login);
 
@@ -67,8 +69,16 @@ export default function LoginScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const triggerShake = () => {
+    setShakeTrigger(true);
+    setTimeout(() => setShakeTrigger(false), 500);
+  };
+
   const handleLogin = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      triggerShake();
+      return;
+    }
 
     setIsSubmitting(true);
     setErrors({});
@@ -80,6 +90,7 @@ export default function LoginScreen() {
         setErrors({
           general: authService.getAuthErrorMessage(response.error.code),
         });
+        triggerShake();
         return;
       }
 
@@ -91,6 +102,7 @@ export default function LoginScreen() {
       setErrors({
         general: "An unexpected error occurred. Please try again.",
       });
+      triggerShake();
     } finally {
       setIsSubmitting(false);
     }
@@ -103,6 +115,7 @@ export default function LoginScreen() {
         setErrors({
           general: "Biometric authentication is not available on this device.",
         });
+        triggerShake();
         return;
       }
 
@@ -112,6 +125,7 @@ export default function LoginScreen() {
           general:
             "No biometric credentials found. Please set up biometrics first.",
         });
+        triggerShake();
         return;
       }
 
@@ -121,24 +135,24 @@ export default function LoginScreen() {
       });
 
       if (result.success) {
-        // Biometric login would use stored credentials
-        // For now, show a message that this requires a saved session
         setErrors({
-          general: "Please log in with email and password first to enable biometric login.",
+          general:
+            "Please log in with email and password first to enable biometric login.",
         });
       }
     } catch (error) {
       setErrors({
         general: "Biometric authentication failed. Please try again.",
       });
+      triggerShake();
     }
   };
 
   const handleSocialLogin = (_provider: string) => {
-    // OAuth not yet implemented on backend
     setErrors({
       general: "Social login is not yet available.",
     });
+    triggerShake();
   };
 
   const clearFieldError = (field: keyof FormErrors) => {
@@ -157,7 +171,11 @@ export default function LoginScreen() {
           contentContainerClassName="flex-grow justify-center px-6 py-8"
           keyboardShouldPersistTaps="handled"
         >
-          <View className="items-center mb-10">
+          <AnimatedView
+            animation="zoom"
+            delay={0}
+            className="items-center mb-10"
+          >
             <View
               className={`
                 w-20 h-20 
@@ -182,156 +200,176 @@ export default function LoginScreen() {
             >
               Sign in to continue to Hearth
             </Text>
-          </View>
+          </AnimatedView>
 
-          {errors.general && (
-            <View className="mb-6">
-              <Alert
-                variant="error"
-                message={errors.general}
-                onClose={() =>
-                  setErrors((prev) => ({ ...prev, general: undefined }))
-                }
-              />
+          <ShakeAnimation trigger={shakeTrigger}>
+            <View>
+              {errors.general && (
+                <AnimatedView animation="fade" className="mb-6">
+                  <Alert
+                    variant="error"
+                    message={errors.general}
+                    onClose={() =>
+                      setErrors((prev) => ({ ...prev, general: undefined }))
+                    }
+                  />
+                </AnimatedView>
+              )}
+
+              <AnimatedView animation="slide-up" delay={100}>
+                <Input
+                  label="Email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    clearFieldError("email");
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  textContentType="emailAddress"
+                  autoComplete="email"
+                  editable={!isSubmitting}
+                  error={errors.email}
+                  leftIcon={
+                    <Ionicons
+                      name="mail-outline"
+                      size={20}
+                      color={isDark ? "#80848e" : "#6b7280"}
+                    />
+                  }
+                />
+              </AnimatedView>
+
+              <AnimatedView animation="slide-up" delay={200}>
+                <PasswordInput
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    clearFieldError("password");
+                  }}
+                  autoComplete="password"
+                  editable={!isSubmitting}
+                  error={errors.password}
+                />
+              </AnimatedView>
             </View>
-          )}
+          </ShakeAnimation>
 
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              clearFieldError("email");
-            }}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            autoComplete="email"
-            editable={!isSubmitting}
-            error={errors.email}
-            leftIcon={
+          <AnimatedView animation="slide-up" delay={300}>
+            <Link href="/(auth)/forgot-password" asChild>
+              <Text className="text-brand text-sm mb-6 self-end">
+                Forgot password?
+              </Text>
+            </Link>
+          </AnimatedView>
+
+          <AnimatedView animation="slide-up" delay={400}>
+            <Button
+              title="Sign In"
+              onPress={handleLogin}
+              isLoading={isSubmitting}
+              fullWidth
+              size="lg"
+              className="mb-4"
+            />
+          </AnimatedView>
+
+          <AnimatedView animation="slide-up" delay={500}>
+            <TouchableOpacity
+              onPress={handleBiometricLogin}
+              className={`
+                flex-row items-center justify-center 
+                py-3 px-4 rounded-xl mb-6
+                ${isDark ? "bg-dark-800" : "bg-gray-100"}
+              `}
+            >
               <Ionicons
-                name="mail-outline"
-                size={20}
+                name="finger-print-outline"
+                size={24}
                 color={isDark ? "#80848e" : "#6b7280"}
               />
-            }
-          />
-
-          <PasswordInput
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              clearFieldError("password");
-            }}
-            autoComplete="password"
-            editable={!isSubmitting}
-            error={errors.password}
-          />
-
-          <Link href="/(auth)/forgot-password" asChild>
-            <Text className="text-brand text-sm mb-6 self-end">
-              Forgot password?
-            </Text>
-          </Link>
-
-          <Button
-            title="Sign In"
-            onPress={handleLogin}
-            isLoading={isSubmitting}
-            fullWidth
-            size="lg"
-            className="mb-4"
-          />
-
-          <TouchableOpacity
-            onPress={handleBiometricLogin}
-            className={`
-              flex-row items-center justify-center 
-              py-3 px-4 rounded-xl mb-6
-              ${isDark ? "bg-dark-800" : "bg-gray-100"}
-            `}
-          >
-            <Ionicons
-              name="finger-print-outline"
-              size={24}
-              color={isDark ? "#80848e" : "#6b7280"}
-            />
-            <Text
-              className={`ml-2 font-medium ${
-                isDark ? "text-dark-200" : "text-gray-600"
-              }`}
-            >
-              Login with Biometrics
-            </Text>
-          </TouchableOpacity>
-
-          <View className="flex-row items-center mb-6">
-            <View
-              className={`flex-1 h-px ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
-            />
-            <Text
-              className={`mx-4 text-sm ${isDark ? "text-dark-400" : "text-gray-400"}`}
-            >
-              or continue with
-            </Text>
-            <View
-              className={`flex-1 h-px ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
-            />
-          </View>
-
-          <View className="flex-row justify-center space-x-4 mb-6">
-            <TouchableOpacity
-              onPress={() => handleSocialLogin("google")}
-              disabled={isSubmitting}
-              className={`
-                w-14 h-14 rounded-full items-center justify-center
-                ${isDark ? "bg-dark-800" : "bg-white"}
-                border ${isDark ? "border-dark-700" : "border-gray-200"}
-              `}
-            >
-              <Ionicons name="logo-google" size={24} color="#DB4437" />
+              <Text
+                className={`ml-2 font-medium ${
+                  isDark ? "text-dark-200" : "text-gray-600"
+                }`}
+              >
+                Login with Biometrics
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleSocialLogin("apple")}
-              disabled={isSubmitting}
-              className={`
-                w-14 h-14 rounded-full items-center justify-center
-                ${isDark ? "bg-dark-800" : "bg-white"}
-                border ${isDark ? "border-dark-700" : "border-gray-200"}
-              `}
-            >
-              <Ionicons
-                name="logo-apple"
-                size={24}
-                color={isDark ? "#ffffff" : "#000000"}
+          </AnimatedView>
+
+          <AnimatedView animation="fade" delay={600}>
+            <View className="flex-row items-center mb-6">
+              <View
+                className={`flex-1 h-px ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
               />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleSocialLogin("discord")}
-              disabled={isSubmitting}
-              className={`
-                w-14 h-14 rounded-full items-center justify-center
-                ${isDark ? "bg-dark-800" : "bg-white"}
-                border ${isDark ? "border-dark-700" : "border-gray-200"}
-              `}
-            >
-              <Ionicons name="logo-discord" size={24} color="#5865F2" />
-            </TouchableOpacity>
-          </View>
+              <Text
+                className={`mx-4 text-sm ${isDark ? "text-dark-400" : "text-gray-400"}`}
+              >
+                or continue with
+              </Text>
+              <View
+                className={`flex-1 h-px ${isDark ? "bg-dark-700" : "bg-gray-200"}`}
+              />
+            </View>
+          </AnimatedView>
 
-          <View className="flex-row justify-center">
-            <Text className={isDark ? "text-dark-200" : "text-gray-600"}>
-              Don&apos;t have an account?{" "}
-            </Text>
-            <Link href="/(auth)/register" asChild>
-              <Text className="text-brand font-semibold">Sign Up</Text>
-            </Link>
-          </View>
+          <AnimatedView animation="slide-up" delay={700}>
+            <View className="flex-row justify-center space-x-4 mb-6">
+              <TouchableOpacity
+                onPress={() => handleSocialLogin("google")}
+                disabled={isSubmitting}
+                className={`
+                  w-14 h-14 rounded-full items-center justify-center
+                  ${isDark ? "bg-dark-800" : "bg-white"}
+                  border ${isDark ? "border-dark-700" : "border-gray-200"}
+                `}
+              >
+                <Ionicons name="logo-google" size={24} color="#DB4437" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleSocialLogin("apple")}
+                disabled={isSubmitting}
+                className={`
+                  w-14 h-14 rounded-full items-center justify-center
+                  ${isDark ? "bg-dark-800" : "bg-white"}
+                  border ${isDark ? "border-dark-700" : "border-gray-200"}
+                `}
+              >
+                <Ionicons
+                  name="logo-apple"
+                  size={24}
+                  color={isDark ? "#ffffff" : "#000000"}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleSocialLogin("discord")}
+                disabled={isSubmitting}
+                className={`
+                  w-14 h-14 rounded-full items-center justify-center
+                  ${isDark ? "bg-dark-800" : "bg-white"}
+                  border ${isDark ? "border-dark-700" : "border-gray-200"}
+                `}
+              >
+                <Ionicons name="logo-discord" size={24} color="#5865F2" />
+              </TouchableOpacity>
+            </View>
+          </AnimatedView>
+
+          <AnimatedView animation="fade" delay={800}>
+            <View className="flex-row justify-center">
+              <Text className={isDark ? "text-dark-200" : "text-gray-600"}>
+                Don&apos;t have an account?{" "}
+              </Text>
+              <Link href="/(auth)/register" asChild>
+                <Text className="text-brand font-semibold">Sign Up</Text>
+              </Link>
+            </View>
+          </AnimatedView>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
