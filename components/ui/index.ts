@@ -9,6 +9,7 @@ export { ListItem, ListSection, ListDivider } from "./List";
 export { SwitchItem } from "./Switch";
 export { Badge, NotificationBadge } from "./Badge";
 export { SearchInput } from "./SearchInput";
+export { OfflineIndicator, InlineSyncStatus } from "./OfflineIndicator";
 
 // Settings components
 export {

@@ -148,10 +148,118 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: "DELETE", requireAuth });
   }
+
+  /**
+   * Upload file with progress tracking
+   */
+  async upload<T>(
+    endpoint: string,
+    formData: FormData,
+    options: {
+      onProgress?: (event: { loaded: number; total?: number }) => void;
+      requireAuth?: boolean;
+    } = {}
+  ): Promise<ApiResponse<T>> {
+    const { onProgress, requireAuth = true } = options;
+
+    try {
+      const headers: Record<string, string> = {
+        Accept: "application/json",
+      };
+
+      // Add auth token if required
+      if (requireAuth) {
+        const token = await this.getAuthToken();
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        } else {
+          return {
+            data: null,
+            error: {
+              code: "unauthorized",
+              message: "Authentication required",
+              status: 401,
+            },
+          };
+        }
+      }
+
+      // Use XMLHttpRequest for progress tracking
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${this.baseUrl}${endpoint}`);
+
+        // Set headers
+        Object.entries(headers).forEach(([key, value]) => {
+          xhr.setRequestHeader(key, value);
+        });
+
+        // Track upload progress
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            onProgress?.({ loaded: event.loaded, total: event.total });
+          }
+        };
+
+        xhr.onload = () => {
+          try {
+            const responseData = JSON.parse(xhr.responseText);
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve({ data: responseData as T, error: null });
+            } else {
+              resolve({
+                data: null,
+                error: {
+                  code: responseData.error || "upload_error",
+                  message: responseData.message || "Upload failed",
+                  status: xhr.status,
+                },
+              });
+            }
+          } catch {
+            resolve({
+              data: null,
+              error: {
+                code: "parse_error",
+                message: "Failed to parse response",
+                status: xhr.status,
+              },
+            });
+          }
+        };
+
+        xhr.onerror = () => {
+          resolve({
+            data: null,
+            error: {
+              code: "network_error",
+              message: "Upload failed due to network error",
+              status: 0,
+            },
+          });
+        };
+
+        xhr.send(formData);
+      });
+    } catch (error) {
+      return {
+        data: null,
+        error: {
+          code: "upload_error",
+          message: error instanceof Error ? error.message : "Upload failed",
+          status: 0,
+        },
+      };
+    }
+  }
 }
 
 // Export singleton instance
 export const api = new ApiClient(API_BASE_URL);
+
+// Create a named export for compatibility
+export const apiClient = api;
 
 // Re-export types
 export type { ApiResponse, ApiError, RequestOptions };

@@ -143,3 +143,6 @@ export interface ServerMember {
   isBanned?: boolean;
   isOwner?: boolean;
 }
+
+// Re-export offline types
+export * from "./offline";
