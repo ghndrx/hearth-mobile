@@ -131,7 +131,12 @@ async function sendMessage(message: QueuedMessage): Promise<SendResult> {
     }
 
     // Handle specific error codes
-    const errorCode = response.error?.code;
+    const errorCode =
+      typeof response.error?.code === "number"
+        ? response.error.code
+        : typeof response.error?.code === "string"
+          ? parseInt(response.error.code, 10)
+          : undefined;
     let reason: FailureReason = "unknown";
 
     if (errorCode === 401 || errorCode === 403) {

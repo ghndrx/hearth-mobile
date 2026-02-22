@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "../ui/Avatar";
-import type { MessageStatus, FailureReason } from "../../lib/types/offline";
+import type { FailureReason } from "../../lib/types/offline";
 
 export interface Message {
   id: string;
@@ -487,7 +487,7 @@ export function MessageBubble({
                     >
                       <View
                         className="h-full bg-brand rounded-full"
-                        style={{ width: `${attachment.uploadProgress}%` }}
+                        style={{ width: `${attachment.uploadProgress ?? 0}%` }}
                       />
                     </View>
                   </View>

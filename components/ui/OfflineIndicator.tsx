@@ -43,7 +43,7 @@ export function OfflineIndicator({
   // Animation values
   const slideAnim = useRef(new Animated.Value(-50)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const progressAnim = useRef(new Animated.Value(0)).current;
+  const _progressAnim = useRef(new Animated.Value(0)).current;
 
   // Determine visibility
   const shouldShow = !isOnline || hasPendingMessages || hasFailedMessages;
