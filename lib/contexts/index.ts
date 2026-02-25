@@ -4,6 +4,11 @@
  */
 
 export {
+  BiometricProvider,
+  useBiometric,
+} from "./BiometricContext";
+
+export {
   MessageQueueProvider,
   useMessageQueue,
   useOfflineIndicator,

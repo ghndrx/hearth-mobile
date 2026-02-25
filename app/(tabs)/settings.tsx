@@ -2,6 +2,7 @@ import { useState } from "react";
 import { router } from "expo-router";
 import { useAuthStore } from "../../lib/stores/auth";
 import { useNotificationContext } from "../../lib/contexts/NotificationContext";
+import { useBiometric } from "../../lib/contexts/BiometricContext";
 import {
   SettingsScreen,
   SettingsSection,
@@ -15,6 +16,7 @@ export default function SettingsPage() {
     updateSettings,
     isPermissionGranted,
   } = useNotificationContext();
+  const { settings: biometricSettings, biometricName, capabilities } = useBiometric();
 
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [haptics, setHaptics] = useState(true);
@@ -113,11 +115,17 @@ export default function SettingsPage() {
       showChevron: true,
     },
     {
-      id: "biometric",
+      id: "security",
       icon: "finger-print-outline",
-      label: "Biometric Auth",
+      label: biometricName,
+      subtitle: !capabilities?.isAvailable
+        ? "Not available"
+        : biometricSettings.enabled
+          ? "Enabled"
+          : "Disabled",
       type: "link",
       showChevron: true,
+      onPress: () => router.push("/settings/security"),
     },
     {
       id: "2fa",
