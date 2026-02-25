@@ -30,7 +30,7 @@ interface MessageContextMenuProps {
 }
 
 interface MenuAction {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: React.ComponentProps<typeof Ionicons>["name"];
   label: string;
   onPress: () => void;
   destructive?: boolean;
@@ -149,40 +149,40 @@ export function MessageContextMenu({
   
   const menuActions: MenuAction[] = [
     {
-      icon: "arrow-undo-outline",
+      icon: "arrow-undo-outline" as const,
       label: "Reply",
       onPress: handleReply,
       hidden: !onReply,
     },
     {
-      icon: "chatbubbles-outline",
+      icon: "chatbubbles-outline" as const,
       label: "Start Thread",
       onPress: handleStartThread,
     },
     {
-      icon: "copy-outline",
+      icon: "copy-outline" as const,
       label: "Copy",
       onPress: handleCopy,
     },
     {
-      icon: "share-outline",
+      icon: "share-outline" as const,
       label: "Share",
       onPress: handleShare,
     },
     {
-      icon: "pin-outline",
+      icon: "pin-outline" as const,
       label: "Pin",
       onPress: handlePin,
       hidden: !onPin,
     },
     {
-      icon: "pencil-outline",
+      icon: "pencil-outline" as const,
       label: "Edit",
       onPress: handleEdit,
       hidden: !message?.isCurrentUser || !onEdit,
     },
     {
-      icon: "trash-outline",
+      icon: "trash-outline" as const,
       label: "Delete",
       onPress: handleDelete,
       destructive: true,

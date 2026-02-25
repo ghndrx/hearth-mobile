@@ -209,8 +209,8 @@ export default function ThreadScreen() {
       <View className="flex-row mb-3">
         <Avatar
           name={parentMessage.senderName}
-          size={40}
-          imageUrl={parentMessage.senderAvatar}
+          size="md"
+          uri={parentMessage.senderAvatar}
         />
         <View className="flex-1 ml-3">
           <View className="flex-row items-center">
@@ -282,8 +282,8 @@ export default function ThreadScreen() {
           <View className="flex-row items-center mb-1 ml-1">
             <Avatar
               name={item.senderName}
-              size={24}
-              imageUrl={item.senderAvatar}
+              size="xs"
+              uri={item.senderAvatar}
             />
             <Text className="ml-2 text-xs font-medium text-neutral-600 dark:text-neutral-400">
               {item.senderName}
