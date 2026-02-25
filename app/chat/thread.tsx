@@ -81,7 +81,7 @@ const mockThreadReplies: ThreadReply[] = [
 ];
 
 export default function ThreadScreen() {
-  const { messageId } = useLocalSearchParams<{ messageId: string }>();
+  const { messageId: _messageId } = useLocalSearchParams<{ messageId: string }>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   

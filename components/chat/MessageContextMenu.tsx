@@ -253,7 +253,7 @@ export function MessageContextMenu({
               
               {/* Actions List */}
               <View className="py-1">
-                {menuActions.map((action, index) => (
+                {menuActions.map((action, _index) => (
                   <TouchableOpacity
                     key={action.label}
                     onPress={action.onPress}
