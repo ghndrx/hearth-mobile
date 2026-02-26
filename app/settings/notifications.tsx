@@ -226,8 +226,16 @@ export default function NotificationSettingsScreen() {
             `}
           >
             <SwitchItem
-              title="Messages"
-              subtitle="Direct messages and channel messages"
+              title="Direct Messages"
+              subtitle="Private messages from friends"
+              value={localSettings.dms}
+              onValueChange={(value) => handleToggle("dms", value)}
+              disabled={!localSettings.enabled || isLoading}
+            />
+            <ListDivider />
+            <SwitchItem
+              title="Channel Messages"
+              subtitle="Messages in server channels"
               value={localSettings.messages}
               onValueChange={(value) => handleToggle("messages", value)}
               disabled={!localSettings.enabled || isLoading}
@@ -238,6 +246,14 @@ export default function NotificationSettingsScreen() {
               subtitle="When someone @mentions you"
               value={localSettings.mentions}
               onValueChange={(value) => handleToggle("mentions", value)}
+              disabled={!localSettings.enabled || isLoading}
+            />
+            <ListDivider />
+            <SwitchItem
+              title="Calls"
+              subtitle="Incoming voice and video calls"
+              value={localSettings.calls}
+              onValueChange={(value) => handleToggle("calls", value)}
               disabled={!localSettings.enabled || isLoading}
             />
             <ListDivider />
@@ -282,6 +298,14 @@ export default function NotificationSettingsScreen() {
               ${!localSettings.enabled ? "opacity-50" : ""}
             `}
           >
+            <SwitchItem
+              title="Show Previews"
+              subtitle="Show message content in notifications"
+              value={localSettings.showPreviews}
+              onValueChange={(value) => handleToggle("showPreviews", value)}
+              disabled={!localSettings.enabled || isLoading}
+            />
+            <ListDivider />
             <SwitchItem
               title="Sounds"
               subtitle="Play notification sounds"

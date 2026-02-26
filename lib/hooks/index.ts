@@ -8,6 +8,7 @@ export { useBiometricAuth } from "./useBiometricAuth";
 
 // Notification hooks
 export * from "./useNotifications";
+export { usePushNotifications } from "./usePushNotifications";
 
 // Network status hooks
 export { useNetworkStatus, useIsOnline } from "./useNetworkStatus";
