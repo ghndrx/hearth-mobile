@@ -7,15 +7,42 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
 
+// Notification types for categorization and routing
+export type NotificationType =
+  | "message"
+  | "dm"
+  | "mention"
+  | "reply"
+  | "friend_request"
+  | "server_invite"
+  | "call"
+  | "system";
+
+// Data payload structure for notifications
+export interface NotificationPayload {
+  type: NotificationType;
+  serverId?: string;
+  channelId?: string;
+  messageId?: string;
+  threadId?: string;
+  userId?: string;
+  title: string;
+  body: string;
+  imageUrl?: string;
+}
+
 export interface NotificationSettings {
   enabled: boolean;
   messages: boolean;
+  dms: boolean;
   mentions: boolean;
   serverActivity: boolean;
   friendRequests: boolean;
+  calls: boolean;
   sounds: boolean;
   vibration: boolean;
   badgeCount: boolean;
+  showPreviews: boolean;
   quietHoursEnabled: boolean;
   quietHoursStart: string; // "22:00"
   quietHoursEnd: string; // "07:00"
@@ -24,12 +51,15 @@ export interface NotificationSettings {
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   enabled: true,
   messages: true,
+  dms: true,
   mentions: true,
   serverActivity: true,
   friendRequests: true,
+  calls: true,
   sounds: true,
   vibration: true,
   badgeCount: true,
+  showPreviews: true,
   quietHoursEnabled: false,
   quietHoursStart: "22:00",
   quietHoursEnd: "07:00",
@@ -167,13 +197,26 @@ async function setupAndroidChannels(): Promise<void> {
   // Messages channel with high priority
   await Notifications.setNotificationChannelAsync("messages", {
     name: "Messages",
-    description: "Direct messages and channel messages",
+    description: "Channel messages from servers",
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 250, 250, 250],
     lightColor: "#5865f2",
     sound: "default",
     enableVibrate: true,
     showBadge: true,
+  });
+
+  // Direct messages channel - highest priority for personal messages
+  await Notifications.setNotificationChannelAsync("direct-messages", {
+    name: "Direct Messages",
+    description: "Private messages from friends",
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 250, 250, 250],
+    lightColor: "#5865f2",
+    sound: "default",
+    enableVibrate: true,
+    showBadge: true,
+    bypassDnd: false,
   });
 
   // Mentions channel with max priority
@@ -186,6 +229,19 @@ async function setupAndroidChannels(): Promise<void> {
     sound: "default",
     enableVibrate: true,
     showBadge: true,
+  });
+
+  // Calls channel - urgent with DND bypass for incoming calls
+  await Notifications.setNotificationChannelAsync("calls", {
+    name: "Calls",
+    description: "Incoming voice and video calls",
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 1000, 500, 1000],
+    lightColor: "#3ba55c",
+    sound: "default",
+    enableVibrate: true,
+    showBadge: true,
+    bypassDnd: true,
   });
 
   // Server activity channel
@@ -207,7 +263,28 @@ async function setupAndroidChannels(): Promise<void> {
     sound: "default",
     showBadge: true,
   });
+
+  // System notifications - low priority
+  await Notifications.setNotificationChannelAsync("system", {
+    name: "System",
+    description: "App updates and system notifications",
+    importance: Notifications.AndroidImportance.LOW,
+    sound: undefined,
+    showBadge: false,
+  });
 }
+
+// Android notification channel names for reference
+export const NOTIFICATION_CHANNELS = {
+  DEFAULT: "default",
+  MESSAGES: "messages",
+  DIRECT_MESSAGES: "direct-messages",
+  MENTIONS: "mentions",
+  CALLS: "calls",
+  SERVER: "server",
+  SOCIAL: "social",
+  SYSTEM: "system",
+} as const;
 
 export async function getStoredPushToken(): Promise<string | null> {
   try {
