@@ -43,7 +43,7 @@ const PRESET_COLORS = [
 ];
 
 export default function RoleEditScreen() {
-  const { serverId, roleId } = useLocalSearchParams<{ serverId: string; roleId: string }>();
+  const { serverId: _serverId, roleId } = useLocalSearchParams<{ serverId: string; roleId: string }>();
   const router = useRouter();
   
   const [name, setName] = useState('');
