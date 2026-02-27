@@ -5,3 +5,6 @@ export {
   AttachmentPreviewStrip,
   type Attachment,
 } from "./AttachmentPicker";
+export { MediaViewer, type MediaItem } from "./MediaViewer";
+export { ReactionPicker } from "./ReactionPicker";
+export { MessageContextMenu } from "./MessageContextMenu";
