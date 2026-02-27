@@ -133,9 +133,9 @@ export function TypingIndicator({
               ]}
             >
               <Avatar
-                source={user.avatarUrl ? { uri: user.avatarUrl } : undefined}
+                uri={user.avatarUrl}
                 name={user.username}
-                size={20}
+                size="xs"
               />
             </View>
           ))}

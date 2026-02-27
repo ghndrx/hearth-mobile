@@ -5,7 +5,6 @@
 
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import * as ImageManipulator from 'expo-image-manipulator';
 import { Platform } from 'react-native';
 import { apiClient } from './api';
 
@@ -53,13 +52,6 @@ export interface CompressionOptions {
   format?: 'jpeg' | 'png' | 'webp';
 }
 
-const DEFAULT_COMPRESSION: CompressionOptions = {
-  maxWidth: 1920,
-  maxHeight: 1920,
-  quality: 0.8,
-  format: 'jpeg',
-};
-
 const MIME_TYPES: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
@@ -101,7 +93,7 @@ class MediaService {
       mediaTypes: this.getMediaTypes(options.mediaType),
       allowsMultipleSelection: options.allowsMultiple ?? false,
       allowsEditing: options.allowsEditing ?? false,
-      quality: options.quality ?? 1,
+      quality: options.quality ?? 0.8,
     });
 
     if (result.canceled) {
@@ -139,39 +131,6 @@ class MediaService {
   }
 
   /**
-   * Compress an image
-   */
-  async compressImage(
-    uri: string,
-    options: CompressionOptions = {}
-  ): Promise<string> {
-    const opts = { ...DEFAULT_COMPRESSION, ...options };
-    
-    const actions: ImageManipulator.Action[] = [];
-    
-    // Add resize action if dimensions specified
-    if (opts.maxWidth || opts.maxHeight) {
-      actions.push({
-        resize: {
-          width: opts.maxWidth,
-          height: opts.maxHeight,
-        },
-      });
-    }
-
-    const format = opts.format === 'png' 
-      ? ImageManipulator.SaveFormat.PNG 
-      : ImageManipulator.SaveFormat.JPEG;
-
-    const result = await ImageManipulator.manipulateAsync(uri, actions, {
-      compress: opts.quality ?? 0.8,
-      format,
-    });
-
-    return result.uri;
-  }
-
-  /**
    * Upload a media file to the server
    */
   async upload(
@@ -179,37 +138,37 @@ class MediaService {
     channelId: string,
     onProgress?: (progress: UploadProgress) => void
   ): Promise<UploadResult> {
-    // Compress image if needed
-    let uploadUri = asset.uri;
-    if (asset.type === 'image') {
-      uploadUri = await this.compressImage(asset.uri);
-    }
-
-    const fileInfo = await FileSystem.getInfoAsync(uploadUri);
+    const fileInfo = await FileSystem.getInfoAsync(asset.uri);
     if (!fileInfo.exists) {
       throw new Error('File does not exist');
     }
 
     const formData = new FormData();
     formData.append('file', {
-      uri: Platform.OS === 'ios' ? uploadUri.replace('file://', '') : uploadUri,
+      uri: Platform.OS === 'ios' ? asset.uri.replace('file://', '') : asset.uri,
       type: asset.mimeType || 'application/octet-stream',
       name: asset.fileName,
     } as unknown as Blob);
     formData.append('channelId', channelId);
 
-    // Simulated upload with progress (actual implementation would use XMLHttpRequest)
-    const response = await apiClient.post<UploadResult>('/media/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    // Use apiClient.upload for progress tracking
+    const response = await apiClient.upload<UploadResult>('/media/upload', formData, {
+      onProgress: (event) => {
+        if (onProgress && event.total) {
+          onProgress({
+            loaded: event.loaded,
+            total: event.total,
+            percentage: (event.loaded / event.total) * 100,
+          });
+        }
       },
     });
 
-    if (onProgress) {
-      onProgress({ loaded: 100, total: 100, percentage: 100 });
+    if (response.error || !response.data) {
+      throw new Error(response.error?.message || 'Upload failed');
     }
 
-    return response;
+    return response.data;
   }
 
   /**
@@ -324,7 +283,7 @@ class MediaService {
     for (const file of files) {
       const fileInfo = await FileSystem.getInfoAsync(directory + file);
       if (fileInfo.exists && 'size' in fileInfo) {
-        totalSize += fileInfo.size || 0;
+        totalSize += fileInfo.size ?? 0;
       }
     }
 
@@ -353,7 +312,7 @@ class MediaService {
     try {
       const fileInfo = await FileSystem.getInfoAsync(asset.uri);
       if (fileInfo.exists && 'size' in fileInfo) {
-        fileSize = fileInfo.size || 0;
+        fileSize = fileInfo.size ?? 0;
       }
     } catch {
       // File size not available
@@ -367,7 +326,7 @@ class MediaService {
       mimeType,
       width: asset.width,
       height: asset.height,
-      duration: asset.duration,
+      duration: asset.duration ?? undefined,
     };
   }
 }
