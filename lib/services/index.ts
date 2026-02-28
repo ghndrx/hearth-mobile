@@ -26,3 +26,6 @@ export * from "./media";
 export * from "./settings";
 export * from "./haptics";
 export * from "./accessibility";
+export * from "./deepLinking";
+export * from "./quickActions";
+export * from "./spotlight";

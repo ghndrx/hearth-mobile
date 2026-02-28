@@ -18,11 +18,41 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.hearth.mobile",
+      "associatedDomains": [
+        "applinks:hearth.app",
+        "applinks:www.hearth.app",
+        "applinks:link.hearth.app",
+        "activitycontinuation:hearth.app",
+        "webcredentials:hearth.app"
+      ],
       "infoPlist": {
         "NSCameraUsageDescription": "Hearth needs camera access to take photos and videos to share in chat.",
         "NSPhotoLibraryUsageDescription": "Hearth needs photo library access to share images in chat.",
         "NSMicrophoneUsageDescription": "Hearth needs microphone access for voice messages and calls.",
-        "NSFaceIDUsageDescription": "Hearth uses Face ID for secure authentication."
+        "NSFaceIDUsageDescription": "Hearth uses Face ID for secure authentication.",
+        "UIApplicationShortcutItems": [
+          {
+            "UIApplicationShortcutItemType": "io.hearth.mobile.new_message",
+            "UIApplicationShortcutItemTitle": "New Message",
+            "UIApplicationShortcutItemSubtitle": "Start a conversation",
+            "UIApplicationShortcutItemIconType": "UIApplicationShortcutIconTypeCompose"
+          },
+          {
+            "UIApplicationShortcutItemType": "io.hearth.mobile.search",
+            "UIApplicationShortcutItemTitle": "Search",
+            "UIApplicationShortcutItemSubtitle": "Find messages & people",
+            "UIApplicationShortcutItemIconType": "UIApplicationShortcutIconTypeSearch"
+          }
+        ],
+        "NSUserActivityTypes": [
+          "io.hearth.mobile.view-server",
+          "io.hearth.mobile.view-channel",
+          "io.hearth.mobile.send-message",
+          "io.hearth.mobile.start-call",
+          "io.hearth.mobile.join-voice",
+          "io.hearth.mobile.search",
+          "io.hearth.mobile.view-profile"
+        ]
       }
     },
     "android": {
@@ -31,6 +61,33 @@
         "backgroundColor": "#1e1f22"
       },
       "package": "io.hearth.mobile",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "hearth.app",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "www.hearth.app",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "link.hearth.app",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
       "permissions": [
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
