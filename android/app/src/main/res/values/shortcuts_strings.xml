@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Shortcuts Strings -->
+    
+    <!-- New Message -->
+    <string name="shortcut_new_message_short">New Message</string>
+    <string name="shortcut_new_message_long">Start a new conversation</string>
+    
+    <!-- Search -->
+    <string name="shortcut_search_short">Search</string>
+    <string name="shortcut_search_long">Find messages, servers, and people</string>
+    
+    <!-- Join Server -->
+    <string name="shortcut_join_short">Join Server</string>
+    <string name="shortcut_join_long">Join a server with invite code</string>
+    
+    <!-- Disabled message -->
+    <string name="shortcut_disabled">This shortcut is unavailable</string>
+</resources>
