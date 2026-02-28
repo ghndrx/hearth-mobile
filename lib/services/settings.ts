@@ -65,6 +65,7 @@ export interface AccessibilitySettings {
   largeText: boolean;
   reduceTransparency: boolean;
   colorBlindMode: 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
+  hapticsEnabled: boolean;
 }
 
 export interface AppSettings {
@@ -130,6 +131,7 @@ const DEFAULT_SETTINGS: AppSettings = {
     largeText: false,
     reduceTransparency: false,
     colorBlindMode: 'none',
+    hapticsEnabled: true,
   },
 };
 
@@ -273,6 +275,11 @@ export function useVoiceSettings() {
 
 export function useAccessibilitySettings() {
   return useSettingsStore((state) => state.settings.accessibility);
+}
+
+// Helper to get current settings (for use in non-hook contexts)
+export function getSettings(): AppSettings {
+  return useSettingsStore.getState().settings;
 }
 
 // Helper to sync settings with server

@@ -10,6 +10,13 @@ export { SwitchItem } from "./Switch";
 export { Badge, NotificationBadge } from "./Badge";
 export { SearchInput } from "./SearchInput";
 export { OfflineIndicator, InlineSyncStatus } from "./OfflineIndicator";
+export {
+  KeyboardAvoidingWrapper,
+  KeyboardSpacer,
+  useKeyboardState,
+  useDismissKeyboard,
+} from "./KeyboardAvoidingWrapper";
+export { PlatformRefreshControl } from "./PlatformRefreshControl";
 
 // Settings components
 export {

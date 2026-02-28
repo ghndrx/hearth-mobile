@@ -24,3 +24,5 @@ export * from "./messageQueue";
 export * from "./websocket";
 export * from "./media";
 export * from "./settings";
+export * from "./haptics";
+export * from "./accessibility";
