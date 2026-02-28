@@ -267,7 +267,7 @@ export default function MessagesScreen() {
     [router]
   );
 
-  const handleDMLongPress = useCallback((dm: DirectMessage) => {
+  const handleDMLongPress = useCallback((_dm: DirectMessage) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     // TODO: Show context menu (mute, archive, block, etc.)
   }, []);
