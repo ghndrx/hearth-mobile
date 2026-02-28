@@ -220,6 +220,63 @@ export default function SecuritySettingsScreen() {
           </View>
         )}
 
+        {/* Password Section */}
+        <View className="mt-6">
+          <Text
+            className={`px-4 pb-2 text-xs uppercase tracking-wide ${
+              isDark ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            Password
+          </Text>
+
+          <View
+            className={`mx-4 rounded-xl overflow-hidden ${
+              isDark ? "bg-gray-900" : "bg-white"
+            }`}
+          >
+            <Pressable
+              onPress={() => router.push("/settings/change-password")}
+              className="flex-row items-center justify-between px-4 py-4 active:opacity-70"
+            >
+              <View className="flex-row items-center flex-1">
+                <View
+                  className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
+                    isDark ? "bg-gray-800" : "bg-gray-100"
+                  }`}
+                >
+                  <MaterialCommunityIcons
+                    name="lock-reset"
+                    size={24}
+                    color={isDark ? "#9ca3af" : "#6b7280"}
+                  />
+                </View>
+                <View>
+                  <Text
+                    className={`text-base font-medium ${
+                      isDark ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    Change Password
+                  </Text>
+                  <Text
+                    className={`text-sm ${
+                      isDark ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Update your account password
+                  </Text>
+                </View>
+              </View>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={isDark ? "#4b5563" : "#9ca3af"}
+              />
+            </Pressable>
+          </View>
+        </View>
+
         {/* Device Status */}
         <View className="mt-6">
           <Text

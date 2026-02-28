@@ -139,31 +139,18 @@ export default function RegisterScreen() {
         return;
       }
 
-      // If registration returned a token, use it
+      // If registration returned a token, user is verified - log in directly
       if (registerResponse.data?.token) {
         await login(registerResponse.data.token, registerResponse.data.user);
         router.replace("/(tabs)");
         return;
       }
 
-      // Otherwise, log in with the new credentials
-      const loginResponse = await authService.login(email, password);
-
-      if (loginResponse.error) {
-        // Registration succeeded but login failed - redirect to login page
-        setErrors({
-          general: "Account created! Please log in.",
-        });
-        setTimeout(() => {
-          router.replace("/(auth)/login");
-        }, 1500);
-        return;
-      }
-
-      if (loginResponse.data) {
-        await login(loginResponse.data.token, loginResponse.data.user);
-        router.replace("/(tabs)");
-      }
+      // No token means email verification is required
+      router.replace({
+        pathname: "/(auth)/verify-email",
+        params: { email },
+      });
     } catch (error) {
       setErrors({
         general: "An unexpected error occurred. Please try again.",
