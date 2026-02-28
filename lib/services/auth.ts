@@ -171,6 +171,92 @@ export async function refreshToken(
 }
 
 /**
+ * Request a password reset email
+ */
+export async function forgotPassword(
+  email: string
+): Promise<ApiResponse<{ message: string }>> {
+  return api.post<{ message: string }>("/auth/forgot-password", { email });
+}
+
+/**
+ * Reset password with code from email
+ */
+export async function resetPassword(
+  email: string,
+  code: string,
+  newPassword: string
+): Promise<ApiResponse<{ message: string }>> {
+  return api.post<{ message: string }>("/auth/reset-password", {
+    email,
+    code,
+    new_password: newPassword,
+  });
+}
+
+/**
+ * Verify email with code sent after registration
+ */
+export async function verifyEmail(
+  email: string,
+  code: string
+): Promise<ApiResponse<{ user: AppUser; token?: string }>> {
+  const response = await api.post<AuthResponse>("/auth/verify-email", {
+    email,
+    code,
+  });
+
+  if (response.error) {
+    return { data: null, error: response.error };
+  }
+
+  if (!response.data?.user) {
+    return {
+      data: null,
+      error: {
+        code: "invalid_response",
+        message: "Invalid response from server",
+        status: 500,
+      },
+    };
+  }
+
+  return {
+    data: {
+      user: toAppUser(response.data.user, email),
+      token: response.data.tokens?.access_token,
+    },
+    error: null,
+  };
+}
+
+/**
+ * Resend email verification code
+ */
+export async function resendVerificationEmail(
+  email: string
+): Promise<ApiResponse<{ message: string }>> {
+  return api.post<{ message: string }>("/auth/resend-verification", { email });
+}
+
+/**
+ * Change password for authenticated user
+ */
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<ApiResponse<{ message: string }>> {
+  return api.post<{ message: string }>(
+    "/auth/change-password",
+    {
+      current_password: currentPassword,
+      new_password: newPassword,
+    },
+    true
+  );
+}
+
+/**
  * Get user-friendly error message from error code
  */
 export function getAuthErrorMessage(code: string): string {
@@ -186,6 +272,11 @@ export function getAuthErrorMessage(code: string): string {
     network_error: "Unable to connect. Please check your internet connection.",
     unauthorized: "Please log in to continue.",
     invalid_response: "Received an invalid response from the server.",
+    invalid_code: "The verification code is invalid or expired.",
+    too_many_requests: "Too many attempts. Please wait a moment and try again.",
+    email_not_found: "No account found with this email address.",
+    password_mismatch: "Current password is incorrect.",
+    same_password: "New password must be different from your current password.",
   };
 
   return messages[code] || "An unexpected error occurred.";
