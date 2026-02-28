@@ -189,7 +189,7 @@ export function useAccessibilityState(): AccessibilityState {
   return {
     ...state,
     fontScale: getFontScale(),
-    colorScheme,
+    colorScheme: colorScheme ?? null,
   };
 }
 
