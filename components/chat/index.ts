@@ -17,3 +17,10 @@ export {
   ScrollToBottomFab,
   useScrollToBottom,
 } from "./ScrollToBottomFab";
+export {
+  MentionAutocomplete,
+  useMentionDetection,
+  insertMention,
+  membersToSuggestions,
+  type MentionSuggestion,
+} from "./MentionAutocomplete";

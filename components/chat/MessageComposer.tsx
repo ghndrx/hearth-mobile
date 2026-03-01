@@ -9,6 +9,7 @@ import {
   useColorScheme,
   type NativeSyntheticEvent,
   type TextInputContentSizeChangeEventData,
+  type TextInputSelectionChangeEventData,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -16,6 +17,12 @@ import {
   AttachmentPreviewStrip,
   type Attachment,
 } from "./AttachmentPicker";
+import {
+  MentionAutocomplete,
+  useMentionDetection,
+  insertMention,
+  type MentionSuggestion,
+} from "./MentionAutocomplete";
 
 interface TypingUser {
   id: string;
@@ -49,6 +56,10 @@ interface MessageComposerProps {
   onCancelReply?: () => void;
   /** Maximum number of attachments */
   maxAttachments?: number;
+  /** Available users for @mention suggestions */
+  mentionSuggestions?: MentionSuggestion[];
+  /** Whether user can mention @everyone/@here */
+  canMentionEveryone?: boolean;
 }
 
 export function MessageComposer({
@@ -63,6 +74,8 @@ export function MessageComposer({
   replyTo,
   onCancelReply,
   maxAttachments = 10,
+  mentionSuggestions = [],
+  canMentionEveryone = false,
 }: MessageComposerProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -72,10 +85,14 @@ export function MessageComposer({
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isAttachmentPickerVisible, setIsAttachmentPickerVisible] =
     useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
 
   const inputRef = useRef<TextInput>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTypingRef = useRef(false);
+
+  // Mention detection
+  const mentionState = useMentionDetection(message, cursorPosition);
 
   // Typing indicator animation
   const typingDot1 = useRef(new Animated.Value(0)).current;
@@ -160,6 +177,41 @@ export function MessageComposer({
     }
   };
 
+  // Track cursor position for mention detection
+  const handleSelectionChange = useCallback(
+    (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
+      setCursorPosition(event.nativeEvent.selection.end);
+    },
+    []
+  );
+
+  // Handle mention selection from autocomplete
+  const handleMentionSelect = useCallback(
+    (suggestion: MentionSuggestion) => {
+      const { newText, newCursor } = insertMention(
+        message,
+        suggestion,
+        mentionState.startIndex,
+        cursorPosition
+      );
+      setMessage(newText);
+      setCursorPosition(newCursor);
+      
+      // Focus back on input and set selection
+      setTimeout(() => {
+        inputRef.current?.setNativeProps({
+          selection: { start: newCursor, end: newCursor },
+        });
+      }, 10);
+    },
+    [message, mentionState.startIndex, cursorPosition]
+  );
+
+  // Close mention autocomplete
+  const handleMentionClose = useCallback(() => {
+    // Autocomplete will auto-close when mention state is inactive
+  }, []);
+
   const handleContentSizeChange = (
     event: NativeSyntheticEvent<TextInputContentSizeChangeEventData>,
   ) => {
@@ -223,7 +275,17 @@ export function MessageComposer({
   };
 
   return (
-    <View className={`${isDark ? "bg-dark-800" : "bg-white"}`}>
+    <View className={`${isDark ? "bg-dark-800" : "bg-white"} relative`}>
+      {/* Mention Autocomplete */}
+      <MentionAutocomplete
+        visible={mentionState.isActive && mentionSuggestions.length > 0}
+        query={mentionState.query}
+        suggestions={mentionSuggestions}
+        onSelect={handleMentionSelect}
+        onClose={handleMentionClose}
+        canMentionEveryone={canMentionEveryone}
+      />
+
       {/* Typing Indicator */}
       {typingUsers.length > 0 && (
         <View className="px-4 py-2 flex-row items-center">
@@ -329,6 +391,7 @@ export function MessageComposer({
             value={message}
             onChangeText={handleTextChange}
             onContentSizeChange={handleContentSizeChange}
+            onSelectionChange={handleSelectionChange}
             placeholder={placeholder}
             placeholderTextColor={isDark ? "#80848e" : "#9ca3af"}
             multiline
