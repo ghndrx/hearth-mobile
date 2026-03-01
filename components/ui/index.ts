@@ -8,6 +8,12 @@ export { Avatar, AvatarGroup } from "./Avatar";
 export { ListItem, ListSection, ListDivider } from "./List";
 export { SwitchItem } from "./Switch";
 export { Badge, NotificationBadge } from "./Badge";
+export {
+  UnreadBadge,
+  UnreadDot,
+  UnreadBar,
+  ServerUnreadPill,
+} from "./UnreadIndicator";
 export { SearchInput } from "./SearchInput";
 export { OfflineIndicator, InlineSyncStatus } from "./OfflineIndicator";
 export {
