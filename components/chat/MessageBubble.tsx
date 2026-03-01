@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "../ui/Avatar";
+import { LinkPreviewList } from "./LinkPreview";
 import type { FailureReason } from "../../lib/types/offline";
 
 export interface Message {
@@ -57,6 +58,8 @@ interface MessageBubbleProps {
   onRetry?: (message: Message) => void;
   onDelete?: (message: Message) => void;
   consecutive?: boolean;
+  /** Whether to show link previews in messages */
+  showLinkPreviews?: boolean;
 }
 
 export function MessageBubble({
@@ -67,6 +70,7 @@ export function MessageBubble({
   onRetry,
   onDelete,
   consecutive = false,
+  showLinkPreviews = true,
 }: MessageBubbleProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -283,6 +287,16 @@ export function MessageBubble({
             <Text className={`${textStyles} text-base leading-5`}>
               {message.content}
             </Text>
+
+            {/* Link Previews */}
+            {showLinkPreviews && !isPending && !isFailed && (
+              <LinkPreviewList
+                content={message.content}
+                enabled={showLinkPreviews}
+                compact={true}
+                maxPreviews={2}
+              />
+            )}
 
             {/* Attachments */}
             {message.attachments && message.attachments.length > 0 && (
