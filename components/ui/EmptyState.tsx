@@ -74,3 +74,85 @@ export function EmptyState({
     </View>
   );
 }
+
+// Preset empty states for common scenarios
+export function EmptyMessages({ onStartChat }: { onStartChat?: () => void }) {
+  return (
+    <EmptyState
+      icon="chatbubbles-outline"
+      title="No messages yet"
+      description="Start a conversation by sending a message"
+      action={onStartChat ? { label: "Start Chat", onPress: onStartChat } : undefined}
+    />
+  );
+}
+
+export function EmptyFriends({ onAddFriend }: { onAddFriend?: () => void }) {
+  return (
+    <EmptyState
+      icon="people-outline"
+      title="No friends yet"
+      description="Add friends to start chatting and join servers together"
+      action={onAddFriend ? { label: "Add Friend", onPress: onAddFriend } : undefined}
+    />
+  );
+}
+
+export function EmptyServers({ onCreateServer }: { onCreateServer?: () => void }) {
+  return (
+    <EmptyState
+      icon="planet-outline"
+      title="No servers"
+      description="Create or join a server to connect with communities"
+      action={onCreateServer ? { label: "Create Server", onPress: onCreateServer } : undefined}
+    />
+  );
+}
+
+export function EmptyNotifications() {
+  return (
+    <EmptyState
+      icon="notifications-outline"
+      title="All caught up!"
+      description="You have no new notifications"
+    />
+  );
+}
+
+export function EmptySearch({ query }: { query: string }) {
+  return (
+    <EmptyState
+      icon="search-outline"
+      title="No results found"
+      description={`We couldn't find anything matching "${query}"`}
+    />
+  );
+}
+
+export function OfflineState({ onRetry }: { onRetry?: () => void }) {
+  return (
+    <EmptyState
+      icon="cloud-offline-outline"
+      title="You're offline"
+      description="Check your internet connection and try again"
+      action={onRetry ? { label: "Retry", onPress: onRetry } : undefined}
+    />
+  );
+}
+
+export function ErrorState({
+  message,
+  onRetry,
+}: {
+  message?: string;
+  onRetry?: () => void;
+}) {
+  return (
+    <EmptyState
+      icon="warning-outline"
+      title="Something went wrong"
+      description={message || "An error occurred while loading content"}
+      action={onRetry ? { label: "Try Again", onPress: onRetry } : undefined}
+    />
+  );
+}
