@@ -23,6 +23,7 @@ import {
   insertMention,
   type MentionSuggestion,
 } from "./MentionAutocomplete";
+import { VoiceRecorder, type VoiceRecording } from "./VoiceRecorder";
 
 interface TypingUser {
   id: string;
@@ -32,6 +33,8 @@ interface TypingUser {
 interface MessageComposerProps {
   /** Callback when message is sent */
   onSend: (message: string, attachments?: Attachment[]) => void;
+  /** Callback when voice message is sent */
+  onSendVoice?: (voice: VoiceRecording) => void;
   /** Callback when user starts/stops typing */
   onTypingChange?: (isTyping: boolean) => void;
   /** Callback when emoji button is pressed */
@@ -60,10 +63,15 @@ interface MessageComposerProps {
   mentionSuggestions?: MentionSuggestion[];
   /** Whether user can mention @everyone/@here */
   canMentionEveryone?: boolean;
+  /** Whether voice messages are enabled */
+  voiceEnabled?: boolean;
+  /** Whether haptic feedback is enabled */
+  hapticsEnabled?: boolean;
 }
 
 export function MessageComposer({
   onSend,
+  onSendVoice,
   onTypingChange,
   onEmojiPress,
   typingUsers = [],
@@ -76,6 +84,8 @@ export function MessageComposer({
   maxAttachments = 10,
   mentionSuggestions = [],
   canMentionEveryone = false,
+  voiceEnabled = true,
+  hapticsEnabled = true,
 }: MessageComposerProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -106,6 +116,27 @@ export function MessageComposer({
     (message.trim().length > 0 || attachments.length > 0) &&
     !disabled &&
     !isSending;
+
+  // Show voice button when no text and no attachments
+  const showVoiceButton =
+    voiceEnabled &&
+    message.trim().length === 0 &&
+    attachments.length === 0 &&
+    !disabled &&
+    !isSending;
+
+  // Handle voice recording complete
+  const handleVoiceRecordingComplete = useCallback(
+    (recording: VoiceRecording) => {
+      onSendVoice?.(recording);
+    },
+    [onSendVoice]
+  );
+
+  // Handle voice recording cancel
+  const handleVoiceCancel = useCallback(() => {
+    // Voice recording cancelled - component handles its own state
+  }, []);
 
   // Animated typing dots
   useEffect(() => {
@@ -418,22 +449,32 @@ export function MessageComposer({
           </TouchableOpacity>
         </View>
 
-        {/* Send Button */}
-        <Animated.View style={{ transform: [{ scale: sendButtonScale }] }}>
-          <TouchableOpacity
-            onPress={handleSend}
-            disabled={!canSend}
-            className={`ml-2 p-2.5 rounded-full ${
-              canSend ? "bg-brand" : isDark ? "bg-dark-700" : "bg-gray-200"
-            }`}
-          >
-            <Ionicons
-              name="send"
-              size={20}
-              color={canSend ? "#ffffff" : isDark ? "#4e5058" : "#9ca3af"}
+        {/* Send Button or Voice Recorder */}
+        {showVoiceButton && onSendVoice ? (
+          <View className="ml-2">
+            <VoiceRecorder
+              onRecordingComplete={handleVoiceRecordingComplete}
+              onCancel={handleVoiceCancel}
+              hapticsEnabled={hapticsEnabled}
             />
-          </TouchableOpacity>
-        </Animated.View>
+          </View>
+        ) : (
+          <Animated.View style={{ transform: [{ scale: sendButtonScale }] }}>
+            <TouchableOpacity
+              onPress={handleSend}
+              disabled={!canSend}
+              className={`ml-2 p-2.5 rounded-full ${
+                canSend ? "bg-brand" : isDark ? "bg-dark-700" : "bg-gray-200"
+              }`}
+            >
+              <Ionicons
+                name="send"
+                size={20}
+                color={canSend ? "#ffffff" : isDark ? "#4e5058" : "#9ca3af"}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        )}
       </View>
 
       {/* Character Count (shown when approaching limit) */}

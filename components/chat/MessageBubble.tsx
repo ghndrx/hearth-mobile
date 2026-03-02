@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "../ui/Avatar";
 import { LinkPreviewList } from "./LinkPreview";
+import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 import type { FailureReason } from "../../lib/types/offline";
 
 export interface Message {
@@ -40,12 +41,16 @@ export interface Message {
     userReacted: boolean;
   }>;
   attachments?: Array<{
-    type: "image" | "file" | "audio";
+    type: "image" | "file" | "audio" | "voice";
     uri: string;
     name?: string;
     size?: number;
     /** Upload progress (0-100) for pending uploads */
     uploadProgress?: number;
+    /** Duration in seconds for voice/audio messages */
+    duration?: number;
+    /** Waveform data for voice messages */
+    waveform?: number[];
   }>;
   isEdited?: boolean;
 }
@@ -60,6 +65,10 @@ interface MessageBubbleProps {
   consecutive?: boolean;
   /** Whether to show link previews in messages */
   showLinkPreviews?: boolean;
+  /** Voice playback management */
+  onVoicePlayStart?: (messageId: string) => void;
+  onVoicePlayEnd?: (messageId: string) => void;
+  isOtherVoicePlaying?: boolean;
 }
 
 export function MessageBubble({
@@ -71,6 +80,9 @@ export function MessageBubble({
   onDelete,
   consecutive = false,
   showLinkPreviews = true,
+  onVoicePlayStart,
+  onVoicePlayEnd,
+  isOtherVoicePlaying = false,
 }: MessageBubbleProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -301,50 +313,72 @@ export function MessageBubble({
             {/* Attachments */}
             {message.attachments && message.attachments.length > 0 && (
               <View className="mt-2">
-                {message.attachments.map((attachment, index) => (
-                  <View
-                    key={index}
-                    className={`flex-row items-center p-2 rounded-lg mb-1 ${
-                      isCurrentUser
-                        ? isDark
-                          ? "bg-brand-hover"
-                          : "bg-brand-hover"
-                        : isDark
-                          ? "bg-dark-600"
-                          : "bg-gray-300"
-                    }`}
-                  >
-                    <Ionicons
-                      name={
-                        attachment.type === "image"
-                          ? "image-outline"
-                          : attachment.type === "audio"
-                            ? "musical-note-outline"
-                            : "document-outline"
-                      }
-                      size={20}
-                      color={
+                {message.attachments.map((attachment, index) => {
+                  // Voice message - use VoiceMessagePlayer
+                  if (attachment.type === "voice" && attachment.duration) {
+                    return (
+                      <View key={index} className="mb-1">
+                        <VoiceMessagePlayer
+                          voice={{
+                            uri: attachment.uri,
+                            duration: attachment.duration,
+                            waveform: attachment.waveform,
+                          }}
+                          isCurrentUser={isCurrentUser}
+                          onPlayStart={() => onVoicePlayStart?.(message.id)}
+                          onPlayEnd={() => onVoicePlayEnd?.(message.id)}
+                          isOtherPlaying={isOtherVoicePlaying}
+                        />
+                      </View>
+                    );
+                  }
+
+                  // Regular attachment
+                  return (
+                    <View
+                      key={index}
+                      className={`flex-row items-center p-2 rounded-lg mb-1 ${
                         isCurrentUser
-                          ? "#ffffff"
+                          ? isDark
+                            ? "bg-brand-hover"
+                            : "bg-brand-hover"
                           : isDark
-                            ? "#b5bac1"
-                            : "#6b7280"
-                      }
-                    />
-                    <Text
-                      className={`ml-2 text-sm flex-1 ${
-                        isCurrentUser
-                          ? "text-white"
-                          : isDark
-                            ? "text-dark-200"
-                            : "text-gray-700"
+                            ? "bg-dark-600"
+                            : "bg-gray-300"
                       }`}
-                      numberOfLines={1}
                     >
-                      {attachment.name || "Attachment"}
-                    </Text>
-                  </View>
-                ))}
+                      <Ionicons
+                        name={
+                          attachment.type === "image"
+                            ? "image-outline"
+                            : attachment.type === "audio"
+                              ? "musical-note-outline"
+                              : "document-outline"
+                        }
+                        size={20}
+                        color={
+                          isCurrentUser
+                            ? "#ffffff"
+                            : isDark
+                              ? "#b5bac1"
+                              : "#6b7280"
+                        }
+                      />
+                      <Text
+                        className={`ml-2 text-sm flex-1 ${
+                          isCurrentUser
+                            ? "text-white"
+                            : isDark
+                              ? "text-dark-200"
+                              : "text-gray-700"
+                        }`}
+                        numberOfLines={1}
+                      >
+                        {attachment.name || "Attachment"}
+                      </Text>
+                    </View>
+                  );
+                })}
               </View>
             )}
 

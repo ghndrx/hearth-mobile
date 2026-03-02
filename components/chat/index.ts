@@ -30,3 +30,12 @@ export {
   extractUrls,
   type LinkMetadata,
 } from "./LinkPreview";
+export {
+  VoiceRecorder,
+  type VoiceRecording,
+} from "./VoiceRecorder";
+export {
+  VoiceMessagePlayer,
+  useVoicePlaybackManager,
+  type VoiceMessage,
+} from "./VoiceMessagePlayer";
