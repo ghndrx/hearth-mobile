@@ -2,3 +2,10 @@ node_modules/
 .expo/
 dist/
 *.log
+
+# AI management files (local only)
+agent_output.md
+TASK_QUEUE.md
+opencode-task.md
+*_REVIEW_*.md
+*_IMPROVEMENTS.md
