@@ -39,3 +39,4 @@ export {
   useVoicePlaybackManager,
   type VoiceMessage,
 } from "./VoiceMessagePlayer";
+export { GifPicker, type GifImage } from "./GifPicker";
