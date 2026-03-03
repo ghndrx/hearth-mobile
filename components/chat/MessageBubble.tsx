@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "../ui/Avatar";
 import { LinkPreviewList } from "./LinkPreview";
 import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
+import { ReadReceiptsDisplay, SeenIndicator, type ReadReceipt } from "./ReadReceipts";
 import type { FailureReason } from "../../lib/types/offline";
 
 export interface Message {
@@ -40,6 +41,10 @@ export interface Message {
     count: number;
     userReacted: boolean;
   }>;
+  /** Read receipts for group chats */
+  readReceipts?: ReadReceipt[];
+  /** Total number of recipients (for "X of Y seen" display) */
+  totalRecipients?: number;
   attachments?: Array<{
     type: "image" | "file" | "audio" | "voice";
     uri: string;
@@ -69,6 +74,10 @@ interface MessageBubbleProps {
   onVoicePlayStart?: (messageId: string) => void;
   onVoicePlayEnd?: (messageId: string) => void;
   isOtherVoicePlaying?: boolean;
+  /** Whether to show read receipts (for group chats) */
+  showReadReceipts?: boolean;
+  /** Called when user taps read receipts to see details */
+  onReadReceiptsPress?: (message: Message) => void;
 }
 
 export function MessageBubble({
@@ -83,6 +92,8 @@ export function MessageBubble({
   onVoicePlayStart,
   onVoicePlayEnd,
   isOtherVoicePlaying = false,
+  showReadReceipts = false,
+  onReadReceiptsPress,
 }: MessageBubbleProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -450,6 +461,28 @@ export function MessageBubble({
                 </TouchableOpacity>
               ))}
             </View>
+          )}
+
+          {/* Read Receipts - only show for current user's messages that are read */}
+          {showReadReceipts && isCurrentUser && message.status === "read" && (
+            <>
+              {/* Group chat: show avatars of readers */}
+              {message.readReceipts && message.readReceipts.length > 0 ? (
+                <ReadReceiptsDisplay
+                  receipts={message.readReceipts}
+                  totalRecipients={message.totalRecipients}
+                  alignRight={true}
+                  onPress={() => onReadReceiptsPress?.(message)}
+                  maxAvatars={4}
+                />
+              ) : (
+                /* 1:1 chat: show simple "Seen" indicator */
+                <SeenIndicator
+                  readAt={message.timestamp}
+                  alignRight={true}
+                />
+              )}
+            </>
           )}
 
           {/* Failed Message Actions */}
