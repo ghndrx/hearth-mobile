@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { Avatar } from "../ui/Avatar";
 import { LinkPreviewList } from "./LinkPreview";
 import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 import { ReadReceiptsDisplay, SeenIndicator, type ReadReceipt } from "./ReadReceipts";
+import { MessageReactions, type Reaction } from "./MessageReactions";
 import type { FailureReason } from "../../lib/types/offline";
 
 export interface Message {
@@ -40,6 +42,12 @@ export interface Message {
     emoji: string;
     count: number;
     userReacted: boolean;
+    /** Users who reacted (for details modal) */
+    users?: Array<{
+      id: string;
+      name: string;
+      avatar?: string;
+    }>;
   }>;
   /** Read receipts for group chats */
   readReceipts?: ReadReceipt[];
@@ -78,6 +86,10 @@ interface MessageBubbleProps {
   showReadReceipts?: boolean;
   /** Called when user taps read receipts to see details */
   onReadReceiptsPress?: (message: Message) => void;
+  /** Whether to show the add reaction button (default: true) */
+  showAddReactionButton?: boolean;
+  /** Whether to use compact reaction display */
+  compactReactions?: boolean;
 }
 
 export function MessageBubble({
@@ -94,10 +106,25 @@ export function MessageBubble({
   isOtherVoicePlaying = false,
   showReadReceipts = false,
   onReadReceiptsPress,
+  showAddReactionButton = true,
+  compactReactions = false,
 }: MessageBubbleProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const isCurrentUser = message.isCurrentUser;
+  const [showQuickReactions, setShowQuickReactions] = useState(false);
+
+  // Handle long press with haptic feedback
+  const handleLongPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onLongPress?.(message);
+  }, [message, onLongPress]);
+
+  // Handle reaction with haptic feedback
+  const handleReaction = useCallback((messageId: string, emoji: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onReaction?.(messageId, emoji);
+  }, [onReaction]);
 
   // Pulse animation for pending messages
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -232,7 +259,8 @@ export function MessageBubble({
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onLongPress={() => onLongPress?.(message)}
+      onLongPress={handleLongPress}
+      delayLongPress={300}
       className={`flex-row ${isCurrentUser ? "justify-end" : "justify-start"} ${consecutive ? "mt-1" : "mt-4"}`}
     >
       <View
@@ -427,41 +455,17 @@ export function MessageBubble({
             </View>
           </Animated.View>
 
-          {/* Reactions */}
-          {message.reactions && message.reactions.length > 0 && (
-            <View
-              className={`flex-row flex-wrap mt-1 ${isCurrentUser ? "justify-end" : ""}`}
-            >
-              {message.reactions.map((reaction, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => onReaction?.(message.id, reaction.emoji)}
-                  className={`flex-row items-center px-2 py-0.5 rounded-full mr-1 mb-1 ${
-                    reaction.userReacted
-                      ? isDark
-                        ? "bg-brand/30 border border-brand"
-                        : "bg-brand/20 border border-brand"
-                      : isDark
-                        ? "bg-dark-700 border border-dark-600"
-                        : "bg-gray-100 border border-gray-200"
-                  }`}
-                >
-                  <Text className="text-sm">{reaction.emoji}</Text>
-                  <Text
-                    className={`text-xs ml-1 ${
-                      reaction.userReacted
-                        ? "text-brand"
-                        : isDark
-                          ? "text-dark-300"
-                          : "text-gray-600"
-                    }`}
-                  >
-                    {reaction.count}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+          {/* Reactions - using enhanced MessageReactions component */}
+          {(message.reactions && message.reactions.length > 0) || showAddReactionButton ? (
+            <MessageReactions
+              reactions={message.reactions as Reaction[] || []}
+              messageId={message.id}
+              isCurrentUser={isCurrentUser}
+              onReaction={handleReaction}
+              showAddButton={showAddReactionButton && !isPending && !isFailed}
+              compact={compactReactions}
+            />
+          ) : null}
 
           {/* Read Receipts - only show for current user's messages that are read */}
           {showReadReceipts && isCurrentUser && message.status === "read" && (
