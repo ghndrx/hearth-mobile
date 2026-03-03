@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useRef,
   useEffect,
-  useMemo,
 } from "react";
 import {
   View,
@@ -79,7 +78,7 @@ interface CategoryChipProps {
 // ============================================================================
 
 const GIPHY_BASE_URL = "https://api.giphy.com/v1/gifs";
-const GIPHY_STICKER_URL = "https://api.giphy.com/v1/stickers";
+const _GIPHY_STICKER_URL = "https://api.giphy.com/v1/stickers"; // Reserved for sticker support
 
 // Default API key (replace with your own for production)
 const DEFAULT_API_KEY = "YOUR_GIPHY_API_KEY";
