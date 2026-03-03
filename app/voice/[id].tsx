@@ -1,10 +1,13 @@
 import { useState, useCallback } from "react";
 import { useLocalSearchParams } from "expo-router";
+import { Alert } from "react-native";
+import * as Haptics from "expo-haptics";
 import {
   VoiceChannelScreen,
   VoiceParticipant,
   VoiceState,
 } from "../../components/server/VoiceChannelScreen";
+import { VoiceParticipantModal } from "../../components/server/VoiceParticipantModal";
 import type { Channel, User } from "../../lib/types";
 
 // ============================================================================
@@ -79,6 +82,15 @@ const mockParticipants: VoiceParticipant[] = [
 ];
 
 // ============================================================================
+// Local Volume/Mute State per participant
+// ============================================================================
+
+interface ParticipantAudioSettings {
+  volume: number;
+  locallyMuted: boolean;
+}
+
+// ============================================================================
 // Voice Channel Route
 // ============================================================================
 
@@ -95,6 +107,15 @@ export default function VoiceChannelRoute() {
     isDeafened: false,
     isConnected: true,
   });
+
+  // Selected participant for modal
+  const [selectedParticipant, setSelectedParticipant] = useState<VoiceParticipant | null>(null);
+  const [showParticipantModal, setShowParticipantModal] = useState(false);
+
+  // Per-participant audio settings (local volume, mute for me)
+  const [participantSettings, setParticipantSettings] = useState<
+    Record<string, ParticipantAudioSettings>
+  >({});
 
   // Mock channel data (replace with real data fetching)
   const channel: Channel = {
@@ -114,6 +135,7 @@ export default function VoiceChannelRoute() {
       // When unmuting, also undeafen
       isDeafened: !prev.isMuted ? false : prev.isDeafened,
     }));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
   // Handle deafen toggle
@@ -124,6 +146,7 @@ export default function VoiceChannelRoute() {
       // When deafening, also mute
       isMuted: !prev.isDeafened ? true : prev.isMuted,
     }));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
   // Handle disconnect
@@ -132,26 +155,94 @@ export default function VoiceChannelRoute() {
       ...prev,
       isConnected: false,
     }));
-    // TODO: Clean up voice connection
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     console.log("Disconnecting from voice channel...");
   }, []);
 
-  // Handle participant press
+  // Handle participant press - show modal
   const handleParticipantPress = useCallback((participant: VoiceParticipant) => {
-    console.log("Participant pressed:", participant.user.displayName);
-    // TODO: Show participant options modal (view profile, adjust volume, etc.)
+    setSelectedParticipant(participant);
+    setShowParticipantModal(true);
   }, []);
 
+  // Close participant modal
+  const handleCloseParticipantModal = useCallback(() => {
+    setShowParticipantModal(false);
+    // Delay clearing participant to allow animation
+    setTimeout(() => setSelectedParticipant(null), 200);
+  }, []);
+
+  // Handle volume change for a participant
+  const handleVolumeChange = useCallback((participantId: string, volume: number) => {
+    setParticipantSettings((prev) => ({
+      ...prev,
+      [participantId]: {
+        ...prev[participantId],
+        volume,
+        locallyMuted: prev[participantId]?.locallyMuted ?? false,
+      },
+    }));
+    // In a real app, this would adjust the audio stream volume
+    console.log(`Set volume for ${participantId} to ${Math.round(volume * 100)}%`);
+  }, []);
+
+  // Handle local mute toggle for a participant
+  const handleLocalMute = useCallback((participantId: string, muted: boolean) => {
+    setParticipantSettings((prev) => ({
+      ...prev,
+      [participantId]: {
+        volume: prev[participantId]?.volume ?? 1,
+        locallyMuted: muted,
+      },
+    }));
+    // In a real app, this would mute/unmute the audio stream
+    console.log(`${muted ? "Muted" : "Unmuted"} ${participantId} locally`);
+  }, []);
+
+  // Handle report
+  const handleReport = useCallback((participant: VoiceParticipant, reason: string) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    Alert.alert(
+      "Report Submitted",
+      `Thank you for reporting ${participant.user.displayName || participant.user.username}. Our team will review this report.`,
+      [{ text: "OK" }]
+    );
+    // In a real app, this would submit the report to the backend
+    console.log(`Reported ${participant.user.username} for: ${reason}`);
+  }, []);
+
+  // Get settings for selected participant
+  const selectedSettings = selectedParticipant
+    ? participantSettings[selectedParticipant.id]
+    : undefined;
+
+  // Check if selected participant is current user
+  const isCurrentUser = selectedParticipant?.user.id === "current";
+
   return (
-    <VoiceChannelScreen
-      channel={channel}
-      serverName={serverName || "Test Server"}
-      participants={mockParticipants}
-      voiceState={voiceState}
-      onMuteToggle={handleMuteToggle}
-      onDeafenToggle={handleDeafenToggle}
-      onDisconnect={handleDisconnect}
-      onParticipantPress={handleParticipantPress}
-    />
+    <>
+      <VoiceChannelScreen
+        channel={channel}
+        serverName={serverName || "Test Server"}
+        participants={mockParticipants}
+        voiceState={voiceState}
+        onMuteToggle={handleMuteToggle}
+        onDeafenToggle={handleDeafenToggle}
+        onDisconnect={handleDisconnect}
+        onParticipantPress={handleParticipantPress}
+      />
+
+      <VoiceParticipantModal
+        visible={showParticipantModal}
+        participant={selectedParticipant}
+        onClose={handleCloseParticipantModal}
+        onVolumeChange={handleVolumeChange}
+        onLocalMute={handleLocalMute}
+        onReport={handleReport}
+        initialVolume={selectedSettings?.volume ?? 1}
+        isLocallyMuted={selectedSettings?.locallyMuted ?? false}
+        isCurrentUser={isCurrentUser}
+      />
+    </>
   );
 }
