@@ -12,6 +12,11 @@ export {
 export { MediaViewer, type MediaItem } from "./MediaViewer";
 export { ReactionPicker } from "./ReactionPicker";
 export { MessageContextMenu } from "./MessageContextMenu";
+export {
+  MessageReactions,
+  type Reaction,
+  type MessageReactionsProps,
+} from "./MessageReactions";
 export { TypingIndicator as TypingDots } from "./TypingIndicator";
 export {
   ScrollToBottomFab,
