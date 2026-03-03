@@ -24,6 +24,7 @@ import {
   type MentionSuggestion,
 } from "./MentionAutocomplete";
 import { VoiceRecorder, type VoiceRecording } from "./VoiceRecorder";
+import { GifPicker, type GifImage } from "./GifPicker";
 
 interface TypingUser {
   id: string;
@@ -35,6 +36,8 @@ interface MessageComposerProps {
   onSend: (message: string, attachments?: Attachment[]) => void;
   /** Callback when voice message is sent */
   onSendVoice?: (voice: VoiceRecording) => void;
+  /** Callback when a GIF is selected */
+  onSendGif?: (gif: GifImage) => void;
   /** Callback when user starts/stops typing */
   onTypingChange?: (isTyping: boolean) => void;
   /** Callback when emoji button is pressed */
@@ -65,6 +68,10 @@ interface MessageComposerProps {
   canMentionEveryone?: boolean;
   /** Whether voice messages are enabled */
   voiceEnabled?: boolean;
+  /** Whether GIF picker is enabled */
+  gifEnabled?: boolean;
+  /** Giphy API key (required for GIF picker) */
+  giphyApiKey?: string;
   /** Whether haptic feedback is enabled */
   hapticsEnabled?: boolean;
 }
@@ -72,6 +79,7 @@ interface MessageComposerProps {
 export function MessageComposer({
   onSend,
   onSendVoice,
+  onSendGif,
   onTypingChange,
   onEmojiPress,
   typingUsers = [],
@@ -85,6 +93,8 @@ export function MessageComposer({
   mentionSuggestions = [],
   canMentionEveryone = false,
   voiceEnabled = true,
+  gifEnabled = true,
+  giphyApiKey,
   hapticsEnabled = true,
 }: MessageComposerProps) {
   const colorScheme = useColorScheme();
@@ -95,6 +105,7 @@ export function MessageComposer({
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isAttachmentPickerVisible, setIsAttachmentPickerVisible] =
     useState(false);
+  const [isGifPickerVisible, setIsGifPickerVisible] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
 
   const inputRef = useRef<TextInput>(null);
@@ -137,6 +148,15 @@ export function MessageComposer({
   const handleVoiceCancel = useCallback(() => {
     // Voice recording cancelled - component handles its own state
   }, []);
+
+  // Handle GIF selection
+  const handleGifSelect = useCallback(
+    (gif: GifImage) => {
+      onSendGif?.(gif);
+      setIsGifPickerVisible(false);
+    },
+    [onSendGif]
+  );
 
   // Animated typing dots
   useEffect(() => {
@@ -434,6 +454,25 @@ export function MessageComposer({
             style={{ height: inputHeight, maxHeight: 120 }}
           />
 
+          {/* GIF Button */}
+          {gifEnabled && onSendGif && (
+            <TouchableOpacity
+              onPress={() => setIsGifPickerVisible(true)}
+              disabled={disabled}
+              className="p-2 ml-1"
+              hitSlop={{ top: 10, right: 5, bottom: 10, left: 5 }}
+            >
+              <Text
+                className={`text-sm font-bold ${
+                  isDark ? "text-neutral-400" : "text-neutral-500"
+                }`}
+                style={{ letterSpacing: -0.5 }}
+              >
+                GIF
+              </Text>
+            </TouchableOpacity>
+          )}
+
           {/* Emoji Button */}
           <TouchableOpacity
             onPress={onEmojiPress}
@@ -501,6 +540,16 @@ export function MessageComposer({
         onAttachmentsSelected={handleAttachmentsSelected}
         maxAttachments={maxAttachments - attachments.length}
       />
+
+      {/* GIF Picker Modal */}
+      {gifEnabled && (
+        <GifPicker
+          visible={isGifPickerVisible}
+          onSelect={handleGifSelect}
+          onClose={() => setIsGifPickerVisible(false)}
+          apiKey={giphyApiKey}
+        />
+      )}
     </View>
   );
 }
