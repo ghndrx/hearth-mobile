@@ -7,6 +7,7 @@ export { ServerListScreen } from "./ServerListScreen";
 export { ChannelListScreen, ChannelList } from "./ChannelListScreen";
 export { VoiceChannelScreen } from "./VoiceChannelScreen";
 export type { VoiceParticipant, VoiceState } from "./VoiceChannelScreen";
+export { VoiceParticipantModal } from "./VoiceParticipantModal";
 export { MemberListScreen, MemberList } from "./MemberListScreen";
 export { ServerDiscoveryScreen } from "./ServerDiscoveryScreen";
 export { ServerSettingsScreen } from "./ServerSettingsScreen";
