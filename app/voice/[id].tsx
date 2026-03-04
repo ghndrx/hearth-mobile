@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import * as Haptics from "expo-haptics";
+import { Camera } from "expo-camera";
 import {
   VoiceChannelScreen,
   VoiceParticipant,
@@ -52,6 +53,7 @@ const mockParticipants: VoiceParticipant[] = [
     isMuted: false,
     isDeafened: false,
     isSpeaking: true,
+    isVideoOn: true,
     joinedAt: new Date(Date.now() - 1000 * 60 * 15), // 15 mins ago
   },
   {
@@ -60,6 +62,7 @@ const mockParticipants: VoiceParticipant[] = [
     isMuted: true,
     isDeafened: false,
     isSpeaking: false,
+    isVideoOn: true,
     joinedAt: new Date(Date.now() - 1000 * 60 * 10), // 10 mins ago
   },
   {
@@ -101,12 +104,20 @@ export default function VoiceChannelRoute() {
     serverName?: string;
   }>();
 
+  // Camera permission state
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+
   // Voice state management
   const [voiceState, setVoiceState] = useState<VoiceState>({
     isMuted: false,
     isDeafened: false,
     isConnected: true,
+    isVideoOn: false,
+    isScreenSharing: false,
   });
+
+  // Participants with video state (to track current user's video)
+  const [participants, setParticipants] = useState<VoiceParticipant[]>(mockParticipants);
 
   // Selected participant for modal
   const [selectedParticipant, setSelectedParticipant] = useState<VoiceParticipant | null>(null);
@@ -126,6 +137,14 @@ export default function VoiceChannelRoute() {
     position: 0,
     createdAt: new Date().toISOString(),
   };
+
+  // Request camera permission on mount
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasCameraPermission(status === "granted");
+    })();
+  }, []);
 
   // Handle mute toggle
   const handleMuteToggle = useCallback(() => {
@@ -149,11 +168,98 @@ export default function VoiceChannelRoute() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
+  // Handle video toggle
+  const handleVideoToggle = useCallback(async () => {
+    if (!hasCameraPermission) {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Camera Permission Required",
+          "Please enable camera access in your device settings to use video.",
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Open Settings",
+              onPress: () => {
+                // On iOS, this would open settings
+                // On Android, you might use Linking.openSettings()
+              },
+            },
+          ]
+        );
+        return;
+      }
+      setHasCameraPermission(true);
+    }
+
+    setVoiceState((prev) => {
+      const newVideoState = !prev.isVideoOn;
+      
+      // Update current user's participant video state
+      setParticipants((prevParticipants) =>
+        prevParticipants.map((p) =>
+          p.user.id === "current" ? { ...p, isVideoOn: newVideoState } : p
+        )
+      );
+
+      return {
+        ...prev,
+        isVideoOn: newVideoState,
+        // When turning on video, turn off screen sharing
+        isScreenSharing: newVideoState ? false : prev.isScreenSharing,
+      };
+    });
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }, [hasCameraPermission]);
+
+  // Handle screen share toggle
+  const handleScreenShareToggle = useCallback(() => {
+    setVoiceState((prev) => {
+      const newScreenShareState = !prev.isScreenSharing;
+
+      // Update current user's participant screen share state
+      setParticipants((prevParticipants) =>
+        prevParticipants.map((p) =>
+          p.user.id === "current"
+            ? { ...p, isScreenSharing: newScreenShareState, isVideoOn: false }
+            : p
+        )
+      );
+
+      return {
+        ...prev,
+        isScreenSharing: newScreenShareState,
+        // When screen sharing, turn off video
+        isVideoOn: newScreenShareState ? false : prev.isVideoOn,
+      };
+    });
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    // Show platform-specific instructions
+    if (Platform.OS === "ios" && !voiceState.isScreenSharing) {
+      Alert.alert(
+        "Start Screen Sharing",
+        "In a real app, this would trigger the iOS screen broadcast picker. Tap the screen recording button in Control Center.",
+        [{ text: "OK" }]
+      );
+    } else if (Platform.OS === "android" && !voiceState.isScreenSharing) {
+      Alert.alert(
+        "Start Screen Sharing",
+        "In a real app, this would request screen capture permission and start broadcasting.",
+        [{ text: "OK" }]
+      );
+    }
+  }, [voiceState.isScreenSharing]);
+
   // Handle disconnect
   const handleDisconnect = useCallback(() => {
     setVoiceState((prev) => ({
       ...prev,
       isConnected: false,
+      isVideoOn: false,
+      isScreenSharing: false,
     }));
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     console.log("Disconnecting from voice channel...");
@@ -224,11 +330,13 @@ export default function VoiceChannelRoute() {
       <VoiceChannelScreen
         channel={channel}
         serverName={serverName || "Test Server"}
-        participants={mockParticipants}
+        participants={participants}
         voiceState={voiceState}
         onMuteToggle={handleMuteToggle}
         onDeafenToggle={handleDeafenToggle}
         onDisconnect={handleDisconnect}
+        onVideoToggle={handleVideoToggle}
+        onScreenShareToggle={handleScreenShareToggle}
         onParticipantPress={handleParticipantPress}
       />
 
