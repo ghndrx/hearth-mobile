@@ -356,6 +356,45 @@ export function ServerSettingsScreen({
               </View>
             </View>
 
+            {/* Invite People */}
+            <TouchableOpacity
+              onPress={() => router.push(`/server/${_serverId}/invite`)}
+              className={`
+                mx-4 p-4 rounded-2xl flex-row items-center
+                ${isDark ? "bg-dark-800" : "bg-white"}
+                border ${isDark ? "border-dark-700" : "border-gray-200"}
+              `}
+              activeOpacity={0.7}
+            >
+              <View
+                className={`
+                  w-12 h-12 rounded-xl items-center justify-center mr-4
+                  bg-brand
+                `}
+              >
+                <Ionicons name="person-add-outline" size={24} color="#ffffff" />
+              </View>
+              <View className="flex-1">
+                <Text
+                  className={`font-semibold text-lg ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  Invite People
+                </Text>
+                <Text
+                  className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
+                >
+                  Create and share invite links
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={isDark ? "#80848e" : "#6b7280"}
+              />
+            </TouchableOpacity>
+
             {/* Server Stats */}
             <View
               className={`
