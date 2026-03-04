@@ -96,7 +96,7 @@ export default function LoginScreen() {
 
       if (response.data) {
         await login(response.data.token, response.data.user);
-        router.replace("/(tabs)");
+        router.replace("/(tabs)/dashboard");
       }
     } catch (error) {
       setErrors({
@@ -186,7 +186,7 @@ export default function LoginScreen() {
                 ${isDark ? "bg-brand" : "bg-brand"}
               `}
             >
-              <Ionicons name="chatbubbles" size={40} color="white" />
+              <Ionicons name="home" size={40} color="white" />
             </View>
             <Text
               className={`text-3xl font-bold mb-2 ${

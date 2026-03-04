@@ -21,7 +21,7 @@ export default function TabsLayout() {
     background: isDark ? "#1e1f22" : "#ffffff",
     border: isDark ? "#2b2d31" : "#e5e7eb",
     inactive: isDark ? "#949ba4" : "#6b7280",
-    active: isDark ? "#5865f2" : "#4f46e5",
+    active: isDark ? "#f59e0b" : "#d97706",
   };
 
   return (
@@ -44,87 +44,83 @@ export default function TabsLayout() {
         },
       }}
     >
+      {/* IoT primary tabs */}
       <Tabs.Screen
-        name="index"
+        name="dashboard"
         options={{
-          title: "Servers",
+          title: "Home",
           tabBarIcon: ({ color, size }) => (
-            <TabIcon name="planet-outline" color={color} size={size} />
+            <TabIcon name="home-outline" color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
-        name="discover"
+        name="devices"
         options={{
-          title: "Discover",
+          title: "Devices",
           tabBarIcon: ({ color, size }) => (
-            <TabIcon name="compass-outline" color={color} size={size} />
+            <TabIcon name="hardware-chip-outline" color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
-        name="dms"
+        name="rooms"
         options={{
-          title: "DMs",
+          title: "Rooms",
           tabBarIcon: ({ color, size }) => (
-            <TabIcon name="chatbubbles-outline" color={color} size={size} />
+            <TabIcon name="grid-outline" color={color} size={size} />
           ),
-        }}
-      />
-      <Tabs.Screen
-        name="friends"
-        options={{
-          title: "Friends",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="people-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="invites"
-        options={{
-          title: "Invites",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="mail-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: "Activity",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="notifications-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="person-outline" color={color} size={size} />
-          ),
-        }}
-      />
-      {/* Hidden screens */}
-      <Tabs.Screen
-        name="server/[id]"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="server/settings"
-        options={{
-          href: null,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          href: null,
+          title: "Settings",
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="settings-outline" color={color} size={size} />
+          ),
         }}
+      />
+      {/* Chat-related tabs (hidden, accessible via navigation) */}
+      <Tabs.Screen
+        name="index"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="discover"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="dms"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="friends"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="invites"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="server/[id]"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="server/settings"
+        options={{ href: null }}
       />
     </Tabs>
   );
