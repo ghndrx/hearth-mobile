@@ -263,9 +263,9 @@ export function VoiceChannelBar({
 }: VoiceChannelBarProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  const [barHeight, setBarHeight] = useState(0);
+  const [_barHeight, _setBarHeight] = useState(0);
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const { width: screenWidth } = Dimensions.get("window");
+  const { width: _screenWidth } = Dimensions.get("window");
 
   // Find current user's participant info
   const currentParticipant = participants.find(
@@ -283,7 +283,7 @@ export function VoiceChannelBar({
   }, [slideAnim]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
-    setBarHeight(event.nativeEvent.layout.height);
+    _setBarHeight(event.nativeEvent.layout.height);
   };
 
   const handleExpand = useCallback(() => {

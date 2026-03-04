@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../lib/stores/auth";
 import { Button, Input, PasswordInput, Alert } from "../../components/ui";
 import * as authService from "../../lib/services/auth";
+import { AnimatedView, ShakeAnimation } from "../../components/animations";
 
 interface FormErrors {
   username?: string;
@@ -92,8 +93,14 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shakeTrigger, setShakeTrigger] = useState(false);
 
   const login = useAuthStore((state) => state.login);
+
+  const triggerShake = () => {
+    setShakeTrigger(true);
+    setTimeout(() => setShakeTrigger(false), 500);
+  };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -118,7 +125,10 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      triggerShake();
+      return;
+    }
 
     setIsSubmitting(true);
     setErrors({});
@@ -136,6 +146,7 @@ export default function RegisterScreen() {
         setErrors({
           general: authService.getAuthErrorMessage(registerResponse.error.code),
         });
+        triggerShake();
         return;
       }
 
@@ -155,6 +166,7 @@ export default function RegisterScreen() {
       setErrors({
         general: "An unexpected error occurred. Please try again.",
       });
+      triggerShake();
     } finally {
       setIsSubmitting(false);
     }
@@ -176,7 +188,11 @@ export default function RegisterScreen() {
           contentContainerClassName="flex-grow justify-center px-6 py-8"
           keyboardShouldPersistTaps="handled"
         >
-          <View className="items-center mb-10">
+          <AnimatedView
+            animation="zoom"
+            delay={0}
+            className="items-center mb-10"
+          >
             <View
               className={`
                 w-20 h-20 
@@ -201,111 +217,127 @@ export default function RegisterScreen() {
             >
               Join Hearth and start connecting
             </Text>
-          </View>
+          </AnimatedView>
 
-          {errors.general && (
-            <View className="mb-6">
-              <Alert
-                variant={errors.general.includes("created") ? "success" : "error"}
-                message={errors.general}
-                onClose={() =>
-                  setErrors((prev) => ({ ...prev, general: undefined }))
-                }
-              />
+          <ShakeAnimation trigger={shakeTrigger}>
+            <View>
+              {errors.general && (
+                <AnimatedView animation="fade" className="mb-6">
+                  <Alert
+                    variant={errors.general.includes("created") ? "success" : "error"}
+                    message={errors.general}
+                    onClose={() =>
+                      setErrors((prev) => ({ ...prev, general: undefined }))
+                    }
+                  />
+                </AnimatedView>
+              )}
+
+              <AnimatedView animation="slide-up" delay={100}>
+                <Input
+                  label="Username"
+                  placeholder="Choose a username"
+                  value={username}
+                  onChangeText={(text) => {
+                    setUsername(text);
+                    clearFieldError("username");
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  textContentType="username"
+                  autoComplete="username-new"
+                  editable={!isSubmitting}
+                  error={errors.username}
+                  leftIcon={
+                    <Ionicons
+                      name="at-outline"
+                      size={20}
+                      color={isDark ? "#80848e" : "#6b7280"}
+                    />
+                  }
+                />
+              </AnimatedView>
+
+              <AnimatedView animation="slide-up" delay={200}>
+                <Input
+                  label="Email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    clearFieldError("email");
+                  }}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  textContentType="emailAddress"
+                  autoComplete="email"
+                  editable={!isSubmitting}
+                  error={errors.email}
+                  leftIcon={
+                    <Ionicons
+                      name="mail-outline"
+                      size={20}
+                      color={isDark ? "#80848e" : "#6b7280"}
+                    />
+                  }
+                />
+              </AnimatedView>
+
+              <AnimatedView animation="slide-up" delay={300}>
+                <PasswordInput
+                  label="Password"
+                  placeholder="Create a password"
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    clearFieldError("password");
+                  }}
+                  autoComplete="password-new"
+                  editable={!isSubmitting}
+                  error={errors.password}
+                  helperText="Must be 8+ characters with uppercase, lowercase, and number"
+                />
+              </AnimatedView>
+
+              <AnimatedView animation="slide-up" delay={400}>
+                <PasswordInput
+                  label="Confirm Password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    clearFieldError("confirmPassword");
+                  }}
+                  autoComplete="password-new"
+                  editable={!isSubmitting}
+                  error={errors.confirmPassword}
+                />
+              </AnimatedView>
             </View>
-          )}
+          </ShakeAnimation>
 
-          <Input
-            label="Username"
-            placeholder="Choose a username"
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-              clearFieldError("username");
-            }}
-            autoCapitalize="none"
-            autoCorrect={false}
-            textContentType="username"
-            autoComplete="username-new"
-            editable={!isSubmitting}
-            error={errors.username}
-            leftIcon={
-              <Ionicons
-                name="at-outline"
-                size={20}
-                color={isDark ? "#80848e" : "#6b7280"}
-              />
-            }
-          />
+          <AnimatedView animation="slide-up" delay={500}>
+            <Button
+              title="Create Account"
+              onPress={handleRegister}
+              isLoading={isSubmitting}
+              fullWidth
+              size="lg"
+              className="mb-6 mt-2"
+            />
+          </AnimatedView>
 
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              clearFieldError("email");
-            }}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            autoComplete="email"
-            editable={!isSubmitting}
-            error={errors.email}
-            leftIcon={
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={isDark ? "#80848e" : "#6b7280"}
-              />
-            }
-          />
-
-          <PasswordInput
-            label="Password"
-            placeholder="Create a password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              clearFieldError("password");
-            }}
-            autoComplete="password-new"
-            editable={!isSubmitting}
-            error={errors.password}
-            helperText="Must be 8+ characters with uppercase, lowercase, and number"
-          />
-
-          <PasswordInput
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            value={confirmPassword}
-            onChangeText={(text) => {
-              setConfirmPassword(text);
-              clearFieldError("confirmPassword");
-            }}
-            autoComplete="password-new"
-            editable={!isSubmitting}
-            error={errors.confirmPassword}
-          />
-
-          <Button
-            title="Create Account"
-            onPress={handleRegister}
-            isLoading={isSubmitting}
-            fullWidth
-            size="lg"
-            className="mb-6 mt-2"
-          />
-
-          <View className="flex-row justify-center">
-            <Text className={isDark ? "text-dark-200" : "text-gray-600"}>
-              Already have an account?{" "}
-            </Text>
-            <Link href="/(auth)/login" asChild>
-              <Text className="text-brand font-semibold">Sign In</Text>
-            </Link>
-          </View>
+          <AnimatedView animation="fade" delay={600}>
+            <View className="flex-row justify-center">
+              <Text className={isDark ? "text-dark-200" : "text-gray-600"}>
+                Already have an account?{" "}
+              </Text>
+              <Link href="/(auth)/login" asChild>
+                <Text className="text-brand font-semibold">Sign In</Text>
+              </Link>
+            </View>
+          </AnimatedView>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

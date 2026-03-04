@@ -112,7 +112,7 @@ export function MessageBubble({
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const isCurrentUser = message.isCurrentUser;
-  const [showQuickReactions, setShowQuickReactions] = useState(false);
+  const [_showQuickReactions, _setShowQuickReactions] = useState(false);
 
   // Handle long press with haptic feedback
   const handleLongPress = useCallback(() => {
