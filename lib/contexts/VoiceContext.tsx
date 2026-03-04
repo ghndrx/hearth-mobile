@@ -83,7 +83,7 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
   );
 
   // Simulated connection (in production, this would be WebRTC)
-  const connectionRef = useRef<NodeJS.Timeout | null>(null);
+  const connectionRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const joinChannel = useCallback(
     async (channel: Channel, serverName: string, serverId: string) => {
