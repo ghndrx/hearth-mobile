@@ -29,3 +29,4 @@ export * from "./accessibility";
 export * from "./deepLinking";
 export * from "./quickActions";
 export * from "./spotlight";
+export * as deviceService from "./devices";

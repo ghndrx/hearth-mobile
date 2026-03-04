@@ -146,3 +146,6 @@ export interface ServerMember {
 
 // Re-export offline types
 export * from "./offline";
+
+// Re-export IoT types
+export * from "./iot";
