@@ -15,3 +15,8 @@ export {
 } from "./MessageQueueContext";
 
 export { useNotificationContext } from "./NotificationContext";
+
+export {
+  VoiceProvider,
+  useVoice,
+} from "./VoiceContext";
