@@ -290,9 +290,22 @@ export function ChannelListScreen({
             ? () => headerRight
             : () => (
                 <View className="flex-row mr-2">
-                  <TouchableOpacity className="p-2">
+                  <TouchableOpacity
+                    className="p-2"
+                    onPress={() => router.push(`/server/${server.id}/invite`)}
+                  >
                     <Ionicons
-                      name="search-outline"
+                      name="person-add-outline"
+                      size={22}
+                      color={isDark ? "#80848e" : "#6b7280"}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="p-2"
+                    onPress={() => router.push(`/server/${server.id}/channels/create`)}
+                  >
+                    <Ionicons
+                      name="add-circle-outline"
                       size={22}
                       color={isDark ? "#80848e" : "#6b7280"}
                     />
