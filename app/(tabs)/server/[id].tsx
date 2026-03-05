@@ -87,9 +87,11 @@ const getStatusColor = (status: string) => {
 function CategorySection({
   category,
   isDark,
+  serverId,
 }: {
   category: Category;
   isDark: boolean;
+  serverId: string;
 }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -117,10 +119,13 @@ function CategorySection({
         category.channels.map((channel) => (
           <TouchableOpacity
             key={channel.id}
-            onPress={() =>
-              channel.type === "text" &&
-              router.push(`/chat/${channel.id}?server=true`)
-            }
+            onPress={() => {
+              if (channel.type === "text") {
+                router.push(`/server/${serverId}/channels/${channel.id}`);
+              } else if (channel.type === "voice") {
+                router.push(`/voice/${channel.id}?serverId=${serverId}&serverName=Gaming Hub`);
+              }
+            }}
             className={`
               flex-row items-center px-4 py-2.5 mx-2 rounded-lg
               ${channel.isActive ? (isDark ? "bg-dark-700" : "bg-gray-100") : ""}
@@ -208,7 +213,7 @@ function MemberItem({
 }
 
 export default function ServerDetailScreen() {
-  const { id: _id } = useLocalSearchParams<{ id: string }>();
+  const { id: serverId } = useLocalSearchParams<{ id: string }>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const [activeTab, setActiveTab] = useState<"channels" | "members">(
@@ -307,6 +312,7 @@ export default function ServerDetailScreen() {
               key={category.id}
               category={category}
               isDark={isDark}
+              serverId={serverId || ""}
             />
           ))}
         </ScrollView>
