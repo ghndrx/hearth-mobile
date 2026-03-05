@@ -55,6 +55,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="dms"
+        options={{
+          title: "Chat",
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="chatbubbles-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="devices"
         options={{
           title: "Devices",
@@ -88,10 +97,6 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="discover"
-        options={{ href: null }}
-      />
-      <Tabs.Screen
-        name="dms"
         options={{ href: null }}
       />
       <Tabs.Screen
