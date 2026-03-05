@@ -1,7 +1,7 @@
 # Hearth Mobile Build Report
 
-**Date:** March 4, 2026  
-**Time:** 10:23 PM UTC  
+**Date:** March 5, 2026  
+**Time:** 1:07 AM UTC  
 **Status:** ✅ Build Complete
 
 ## Summary
@@ -37,6 +37,7 @@ Hearth Mobile is a comprehensive React Native + Expo application for the Hearth 
 | Rooms | IoT room management |
 | Settings | App preferences |
 | Devices | IoT device dashboard |
+| Quick Capture | Rapid message composition modal |
 
 ### 💬 Chat Components (16 components)
 - `MessageBubble` — Message display with styling
@@ -79,7 +80,7 @@ Hearth Mobile is a comprehensive React Native + Expo application for the Hearth 
 - `RoomCard` — Room summary card
 - `SceneCard` — Automation scene trigger
 
-### 🎛️ UI Components (24 primitives)
+### 🎛️ UI Components (26 primitives)
 - `Alert` — Alert dialogs
 - `Avatar` — User avatars with presence
 - `Badge` — Notification badges
@@ -95,6 +96,7 @@ Hearth Mobile is a comprehensive React Native + Expo application for the Hearth 
 - `OfflineIndicator` — Offline status banner
 - `PlatformRefreshControl` — Pull-to-refresh
 - `PullToRefresh` — Custom refresh UI
+- `QuickCaptureFab` — Floating action button for quick capture
 - `SearchInput` — Search bar
 - `Skeleton` — Loading placeholders
 - `Switch` — Toggle switches
@@ -149,13 +151,13 @@ Hearth Mobile is a comprehensive React Native + Expo application for the Hearth 
 
 | Category | Count |
 |----------|-------|
-| Screens | 20+ |
-| Components | 62 |
+| Screens | 21+ |
+| Components | 64 |
 | Services | 16 |
 | Hooks | 5 |
 | Stores | 2 |
 | Contexts | 4 |
-| **Total TypeScript Files** | **~110** |
+| **Total TypeScript Files** | **~113** |
 
 ## Dependencies
 
@@ -174,6 +176,28 @@ Hearth Mobile is a comprehensive React Native + Expo application for the Hearth 
 3. Configure EAS Build for production
 4. Add analytics/monitoring (Sentry, PostHog)
 5. Optimize bundle size
+
+## Changelog (March 5, 2026)
+
+### New Features
+- **Quick Capture Screen** (`app/quick-capture.tsx`)
+  - Slide-up modal for rapid message composition
+  - Recent contacts/channels for quick selection
+  - Offline support via MessageQueueContext
+  - Swipe-down to dismiss gesture
+  - Character limit indicator (2000 chars)
+  - Haptic feedback on interactions
+
+- **Quick Capture FAB** (`components/QuickCaptureFab.tsx`)
+  - Floating action button on dashboard
+  - One-tap access to quick messaging
+  - Configurable size and position
+
+### Platform-Specific Polish
+- iOS-optimized slide-up animation with spring physics
+- Keyboard avoiding view for smooth input
+- Safe area insets support for modern devices
+- Dark mode support throughout
 
 ---
 
