@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Card } from "../../components/ui";
 import { DeviceCard, SceneCard, RoomCard } from "../../components/iot";
+import { QuickCaptureFab } from "../../components/QuickCaptureFab";
 import type { Device, Room, Scene, HomeAlert } from "../../lib/types/iot";
 
 // Mock data for demonstration
@@ -354,6 +355,9 @@ export default function DashboardScreen() {
           </Card>
         </Animated.View>
       </ScrollView>
+
+      {/* Quick Capture FAB */}
+      <QuickCaptureFab size="lg" position="bottomRight" />
     </SafeAreaView>
   );
 }
