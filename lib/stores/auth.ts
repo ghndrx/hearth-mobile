@@ -8,6 +8,7 @@ interface User {
   avatar?: string;
   email: string;
   bio?: string;
+  status?: "online" | "offline" | "idle" | "dnd" | "invisible";
 }
 
 interface ProfileUpdate {
