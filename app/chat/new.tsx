@@ -5,7 +5,6 @@ import {
   FlatList,
   TouchableOpacity,
   useColorScheme,
-  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
@@ -245,20 +244,24 @@ export default function NewConversationScreen() {
   );
 
   const allContacts = useMemo(() => {
-    const sections: { type: "header" | "contact"; data: Contact | string }[] =
-      [];
+    const sections: (
+      | { type: "header"; title: string; count: number }
+      | { type: "contact"; data: Contact }
+    )[] = [];
 
     if (onlineContacts.length > 0) {
       sections.push({
         type: "header",
-        data: `Online|${onlineContacts.length}`,
+        title: "Online",
+        count: onlineContacts.length,
       });
       onlineContacts.forEach((c) => sections.push({ type: "contact", data: c }));
     }
     if (offlineContacts.length > 0) {
       sections.push({
         type: "header",
-        data: `Offline|${offlineContacts.length}`,
+        title: "Offline",
+        count: offlineContacts.length,
       });
       offlineContacts.forEach((c) =>
         sections.push({ type: "contact", data: c }),
@@ -365,15 +368,14 @@ export default function NewConversationScreen() {
         data={allContacts}
         keyExtractor={(item, index) =>
           item.type === "header"
-            ? `header-${item.data}`
-            : `contact-${(item.data as Contact).id}`
+            ? `header-${item.title}-${index}`
+            : `contact-${item.data.id}`
         }
         renderItem={({ item }) => {
           if (item.type === "header") {
-            const [title, count] = (item.data as string).split("|");
-            return renderSectionHeader(title, parseInt(count, 10));
+            return renderSectionHeader(item.title, item.count);
           }
-          return renderContact({ item: item.data as Contact } as any);
+          return renderContact({ item: item.data });
         }}
         ListEmptyComponent={() => (
           <View className="items-center justify-center py-20">

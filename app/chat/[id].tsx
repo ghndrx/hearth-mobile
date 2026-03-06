@@ -134,7 +134,7 @@ export default function ChatScreen() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [typingAnimation]);
 
   const otherParticipant = mockParticipants.find((p) => p.id !== "2");
 
@@ -501,7 +501,7 @@ export default function ChatScreen() {
               ))}
             </View>
             {selectedMessage && (
-              <View className="mt-4 pt-4 border-t border-dark-700">
+              <View className={`mt-4 pt-4 border-t ${isDark ? "border-dark-700" : "border-gray-200"}`}>
                 <TouchableOpacity
                   onPress={() => {
                     setMessages((prev) =>

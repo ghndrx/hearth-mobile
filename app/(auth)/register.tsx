@@ -200,7 +200,7 @@ export default function RegisterScreen() {
                 items-center 
                 justify-center 
                 mb-4
-                ${isDark ? "bg-brand" : "bg-brand"}
+                bg-brand
               `}
             >
               <Ionicons name="person-add" size={40} color="white" />
