@@ -40,6 +40,14 @@ export {
   type VoiceRecording,
 } from "./VoiceRecorder";
 export {
+  VoiceRecordButton,
+  type VoiceRecordButtonProps,
+} from "./VoiceRecordButton";
+export {
+  VoiceMessageBubble,
+  type VoiceMessageProps,
+} from "./VoiceMessageBubble";
+export {
   VoiceMessagePlayer,
   useVoicePlaybackManager,
   type VoiceMessage,
