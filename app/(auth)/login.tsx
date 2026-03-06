@@ -183,7 +183,7 @@ export default function LoginScreen() {
                 items-center 
                 justify-center 
                 mb-4
-                ${isDark ? "bg-brand" : "bg-brand"}
+                bg-brand
               `}
             >
               <Ionicons name="home" size={40} color="white" />
