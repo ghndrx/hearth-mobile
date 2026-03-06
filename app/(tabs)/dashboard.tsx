@@ -262,6 +262,9 @@ export default function DashboardScreen() {
             >
               Scenes
             </Text>
+            <TouchableOpacity onPress={() => router.push("/scenes")}>
+              <Text className="text-brand text-sm font-medium">Manage</Text>
+            </TouchableOpacity>
           </View>
           <FlatList
             horizontal
@@ -325,6 +328,7 @@ export default function DashboardScreen() {
 
         {/* Energy Summary */}
         <Animated.View entering={FadeInDown.delay(450).duration(400)} className="px-5 mt-6">
+          <TouchableOpacity activeOpacity={0.8} onPress={() => router.push("/energy")}>
           <Card
             title="Energy Today"
             className={isDark ? "bg-dark-800 border-dark-700" : "bg-white border-gray-200"}
@@ -353,6 +357,7 @@ export default function DashboardScreen() {
               />
             </View>
           </Card>
+          </TouchableOpacity>
         </Animated.View>
       </ScrollView>
 

@@ -120,6 +120,10 @@ export default function TabsLayout() {
         options={{ href: null }}
       />
       <Tabs.Screen
+        name="server/index"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
         name="server/[id]"
         options={{ href: null }}
       />
