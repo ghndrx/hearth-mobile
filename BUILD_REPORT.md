@@ -171,6 +171,47 @@ hearth-mobile/
 - `npm run lint`: ESLint
 - `npm run format`: Prettier
 
+## ✅ Voice Messages (Latest - Mar 6, 2026)
+
+### VoiceRecorder Component
+- **Full-featured audio recording** with permissions handling
+- **Real-time waveform visualization** (30 animated bars)
+- **Pause/resume recording** during capture
+- **Preview playback** before sending
+- **Slide-to-cancel gesture** (swipe left > 120px)
+- **Maximum duration limit** (default: 5 minutes)
+- **Platform-specific formats**: M4A (iOS) / MP4 (Android)
+- **Haptic feedback** for all interactions
+
+### VoiceMessageBubble Component
+- **Waveform visualization** for received messages
+- **Play/pause controls** with loading states
+- **Progress tracking and seeking** through audio
+- **Duration and file size display**
+- **"Listened" status indicator** for unread messages
+- **Different styling** for sent vs received
+- **Audio playback** via expo-av
+
+### VoiceRecordButton Component
+- **Simple microphone button** trigger
+- **Tap to start recording**
+- **Configurable sizes** (sm, md, lg)
+- **Disabled state support**
+- **Branded amber styling**
+
+### Integration
+- **MessageComposer** includes voice button when text is empty
+- **Automatic UI switching** between send and voice buttons
+- **Seamless recording flow** with cancel options
+- **Documentation** in `docs/VOICE_MESSAGES.md`
+
+### Technical Details
+- Uses **expo-av** for audio recording/playback
+- **High-quality presets**: 44.1 kHz, 128 kbps, mono AAC
+- **Permission handling** for iOS and Android
+- **File cleanup** and temporary storage management
+- **Playback state management** with callbacks
+
 ## Git Status
 - All changes committed to `develop` branch
 - Working tree clean
@@ -181,9 +222,12 @@ The Hearth Mobile app is **fully built** with:
 - ✅ Complete authentication flow (Login & Register)
 - ✅ Robust navigation structure with Expo Router
 - ✅ Production-ready core UI components (Button, Input, Card)
+- ✅ **Voice messaging** with recording, playback, and waveforms 🎙️
 - ✅ TypeScript implementation with no type errors
 - ✅ Expo best practices followed
 - ✅ Dark mode, animations, and accessibility
 - ✅ All code committed to version control
 
 **Status**: Ready for development and testing ✨
+
+**Latest Feature**: Voice message recording and playback system with waveform visualization and platform-optimized audio handling.
