@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 type MediaType = "images" | "files" | "links";
 
