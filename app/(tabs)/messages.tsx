@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,26 @@ import {
   useColorScheme,
   Image,
 } from "react-native";
+import Animated, {
+  FadeInRight,
+  FadeIn,
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withDelay,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 import { Stack, useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { SearchInput } from "../../components/ui";
+import { SkeletonChatList, SkeletonLoader } from "../../components/ui/Skeleton";
+
+// ---------------------------------------------------------------------------
+// Types & Constants
+// ---------------------------------------------------------------------------
 
 interface DirectMessage {
   id: string;
@@ -25,7 +41,6 @@ interface DirectMessage {
   isTyping?: boolean;
 }
 
-// Mock data for demonstration
 const MOCK_DMS: DirectMessage[] = [
   {
     id: "1",
@@ -77,6 +92,10 @@ const STATUS_COLORS: Record<string, string> = {
   offline: "#6b7280",
 };
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function formatTimestamp(date: Date): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -105,133 +124,189 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
+// ---------------------------------------------------------------------------
+// Animated Typing Dots
+// ---------------------------------------------------------------------------
+
+function TypingDot({ delay, isDark }: { delay: number; isDark: boolean }) {
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(0.4);
+
+  useEffect(() => {
+    translateY.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(-4, { duration: 250, easing: Easing.out(Easing.quad) }),
+          withTiming(0, { duration: 250, easing: Easing.in(Easing.quad) }),
+        ),
+        -1,
+        false,
+      ),
+    );
+    opacity.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 250 }),
+          withTiming(0.4, { duration: 250 }),
+        ),
+        -1,
+        false,
+      ),
+    );
+  }, [delay, translateY, opacity]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      style={animStyle}
+      className={`w-[5px] h-[5px] rounded-full mx-[1.5px] ${isDark ? "bg-gray-400" : "bg-gray-500"}`}
+    />
+  );
+}
+
+function AnimatedTypingDots({ isDark }: { isDark: boolean }) {
+  return (
+    <View className="flex-row items-center h-4">
+      <TypingDot delay={0} isDark={isDark} />
+      <TypingDot delay={120} isDark={isDark} />
+      <TypingDot delay={240} isDark={isDark} />
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DM Item
+// ---------------------------------------------------------------------------
+
 interface DMItemProps {
   dm: DirectMessage;
   isDark: boolean;
+  index: number;
   onPress: () => void;
   onLongPress: () => void;
 }
 
-function DMItem({ dm, isDark, onPress, onLongPress }: DMItemProps) {
+function DMItem({ dm, isDark, index, onPress, onLongPress }: DMItemProps) {
   const hasUnread = dm.unreadCount > 0;
 
   return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      className={`flex-row items-center px-4 py-3 active:opacity-70 ${
-        hasUnread
-          ? isDark
-            ? "bg-gray-900/50"
-            : "bg-blue-50"
-          : ""
-      }`}
-    >
-      {/* Avatar */}
-      <View className="relative">
-        {dm.recipientAvatar ? (
-          <Image
-            source={{ uri: dm.recipientAvatar }}
-            className="w-12 h-12 rounded-full"
-          />
-        ) : (
-          <View
-            className={`w-12 h-12 rounded-full items-center justify-center ${
-              isDark ? "bg-gray-700" : "bg-gray-200"
-            }`}
-          >
-            <Text
-              className={`text-lg font-semibold ${
-                isDark ? "text-gray-300" : "text-gray-600"
+    <Animated.View entering={FadeInRight.delay(index * 60).duration(300).springify().damping(18)}>
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
+        className={`flex-row items-center px-4 py-3 active:opacity-70 ${
+          hasUnread
+            ? isDark
+              ? "bg-gray-900/50"
+              : "bg-blue-50"
+            : ""
+        }`}
+      >
+        {/* Avatar */}
+        <View className="relative">
+          {dm.recipientAvatar ? (
+            <Image
+              source={{ uri: dm.recipientAvatar }}
+              className="w-12 h-12 rounded-full"
+            />
+          ) : (
+            <View
+              className={`w-12 h-12 rounded-full items-center justify-center ${
+                isDark ? "bg-gray-700" : "bg-gray-200"
               }`}
             >
-              {getInitials(dm.recipientName)}
-            </Text>
-          </View>
-        )}
-        {/* Status indicator */}
-        <View
-          className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2"
-          style={{
-            backgroundColor: STATUS_COLORS[dm.recipientStatus],
-            borderColor: isDark ? "#111827" : "#ffffff",
-          }}
-        />
-      </View>
-
-      {/* Content */}
-      <View className="flex-1 ml-3 mr-2">
-        <View className="flex-row items-center justify-between mb-1">
-          <Text
-            className={`text-base font-semibold flex-1 ${
-              hasUnread
-                ? isDark
-                  ? "text-white"
-                  : "text-gray-900"
-                : isDark
-                ? "text-gray-200"
-                : "text-gray-800"
-            }`}
-            numberOfLines={1}
-          >
-            {dm.recipientName}
-          </Text>
-          <Text
-            className={`text-xs ml-2 ${
-              hasUnread
-                ? "text-blue-500 font-medium"
-                : isDark
-                ? "text-gray-500"
-                : "text-gray-400"
-            }`}
-          >
-            {formatTimestamp(dm.lastMessageAt)}
-          </Text>
-        </View>
-        <View className="flex-row items-center">
-          {dm.isTyping ? (
-            <View className="flex-row items-center">
-              <View className="flex-row gap-1">
-                <View className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" />
-                <View className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" />
-                <View className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" />
-              </View>
               <Text
-                className={`ml-2 text-sm italic ${
-                  isDark ? "text-gray-400" : "text-gray-500"
+                className={`text-lg font-semibold ${
+                  isDark ? "text-gray-300" : "text-gray-600"
                 }`}
               >
-                typing...
+                {getInitials(dm.recipientName)}
               </Text>
             </View>
-          ) : (
+          )}
+          {/* Status indicator */}
+          <View
+            className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2"
+            style={{
+              backgroundColor: STATUS_COLORS[dm.recipientStatus],
+              borderColor: isDark ? "#111827" : "#ffffff",
+            }}
+          />
+        </View>
+
+        {/* Content */}
+        <View className="flex-1 ml-3 mr-2">
+          <View className="flex-row items-center justify-between mb-1">
             <Text
-              className={`text-sm flex-1 ${
+              className={`text-base font-semibold flex-1 ${
                 hasUnread
-                  ? isDark
-                    ? "text-gray-300"
-                    : "text-gray-700"
-                  : isDark
-                  ? "text-gray-500"
-                  : "text-gray-500"
+                  ? isDark ? "text-white" : "text-gray-900"
+                  : isDark ? "text-gray-200" : "text-gray-800"
               }`}
               numberOfLines={1}
             >
-              {dm.lastMessage}
+              {dm.recipientName}
             </Text>
-          )}
-          {hasUnread && (
-            <View className="ml-2 min-w-6 h-6 px-2 rounded-full bg-blue-500 items-center justify-center">
-              <Text className="text-xs font-bold text-white">
-                {dm.unreadCount > 99 ? "99+" : dm.unreadCount}
+            <Text
+              className={`text-xs ml-2 ${
+                hasUnread
+                  ? "text-blue-500 font-medium"
+                  : isDark ? "text-gray-500" : "text-gray-400"
+              }`}
+            >
+              {formatTimestamp(dm.lastMessageAt)}
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            {dm.isTyping ? (
+              <View className="flex-row items-center">
+                <AnimatedTypingDots isDark={isDark} />
+                <Text
+                  className={`ml-2 text-sm italic ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  typing...
+                </Text>
+              </View>
+            ) : (
+              <Text
+                className={`text-sm flex-1 ${
+                  hasUnread
+                    ? isDark ? "text-gray-300" : "text-gray-700"
+                    : isDark ? "text-gray-500" : "text-gray-500"
+                }`}
+                numberOfLines={1}
+              >
+                {dm.lastMessage}
               </Text>
-            </View>
-          )}
+            )}
+            {hasUnread && (
+              <Animated.View
+                entering={FadeIn.duration(300)}
+                className="ml-2 min-w-6 h-6 px-2 rounded-full bg-blue-500 items-center justify-center"
+              >
+                <Text className="text-xs font-bold text-white">
+                  {dm.unreadCount > 99 ? "99+" : dm.unreadCount}
+                </Text>
+              </Animated.View>
+            )}
+          </View>
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </Animated.View>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Main Screen
+// ---------------------------------------------------------------------------
 
 export default function MessagesScreen() {
   const router = useRouter();
@@ -240,7 +315,14 @@ export default function MessagesScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [dms] = useState<DirectMessage[]>(MOCK_DMS);
+
+  // Simulate initial load
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filteredDms = useMemo(() => {
     if (!searchQuery.trim()) return dms;
@@ -255,7 +337,6 @@ export default function MessagesScreen() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // TODO: Fetch latest DMs
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
@@ -269,19 +350,18 @@ export default function MessagesScreen() {
 
   const handleDMLongPress = useCallback((_dm: DirectMessage) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // TODO: Show context menu (mute, archive, block, etc.)
   }, []);
 
   const handleNewMessage = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // TODO: Open new DM modal/screen
   }, []);
 
   const renderItem = useCallback(
-    ({ item }: { item: DirectMessage }) => (
+    ({ item, index }: { item: DirectMessage; index: number }) => (
       <DMItem
         dm={item}
         isDark={isDark}
+        index={index}
         onPress={() => handleDMPress(item)}
         onLongPress={() => handleDMLongPress(item)}
       />
@@ -334,13 +414,13 @@ export default function MessagesScreen() {
 
   const renderHeader = useCallback(
     () => (
-      <View className="px-4 py-3">
+      <Animated.View entering={FadeIn.duration(300)} className="px-4 py-3">
         <SearchInput
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search messages..."
         />
-      </View>
+      </Animated.View>
     ),
     [searchQuery]
   );
@@ -378,25 +458,34 @@ export default function MessagesScreen() {
         }}
       />
 
-      <FlatList
-        data={filteredDms}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmptyState}
-        ItemSeparatorComponent={ItemSeparator}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={isDark ? "#6b7280" : "#9ca3af"}
-          />
+      <SkeletonLoader
+        loading={isLoading}
+        skeleton={
+          <View className="pt-16">
+            <SkeletonChatList count={6} />
+          </View>
         }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={
-          filteredDms.length === 0 ? { flexGrow: 1 } : undefined
-        }
-      />
+      >
+        <FlatList
+          data={filteredDms}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListHeaderComponent={renderHeader}
+          ListEmptyComponent={renderEmptyState}
+          ItemSeparatorComponent={ItemSeparator}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={isDark ? "#6b7280" : "#9ca3af"}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={
+            filteredDms.length === 0 ? { flexGrow: 1 } : undefined
+          }
+        />
+      </SkeletonLoader>
     </View>
   );
 }
