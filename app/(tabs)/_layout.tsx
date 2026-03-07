@@ -131,6 +131,10 @@ export default function TabsLayout() {
         name="server/settings"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="voice/[id]"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
