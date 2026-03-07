@@ -11,8 +11,11 @@ import { NotificationBanner } from "../components/notifications";
 import { BiometricLockScreen } from "../components/BiometricLockScreen";
 import { LoadingSpinner } from "../components/ui";
 import { NetworkStatusBar } from "../components/NetworkStatusBar";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { deepLinkManager, quickActionsService, spotlightService } from "../lib/services";
 import { offlineSyncService } from "../lib/services/offlineSync";
+import { analytics } from "../lib/services/analytics";
+import { useAppStatePerformance } from "../lib/hooks";
 import "../global.css";
 
 const queryClient = new QueryClient({
@@ -27,14 +30,20 @@ const queryClient = new QueryClient({
 function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
-  const { isAuthenticated, isLoading, loadStoredAuth } = useAuthStore();
+  const { isAuthenticated, isLoading, loadStoredAuth, user } = useAuthStore();
   const [isReady, setIsReady] = useState(false);
   const [_servicesInitialized, setServicesInitialized] = useState(false);
+
+  // Track app state changes for analytics
+  useAppStatePerformance();
 
   // Initialize platform services
   useEffect(() => {
     const initializeServices = async () => {
       try {
+        // Initialize analytics
+        await analytics.initialize();
+
         // Initialize deep linking
         await deepLinkManager.initialize();
 
@@ -50,6 +59,7 @@ function RootLayoutNav() {
         setServicesInitialized(true);
       } catch (error) {
         console.error("Failed to initialize platform services:", error);
+        analytics.logError(error as Error, { context: "service_initialization" });
         setServicesInitialized(true); // Continue anyway
       }
     };
@@ -60,8 +70,23 @@ function RootLayoutNav() {
     return () => {
       deepLinkManager.cleanup();
       offlineSyncService.stop();
+      analytics.cleanup();
     };
   }, []);
+
+  // Update analytics user properties when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      analytics.setUserId(user.id);
+      analytics.setUserProperties({
+        userId: user.id,
+        email: user.email,
+        username: user.username,
+      });
+    } else {
+      analytics.setUserId(null);
+    }
+  }, [isAuthenticated, user]);
 
   // Handle app state changes for Quick Actions
   useEffect(() => {
@@ -109,19 +134,28 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <NotificationProvider>
-          <BiometricProvider>
-            <BiometricLockScreen>
-              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-              <NetworkStatusBar />
-              <RootLayoutNav />
-              <NotificationBanner />
-            </BiometricLockScreen>
-          </BiometricProvider>
-        </NotificationProvider>
-      </QueryClientProvider>
-    </SafeAreaProvider>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        analytics.logError(error, {
+          component_stack: errorInfo.componentStack,
+          error_boundary: "root",
+        });
+      }}
+    >
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <NotificationProvider>
+            <BiometricProvider>
+              <BiometricLockScreen>
+                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                <NetworkStatusBar />
+                <RootLayoutNav />
+                <NotificationBanner />
+              </BiometricLockScreen>
+            </BiometricProvider>
+          </NotificationProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
