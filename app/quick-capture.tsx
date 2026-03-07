@@ -189,7 +189,7 @@ export default function QuickCaptureScreen() {
   const canSend = message.trim().length > 0 && selectedContact !== null && !isSending;
 
   // Format timestamp for display (used in future enhancement)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const _formatTime = (dateStr?: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
