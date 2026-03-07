@@ -1,10 +1,21 @@
 /**
  * Typing Indicator Component
- * Shows animated dots when users are typing
+ * Shows animated bouncing dots when users are typing
  */
 
-import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, useColorScheme, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, useColorScheme } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withDelay,
+  withTiming,
+  Easing,
+  FadeIn,
+  FadeOut,
+} from 'react-native-reanimated';
 import { Avatar } from '../ui';
 
 export interface TypingUser {
@@ -19,76 +30,45 @@ interface TypingIndicatorProps {
   maxAvatars?: number;
 }
 
-function AnimatedDots() {
-  const dot1 = useRef(new Animated.Value(0)).current;
-  const dot2 = useRef(new Animated.Value(0)).current;
-  const dot3 = useRef(new Animated.Value(0)).current;
+function AnimatedDot({ delay, isDark }: { delay: number; isDark: boolean }) {
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(0.4);
 
   useEffect(() => {
-    const animateDot = (dot: Animated.Value, delay: number) => {
-      return Animated.sequence([
-        Animated.delay(delay),
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(dot, {
-              toValue: 1,
-              duration: 300,
-              useNativeDriver: true,
-            }),
-            Animated.timing(dot, {
-              toValue: 0,
-              duration: 300,
-              useNativeDriver: true,
-            }),
-          ])
+    translateY.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(-6, { duration: 300, easing: Easing.out(Easing.quad) }),
+          withTiming(0, { duration: 300, easing: Easing.in(Easing.quad) }),
         ),
-      ]);
-    };
+        -1,
+        false,
+      ),
+    );
+    opacity.value = withDelay(
+      delay,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 300 }),
+          withTiming(0.4, { duration: 300 }),
+        ),
+        -1,
+        false,
+      ),
+    );
+  }, [delay, translateY, opacity]);
 
-    Animated.parallel([
-      animateDot(dot1, 0),
-      animateDot(dot2, 150),
-      animateDot(dot3, 300),
-    ]).start();
-
-    return () => {
-      dot1.stopAnimation();
-      dot2.stopAnimation();
-      dot3.stopAnimation();
-    };
-  }, [dot1, dot2, dot3]);
-
-  const translateY = (dot: Animated.Value) =>
-    dot.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, -4],
-    });
-
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const dotColor = isDark ? '#80848e' : '#5c5e66';
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
 
   return (
-    <View style={styles.dotsContainer}>
-      <Animated.View
-        style={[
-          styles.dot,
-          { backgroundColor: dotColor, transform: [{ translateY: translateY(dot1) }] },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.dot,
-          { backgroundColor: dotColor, transform: [{ translateY: translateY(dot2) }] },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.dot,
-          { backgroundColor: dotColor, transform: [{ translateY: translateY(dot3) }] },
-        ]}
-      />
-    </View>
+    <Animated.View
+      style={animStyle}
+      className={`w-[5px] h-[5px] rounded-full mx-[2px] ${isDark ? 'bg-dark-300' : 'bg-gray-500'}`}
+    />
   );
 }
 
@@ -116,107 +96,52 @@ export function TypingIndicator({
   const remainingCount = users.length - maxAvatars;
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: isDark ? '#2b2d31' : '#f2f3f5' },
-      ]}
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(150)}
+      className={`flex-row items-center px-4 py-2 ${isDark ? 'bg-dark-800' : 'bg-gray-50'}`}
     >
       {showAvatars && (
-        <View style={styles.avatarsContainer}>
+        <View className="flex-row items-center mr-2">
           {displayedUsers.map((user, index) => (
             <View
               key={user.id}
-              style={[
-                styles.avatarWrapper,
-                { marginLeft: index > 0 ? -8 : 0, zIndex: maxAvatars - index },
-              ]}
+              style={{ marginLeft: index > 0 ? -8 : 0, zIndex: maxAvatars - index }}
+              className="rounded-full border-2 border-transparent"
             >
               <Avatar
                 uri={user.avatarUrl}
                 name={user.username}
-                size="xs"
+                size={20}
               />
             </View>
           ))}
           {remainingCount > 0 && (
             <View
-              style={[
-                styles.avatarWrapper,
-                styles.overflowBadge,
-                { backgroundColor: isDark ? '#5865f2' : '#5865f2' },
-              ]}
+              style={{ marginLeft: -8 }}
+              className="w-5 h-5 rounded-full bg-brand items-center justify-center"
             >
-              <Text style={styles.overflowText}>+{remainingCount}</Text>
+              <Text className="text-white text-[10px] font-semibold">+{remainingCount}</Text>
             </View>
           )}
         </View>
       )}
 
-      <View style={styles.textContainer}>
+      <View className="flex-row items-center flex-1">
         <Text
-          style={[styles.typingText, { color: isDark ? '#80848e' : '#5c5e66' }]}
+          className={`text-xs mr-1.5 ${isDark ? 'text-dark-400' : 'text-gray-500'}`}
           numberOfLines={1}
         >
           {getTypingText(users)}
         </Text>
-        <AnimatedDots />
+        <View className="flex-row items-center h-4 justify-center">
+          <AnimatedDot delay={0} isDark={isDark} />
+          <AnimatedDot delay={150} isDark={isDark} />
+          <AnimatedDot delay={300} isDark={isDark} />
+        </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    minHeight: 28,
-  },
-  avatarsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  avatarWrapper: {
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  overflowBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: -8,
-  },
-  overflowText: {
-    color: 'white',
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  textContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  typingText: {
-    fontSize: 12,
-    marginRight: 4,
-  },
-  dotsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginHorizontal: 1,
-  },
-});
 
 export default TypingIndicator;

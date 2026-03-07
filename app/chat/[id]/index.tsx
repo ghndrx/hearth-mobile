@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,19 +8,41 @@ import {
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
-  Modal,
-  Animated,
 } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  FadeInDown,
+  SlideInDown,
+  SlideOutDown,
+  ZoomIn,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar } from "../../components/ui/Avatar";
-import { MessageBubble, Message } from "../../components/chat/MessageBubble";
+import * as Haptics from "expo-haptics";
+import { Avatar } from "../../../components/ui/Avatar";
+import { MessageBubble, Message } from "../../../components/chat/MessageBubble";
+import { SwipeableMessage } from "../../../components/chat/SwipeableMessage";
+import { TypingIndicator, TypingUser } from "../../../components/chat/TypingIndicator";
+import { MessageReactions } from "../../../components/chat/MessageReactions";
+import { ReactionPicker } from "../../../components/chat/ReactionPicker";
 import {
   AttachmentPicker,
   AttachmentPreviewStrip,
   Attachment,
-} from "../../components/chat/AttachmentPicker";
+} from "../../../components/chat/AttachmentPicker";
+import {
+  SkeletonMessage,
+  SkeletonLoader,
+} from "../../../components/ui/Skeleton";
+
+// ---------------------------------------------------------------------------
+// Mock data
+// ---------------------------------------------------------------------------
 
 interface ChatParticipant {
   id: string;
@@ -61,6 +83,9 @@ const mockMessages: Message[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1),
     isCurrentUser: false,
     status: "read",
+    reactions: [
+      { emoji: "👍", count: 1, userReacted: true },
+    ],
   },
   {
     id: "4",
@@ -91,55 +116,77 @@ const mockMessages: Message[] = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// Chat Skeleton
+// ---------------------------------------------------------------------------
+
+function ChatSkeleton() {
+  return (
+    <View className="flex-1 px-4 pt-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <SkeletonMessage key={i} />
+      ))}
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main Screen
+// ---------------------------------------------------------------------------
+
 export default function ChatScreen() {
-  const { id: _id, server: _server } = useLocalSearchParams<{
-    id: string;
-    server?: string;
-  }>();
+  const { id: _id } = useLocalSearchParams<{ id: string }>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const flatListRef = useRef<FlatList>(null);
 
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [inputText, setInputText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
-  const [showReactionModal, setShowReactionModal] = useState(false);
+  const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [showAttachmentPicker, setShowAttachmentPicker] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
-  const typingAnimation = useRef(new Animated.Value(0)).current;
 
+  // Send button animation
+  const sendScale = useSharedValue(1);
+  const sendAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: sendScale.value }],
+  }));
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Simulate typing indicator
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsTyping(true);
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(typingAnimation, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(typingAnimation, {
-            toValue: 0,
-            duration: 500,
-            useNativeDriver: true,
-          }),
-        ]),
-      ).start();
-
-      setTimeout(() => {
-        setIsTyping(false);
-        typingAnimation.stopAnimation();
-      }, 3000);
+      setTypingUsers([{ id: "1", username: "Sarah" }]);
+      setTimeout(() => setTypingUsers([]), 3000);
     }, 2000);
-
     return () => clearTimeout(timer);
-  }, [typingAnimation]);
+  }, []);
 
   const otherParticipant = mockParticipants.find((p) => p.id !== "2");
 
+  // ---------------------------------------------------------------------------
+  // Handlers
+  // ---------------------------------------------------------------------------
+
   const sendMessage = useCallback(() => {
     if (!inputText.trim() && pendingAttachments.length === 0) return;
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Send button bounce
+    sendScale.value = withSpring(0.8, { damping: 10 });
+    setTimeout(() => {
+      sendScale.value = withSpring(1, { damping: 10 });
+    }, 100);
 
     const messageAttachments = pendingAttachments.map((att) => ({
       type: att.type as "image" | "file" | "audio",
@@ -157,12 +204,17 @@ export default function ChatScreen() {
       isCurrentUser: true,
       status: "sending",
       attachments: messageAttachments.length > 0 ? messageAttachments : undefined,
+      replyTo: replyTo
+        ? { id: replyTo.id, content: replyTo.content, senderName: replyTo.senderName }
+        : undefined,
     };
 
     setMessages((prev) => [...prev, newMessage]);
     setInputText("");
     setPendingAttachments([]);
+    setReplyTo(null);
 
+    // Simulate status transitions
     setTimeout(() => {
       setMessages((prev) =>
         prev.map((msg) =>
@@ -178,66 +230,62 @@ export default function ChatScreen() {
         ),
       );
     }, 1500);
-  }, [inputText, pendingAttachments]);
+  }, [inputText, pendingAttachments, replyTo, sendScale]);
+
+  const handleReply = useCallback((message: Message) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setReplyTo(message);
+  }, []);
+
+  const handleDelete = useCallback((message: Message) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    setMessages((prev) => prev.filter((m) => m.id !== message.id));
+  }, []);
+
+  const handleReaction = useCallback((messageId: string, emoji: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id !== messageId) return msg;
+        const existing = msg.reactions || [];
+        const idx = existing.findIndex((r) => r.emoji === emoji);
+
+        if (idx >= 0) {
+          const reaction = existing[idx];
+          if (reaction.userReacted) {
+            return { ...msg, reactions: existing.filter((r) => r.emoji !== emoji) };
+          }
+          const updated = [...existing];
+          updated[idx] = { ...reaction, count: reaction.count + 1, userReacted: true };
+          return { ...msg, reactions: updated };
+        }
+        return {
+          ...msg,
+          reactions: [...existing, { emoji, count: 1, userReacted: true }],
+        };
+      }),
+    );
+    setShowReactionPicker(false);
+    setSelectedMessage(null);
+  }, []);
+
+  const handleLongPress = useCallback((message: Message) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setSelectedMessage(message);
+    setShowReactionPicker(true);
+  }, []);
 
   const handleAttachmentsSelected = useCallback((attachments: Attachment[]) => {
-    setPendingAttachments((prev) => {
-      const combined = [...prev, ...attachments];
-      return combined.slice(0, 10); // Max 10 attachments
-    });
+    setPendingAttachments((prev) => [...prev, ...attachments].slice(0, 10));
   }, []);
 
   const handleRemoveAttachment = useCallback((id: string) => {
     setPendingAttachments((prev) => prev.filter((att) => att.id !== id));
   }, []);
 
-  const handleReaction = useCallback((messageId: string, emoji: string) => {
-    setMessages((prev) =>
-      prev.map((msg) => {
-        if (msg.id !== messageId) return msg;
-
-        const existingReactions = msg.reactions || [];
-        const existingIndex = existingReactions.findIndex(
-          (r: any) => r.emoji === emoji,
-        );
-
-        if (existingIndex >= 0) {
-          const reaction = existingReactions[existingIndex];
-          if (reaction.userReacted) {
-            return {
-              ...msg,
-              reactions: existingReactions.filter((r: any) => r.emoji !== emoji),
-            };
-          } else {
-            const updatedReactions = [...existingReactions];
-            updatedReactions[existingIndex] = {
-              ...reaction,
-              count: reaction.count + 1,
-              userReacted: true,
-            };
-            return { ...msg, reactions: updatedReactions };
-          }
-        } else {
-          return {
-            ...msg,
-            reactions: [
-              ...existingReactions,
-              { emoji, count: 1, userReacted: true },
-            ],
-          };
-        }
-      }),
-    );
-    setShowReactionModal(false);
-    setSelectedMessage(null);
-  }, []);
-
-  const handleLongPress = useCallback((message: Message) => {
-    setSelectedMessage(message);
-    setShowReactionModal(true);
-  }, []);
-
-  const commonEmojis = ["👍", "❤️", "😂", "😮", "😢", "🎉", "🔥", "👏"];
+  // ---------------------------------------------------------------------------
+  // Render message with swipe-to-reply
+  // ---------------------------------------------------------------------------
 
   const renderMessage = useCallback(
     ({ item, index }: { item: Message; index: number }) => {
@@ -245,21 +293,27 @@ export default function ChatScreen() {
       const isConsecutive =
         prevMessage !== null &&
         prevMessage.senderId === item.senderId &&
-        item.timestamp.getTime() - prevMessage.timestamp.getTime() <
-          5 * 60 * 1000;
+        item.timestamp.getTime() - prevMessage.timestamp.getTime() < 5 * 60 * 1000;
 
       return (
-        <MessageBubble
+        <SwipeableMessage
           message={item}
           showAvatar={!isConsecutive}
           consecutive={isConsecutive}
+          onReply={handleReply}
+          onDelete={handleDelete}
           onReaction={handleReaction}
           onLongPress={handleLongPress}
+          allowDelete={item.isCurrentUser}
         />
       );
     },
-    [messages, handleReaction, handleLongPress],
+    [messages, handleReply, handleDelete, handleReaction, handleLongPress],
   );
+
+  // ---------------------------------------------------------------------------
+  // Layout
+  // ---------------------------------------------------------------------------
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? "bg-dark-900" : "bg-white"}`}>
@@ -270,15 +324,11 @@ export default function ChatScreen() {
             <View className="flex-row items-center">
               <Avatar
                 name={otherParticipant?.name || "Chat"}
-                size="sm"
-                status={otherParticipant?.isOnline ? "online" : "offline"}
-                showStatus
+                size={32}
               />
               <View className="ml-3">
                 <Text
-                  className={`text-base font-semibold ${
-                    isDark ? "text-white" : "text-gray-900"
-                  }`}
+                  className={`text-base font-semibold ${isDark ? "text-white" : "text-gray-900"}`}
                 >
                   {otherParticipant?.name || "Chat"}
                 </Text>
@@ -286,9 +336,7 @@ export default function ChatScreen() {
                   className={`text-xs ${
                     otherParticipant?.isOnline
                       ? "text-green-500"
-                      : isDark
-                        ? "text-dark-400"
-                        : "text-gray-500"
+                      : isDark ? "text-dark-400" : "text-gray-500"
                   }`}
                 >
                   {otherParticipant?.isOnline ? "Online" : "Offline"}
@@ -296,12 +344,7 @@ export default function ChatScreen() {
               </View>
             </View>
           ),
-          headerTitleStyle: {
-            color: isDark ? "#ffffff" : "#111827",
-          },
-          headerStyle: {
-            backgroundColor: isDark ? "#1e1f22" : "#ffffff",
-          },
+          headerStyle: { backgroundColor: isDark ? "#1e1f22" : "#ffffff" },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} className="ml-2">
               <Ionicons
@@ -314,18 +357,10 @@ export default function ChatScreen() {
           headerRight: () => (
             <View className="flex-row mr-4">
               <TouchableOpacity className="mr-4">
-                <Ionicons
-                  name="call-outline"
-                  size={24}
-                  color={isDark ? "#80848e" : "#6b7280"}
-                />
+                <Ionicons name="call-outline" size={24} color={isDark ? "#80848e" : "#6b7280"} />
               </TouchableOpacity>
               <TouchableOpacity>
-                <Ionicons
-                  name="ellipsis-vertical"
-                  size={24}
-                  color={isDark ? "#80848e" : "#6b7280"}
-                />
+                <Ionicons name="ellipsis-vertical" size={24} color={isDark ? "#80848e" : "#6b7280"} />
               </TouchableOpacity>
             </View>
           ),
@@ -337,52 +372,50 @@ export default function ChatScreen() {
         className="flex-1"
         keyboardVerticalOffset={Platform.OS === "ios" ? 88 : 0}
       >
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessage}
-          contentContainerClassName="px-4 py-4"
-          onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({ animated: true })
-          }
-          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        />
+        {/* Message List */}
+        <SkeletonLoader loading={isLoading} skeleton={<ChatSkeleton />}>
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMessage}
+            contentContainerClassName="px-1 py-4"
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({ animated: true })
+            }
+            onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          />
+        </SkeletonLoader>
 
-        {isTyping && (
-          <View className={`px-4 py-2 ${isDark ? "bg-dark-900" : "bg-white"}`}>
-            <View className="flex-row items-center">
-              <Text
-                className={`text-sm ${isDark ? "text-dark-400" : "text-gray-500"}`}
-              >
-                Sarah is typing
+        {/* Typing Indicator */}
+        <TypingIndicator users={typingUsers} showAvatars={false} />
+
+        {/* Reply Preview */}
+        {replyTo && (
+          <Animated.View
+            entering={SlideInDown.duration(200)}
+            exiting={SlideOutDown.duration(150)}
+            className={`mx-4 mt-2 p-3 rounded-lg flex-row items-center ${isDark ? "bg-dark-700" : "bg-gray-100"}`}
+          >
+            <View className="w-0.5 h-full bg-brand absolute left-0 rounded-full" />
+            <View className="flex-1 pl-2">
+              <Text className="text-brand text-xs font-semibold">
+                Replying to {replyTo.senderName}
               </Text>
-              <View className="flex-row ml-1">
-                {[0, 1, 2].map((i) => (
-                  <Animated.View
-                    key={i}
-                    className={`w-1.5 h-1.5 rounded-full mx-0.5 ${isDark ? "bg-dark-400" : "bg-gray-400"}`}
-                    style={{
-                      opacity: typingAnimation.interpolate({
-                        inputRange: [0, 0.5, 1],
-                        outputRange: [0.3, 1, 0.3],
-                        extrapolate: "clamp",
-                      }),
-                      transform: [
-                        {
-                          translateY: typingAnimation.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -3],
-                            extrapolate: "clamp",
-                          }),
-                        },
-                      ],
-                    }}
-                  />
-                ))}
-              </View>
+              <Text
+                className={`text-sm mt-0.5 ${isDark ? "text-dark-300" : "text-gray-600"}`}
+                numberOfLines={1}
+              >
+                {replyTo.content}
+              </Text>
             </View>
-          </View>
+            <TouchableOpacity
+              onPress={() => setReplyTo(null)}
+              hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+            >
+              <Ionicons name="close" size={20} color={isDark ? "#80848e" : "#9ca3af"} />
+            </TouchableOpacity>
+          </Animated.View>
         )}
 
         {/* Attachment Preview */}
@@ -391,11 +424,12 @@ export default function ChatScreen() {
           onRemove={handleRemoveAttachment}
         />
 
-        <View
-          className={`
-            flex-row items-center px-4 py-3 ${pendingAttachments.length === 0 ? "border-t" : ""}
-            ${isDark ? "bg-dark-800 border-dark-700" : "bg-white border-gray-200"}
-          `}
+        {/* Composer */}
+        <Animated.View
+          entering={FadeInDown.duration(300).delay(400)}
+          className={`flex-row items-center px-4 py-3 ${
+            pendingAttachments.length === 0 ? "border-t" : ""
+          } ${isDark ? "bg-dark-800 border-dark-700" : "bg-white border-gray-200"}`}
         >
           <TouchableOpacity
             className="mr-3"
@@ -416,16 +450,17 @@ export default function ChatScreen() {
           </TouchableOpacity>
 
           <View
-            className={`
-              flex-1 flex-row items-center rounded-full px-4 py-2 mr-3
-              ${isDark ? "bg-dark-700" : "bg-gray-100"}
-            `}
+            className={`flex-1 flex-row items-center rounded-full px-4 py-2 mr-3 ${isDark ? "bg-dark-700" : "bg-gray-100"}`}
           >
             <TextInput
-              className={`flex-1 text-base ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-              placeholder={pendingAttachments.length > 0 ? "Add a caption..." : "Type a message..."}
+              className={`flex-1 text-base ${isDark ? "text-white" : "text-gray-900"}`}
+              placeholder={
+                pendingAttachments.length > 0
+                  ? "Add a caption..."
+                  : replyTo
+                    ? `Reply to ${replyTo.senderName}...`
+                    : "Type a message..."
+              }
               placeholderTextColor={isDark ? "#80848e" : "#9ca3af"}
               value={inputText}
               onChangeText={setInputText}
@@ -433,95 +468,49 @@ export default function ChatScreen() {
               maxLength={2000}
             />
             <TouchableOpacity className="ml-2">
-              <Ionicons
-                name="happy-outline"
-                size={24}
-                color={isDark ? "#80848e" : "#6b7280"}
-              />
+              <Ionicons name="happy-outline" size={24} color={isDark ? "#80848e" : "#6b7280"} />
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            onPress={sendMessage}
-            disabled={!inputText.trim() && pendingAttachments.length === 0}
-            className={`
-              w-10 h-10 rounded-full items-center justify-center
-              ${inputText.trim() || pendingAttachments.length > 0 ? "bg-brand" : isDark ? "bg-dark-700" : "bg-gray-200"}
-            `}
-          >
-            <Ionicons
-              name="send"
-              size={20}
-              color={
-                inputText.trim() || pendingAttachments.length > 0 ? "white" : isDark ? "#4e5058" : "#9ca3af"
-              }
-            />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-
-      <Modal
-        visible={showReactionModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowReactionModal(false)}
-      >
-        <TouchableOpacity
-          className="flex-1 bg-black/50 justify-center items-center"
-          activeOpacity={1}
-          onPress={() => setShowReactionModal(false)}
-        >
-          <View
-            className={`
-              rounded-2xl p-4 mx-8
-              ${isDark ? "bg-dark-800" : "bg-white"}
-            `}
-          >
-            <Text
-              className={`text-center mb-4 font-semibold ${
-                isDark ? "text-white" : "text-gray-900"
+          <Animated.View style={sendAnimStyle}>
+            <TouchableOpacity
+              onPress={sendMessage}
+              disabled={!inputText.trim() && pendingAttachments.length === 0}
+              className={`w-10 h-10 rounded-full items-center justify-center ${
+                inputText.trim() || pendingAttachments.length > 0
+                  ? "bg-brand"
+                  : isDark ? "bg-dark-700" : "bg-gray-200"
               }`}
             >
-              Add Reaction
-            </Text>
-            <View className="flex-row flex-wrap justify-center">
-              {commonEmojis.map((emoji) => (
-                <TouchableOpacity
-                  key={emoji}
-                  onPress={() =>
-                    selectedMessage && handleReaction(selectedMessage.id, emoji)
-                  }
-                  className={`
-                    w-12 h-12 rounded-full items-center justify-center m-1
-                    ${isDark ? "bg-dark-700" : "bg-gray-100"}
-                  `}
-                >
-                  <Text className="text-2xl">{emoji}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            {selectedMessage && (
-              <View className={`mt-4 pt-4 border-t ${isDark ? "border-dark-700" : "border-gray-200"}`}>
-                <TouchableOpacity
-                  onPress={() => {
-                    setMessages((prev) =>
-                      prev.filter((m) => m.id !== selectedMessage.id),
-                    );
-                    setShowReactionModal(false);
-                    setSelectedMessage(null);
-                  }}
-                  className="flex-row items-center justify-center py-2"
-                >
-                  <Ionicons name="trash-outline" size={20} color="#ef4444" />
-                  <Text className="text-red-500 ml-2">Delete Message</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+              <Ionicons
+                name="send"
+                size={20}
+                color={
+                  inputText.trim() || pendingAttachments.length > 0
+                    ? "white"
+                    : isDark ? "#4e5058" : "#9ca3af"
+                }
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        </Animated.View>
+      </KeyboardAvoidingView>
 
-      {/* Attachment Picker Modal */}
+      {/* Reaction Picker */}
+      <ReactionPicker
+        visible={showReactionPicker}
+        onClose={() => {
+          setShowReactionPicker(false);
+          setSelectedMessage(null);
+        }}
+        onSelectReaction={(emoji) => {
+          if (selectedMessage) {
+            handleReaction(selectedMessage.id, emoji);
+          }
+        }}
+      />
+
+      {/* Attachment Picker */}
       <AttachmentPicker
         visible={showAttachmentPicker}
         onClose={() => setShowAttachmentPicker(false)}
