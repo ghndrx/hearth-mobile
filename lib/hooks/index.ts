@@ -20,3 +20,15 @@ export {
   useTypingIndicator,
   usePresence,
 } from "./useWebSocket";
+
+// Performance hooks
+export {
+  useComponentPerformance,
+  usePerformanceTimer,
+  useNavigationPerformance,
+  useAppStatePerformance,
+  useMemoryMonitoring,
+  useScrollPerformance,
+  useImageLoadPerformance,
+  measureNetworkRequest,
+} from "./usePerformance";
