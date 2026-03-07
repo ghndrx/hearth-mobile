@@ -263,3 +263,115 @@ export const apiClient = api;
 
 // Re-export types
 export type { ApiResponse, ApiError, RequestOptions };
+
+/**
+ * API Methods for specific features
+ */
+
+interface SendMessageParams {
+  channelId: string;
+  content: string;
+  attachmentIds?: string[];
+  replyToId?: string;
+}
+
+interface MessageResponse {
+  id: string;
+  content: string;
+  channelId: string;
+  authorId: string;
+  createdAt: number;
+  updatedAt?: number;
+  attachments?: Array<{
+    id: string;
+    filename: string;
+    contentType: string;
+    size: number;
+    url: string;
+  }>;
+  replyTo?: {
+    id: string;
+    content: string;
+    authorName: string;
+  };
+}
+
+/**
+ * Send a message to a channel
+ */
+export async function sendMessage(
+  params: SendMessageParams
+): Promise<MessageResponse> {
+  const { data, error } = await api.post<MessageResponse>(
+    "/messages",
+    params,
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("No response data from server");
+  }
+
+  return data;
+}
+
+/**
+ * Upload an attachment
+ */
+export async function uploadAttachment(
+  file: {
+    uri: string;
+    name: string;
+    type: string;
+  },
+  onProgress?: (progress: number) => void
+): Promise<{
+  id: string;
+  filename: string;
+  contentType: string;
+  size: number;
+  url: string;
+  createdAt: number;
+}> {
+  const formData = new FormData();
+  formData.append("file", {
+    uri: file.uri,
+    name: file.name,
+    type: file.type,
+  } as any);
+
+  const { data, error } = await api.upload(
+    "/attachments",
+    formData,
+    {
+      requireAuth: true,
+      onProgress: (event) => {
+        if (event.total) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          onProgress?.(progress);
+        }
+      },
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("No response data from server");
+  }
+
+  return data as {
+    id: string;
+    filename: string;
+    contentType: string;
+    size: number;
+    url: string;
+    createdAt: number;
+  };
+}
