@@ -220,7 +220,7 @@ export default function ChannelChatScreen() {
 
         const existingReactions = msg.reactions || [];
         const existingIndex = existingReactions.findIndex(
-          (r) => r.emoji === emoji,
+          (r: any) => r.emoji === emoji,
         );
 
         if (existingIndex >= 0) {
@@ -228,7 +228,7 @@ export default function ChannelChatScreen() {
           if (reaction.userReacted) {
             return {
               ...msg,
-              reactions: existingReactions.filter((r) => r.emoji !== emoji),
+              reactions: existingReactions.filter((r: any) => r.emoji !== emoji),
             };
           } else {
             const updatedReactions = [...existingReactions];
