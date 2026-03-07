@@ -313,7 +313,7 @@ export const PlatformConfig = {
    * Check if haptic feedback is available
    */
   hasHapticFeedback(): boolean {
-    return Platform.OS === "ios" || Platform.Version >= 23; // Android API 23+
+    return Platform.OS === "ios" || (typeof Platform.Version === "number" ? Platform.Version >= 23 : parseInt(String(Platform.Version), 10) >= 23); // Android API 23+
   },
 
   /**

@@ -1,132 +1,112 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { useColorScheme } from "react-native";
+import React from 'react';
+import { View, Text, Image, StyleSheet } from 'react-native';
 
 interface AvatarProps {
   uri?: string;
-  name: string;
-  size?: "xs" | "sm" | "md" | "lg" | "xl";
-  status?: "online" | "offline" | "idle" | "dnd" | "invisible";
-  showStatus?: boolean;
-  onPress?: () => void;
+  name?: string;
+  size?: number;
+  style?: any;
 }
 
-const sizeMap = {
-  xs: 24,
-  sm: 32,
-  md: 48,
-  lg: 64,
-  xl: 96,
-};
-
-const statusColors = {
-  online: "#22c55e",
-  offline: "#80848e",
-  idle: "#eab308",
-  dnd: "#ef4444",
-  invisible: "#80848e",
-};
-
-export function Avatar({
-  uri,
-  name,
-  size = "md",
-  status,
-  showStatus = false,
-  onPress,
-}: AvatarProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  const sizeValue = sizeMap[size];
-  const statusSize = Math.max(8, sizeValue / 4);
-
-  // Get initials from name
+export const Avatar: React.FC<AvatarProps> = ({ uri, name, size = 40, style }) => {
   const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+    ? name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '?';
 
-  const AvatarContent = uri ? (
-    <Image
-      source={{ uri }}
-      className="rounded-full"
-      style={{ width: sizeValue, height: sizeValue }}
-    />
-  ) : (
-    <View
-      className={`rounded-full items-center justify-center ${isDark ? "bg-brand" : "bg-brand"}`}
-      style={{ width: sizeValue, height: sizeValue }}
-    >
-      <Text
-        className="text-white font-semibold"
-        style={{ fontSize: sizeValue / 2.5 }}
-      >
-        {initials}
-      </Text>
-    </View>
-  );
+  const backgroundColor = name
+    ? `hsl(${hashCode(name) % 360}, 60%, 60%)`
+    : '#888';
 
   return (
-    <TouchableOpacity onPress={onPress} disabled={!onPress} activeOpacity={0.8}>
-      <View>
-        {AvatarContent}
-        {showStatus && status && (
-          <View
-            className="absolute rounded-full border-2"
-            style={{
-              width: statusSize,
-              height: statusSize,
-              backgroundColor: statusColors[status],
-              borderColor: isDark ? "#1e1f22" : "#ffffff",
-              bottom: 0,
-              right: 0,
-            }}
-          />
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-interface AvatarGroupProps {
-  avatars: Array<{ uri?: string; name: string }>;
-  max?: number;
-  size?: "xs" | "sm" | "md" | "lg";
-  spacing?: number;
-}
-
-export function AvatarGroup({
-  avatars,
-  max = 3,
-  size = "sm",
-  spacing = -8,
-}: AvatarGroupProps) {
-  const displayAvatars = avatars.slice(0, max);
-  const remaining = avatars.length - max;
-
-  return (
-    <View className="flex-row">
-      {displayAvatars.map((avatar, index) => (
-        <View key={index} style={{ marginLeft: index > 0 ? spacing : 0 }}>
-          <Avatar uri={avatar.uri} name={avatar.name} size={size} />
-        </View>
-      ))}
-      {remaining > 0 && (
-        <View
-          className="rounded-full bg-gray-300 items-center justify-center"
-          style={{
-            width: sizeMap[size],
-            height: sizeMap[size],
-            marginLeft: spacing,
-          }}
-        >
-          <Text className="text-gray-700 font-medium text-xs">
-            +{remaining}
-          </Text>
+    <View style={[styles.container, { width: size, height: size, borderRadius: size / 2 }, style]}>
+      {uri ? (
+        <Image source={{ uri }} style={styles.image} />
+      ) : (
+        <View style={[styles.placeholder, { backgroundColor }]}>
+          <Text style={[styles.initials, { fontSize: size * 0.4 }]}>{initials}</Text>
         </View>
       )}
     </View>
   );
+};
+
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash);
 }
+
+const styles = StyleSheet.create({
+  container: {
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  placeholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  initials: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
+
+interface AvatarGroupProps {
+  users: Array<{ uri?: string; name?: string }>;
+  size?: number;
+  max?: number;
+  style?: any;
+}
+
+export const AvatarGroup: React.FC<AvatarGroupProps> = ({ users, size = 40, max = 3, style }) => {
+  const displayUsers = users.slice(0, max);
+  const remaining = users.length - max;
+
+  return (
+    <View style={[{ flexDirection: 'row' }, style]}>
+      {displayUsers.map((user, idx) => (
+        <View
+          key={idx}
+          style={[
+            { marginLeft: idx > 0 ? -(size * 0.3) : 0 },
+            { zIndex: displayUsers.length - idx },
+          ]}
+        >
+          <Avatar uri={user.uri} name={user.name} size={size} style={{ borderWidth: 2, borderColor: '#fff' }} />
+        </View>
+      ))}
+      {remaining > 0 && (
+        <View
+          style={[
+            styles.container,
+            {
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              marginLeft: -(size * 0.3),
+              zIndex: 0,
+              borderWidth: 2,
+              borderColor: '#fff',
+            },
+          ]}
+        >
+          <View style={[styles.placeholder, { backgroundColor: '#888' }]}>
+            <Text style={[styles.initials, { fontSize: size * 0.4 }]}>+{remaining}</Text>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+};
