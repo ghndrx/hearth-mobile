@@ -10,7 +10,9 @@ import { BiometricProvider } from "../lib/contexts/BiometricContext";
 import { NotificationBanner } from "../components/notifications";
 import { BiometricLockScreen } from "../components/BiometricLockScreen";
 import { LoadingSpinner } from "../components/ui";
+import { NetworkStatusBar } from "../components/NetworkStatusBar";
 import { deepLinkManager, quickActionsService, spotlightService } from "../lib/services";
+import { offlineSyncService } from "../lib/services/offlineSync";
 import "../global.css";
 
 const queryClient = new QueryClient({
@@ -42,6 +44,9 @@ function RootLayoutNav() {
         // Initialize Spotlight/Siri integration (iOS only)
         await spotlightService.initialize();
 
+        // Start offline sync service
+        offlineSyncService.start();
+
         setServicesInitialized(true);
       } catch (error) {
         console.error("Failed to initialize platform services:", error);
@@ -54,6 +59,7 @@ function RootLayoutNav() {
     // Cleanup on unmount
     return () => {
       deepLinkManager.cleanup();
+      offlineSyncService.stop();
     };
   }, []);
 
@@ -109,6 +115,7 @@ export default function RootLayout() {
           <BiometricProvider>
             <BiometricLockScreen>
               <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+              <NetworkStatusBar />
               <RootLayoutNav />
               <NotificationBanner />
             </BiometricLockScreen>

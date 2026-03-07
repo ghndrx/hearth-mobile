@@ -424,4 +424,4 @@ export function useQueueMessage() {
   };
 }
 
-export { sendMessage, uploadAttachment };
+// Internal functions - not exported to avoid conflict with api.ts
