@@ -607,6 +607,264 @@
   - Dependencies: None
   - Success: Rich user status system
 
+### Sticker Marketplace & Custom Content Ecosystem (PRD-020)
+**Target**: Q4 2026 | **Owner**: Content Platform Team + Mobile Team | **Effort**: 26 weeks
+
+- [ ] **STICKER-001**: Core sticker infrastructure and data model
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Sticker storage and delivery system operational
+
+- [ ] **STICKER-002**: Mobile sticker picker UI and integration
+  - Estimated: 3 weeks
+  - Dependencies: STICKER-001
+  - Success: Sticker picker works in chat with search and categories
+
+- [ ] **STICKER-003**: Sticker marketplace backend and content management
+  - Estimated: 3 weeks
+  - Dependencies: STICKER-001
+  - Success: Sticker packs can be browsed, purchased, and downloaded
+
+- [ ] **STICKER-004**: Animated sticker support (GIF, Lottie)
+  - Estimated: 4 weeks
+  - Dependencies: STICKER-002
+  - Success: Animated stickers play smoothly in chat
+
+- [ ] **STICKER-005**: Creator tools and mobile creation suite
+  - Estimated: 4 weeks
+  - Dependencies: STICKER-003
+  - Success: Users can create and upload sticker packs from mobile
+
+- [ ] **STICKER-006**: Payment integration and revenue sharing
+  - Estimated: 2 weeks
+  - Dependencies: STICKER-003
+  - Success: In-app purchases work, creators receive payouts
+
+- [ ] **STICKER-007**: Content moderation and review system
+  - Estimated: 2 weeks
+  - Dependencies: STICKER-005
+  - Success: Automated and human review pipeline operational
+
+- [ ] **STICKER-008**: Premium subscription integration
+  - Estimated: 2 weeks
+  - Dependencies: STICKER-006
+  - Success: Premium users get exclusive sticker access
+
+- [ ] **STICKER-009**: Profile customization with sticker content
+  - Estimated: 2 weeks
+  - Dependencies: STICKER-004
+  - Success: Sticker-based profile decorations functional
+
+- [ ] **STICKER-010**: Performance optimization for large catalogs
+  - Estimated: 2 weeks
+  - Dependencies: STICKER-009
+  - Success: <100ms sticker loading, efficient memory usage
+
+### Mobile Gaming Integration 2.0 (PRD-021)
+**Target**: Q1 2027 | **Owner**: Gaming Platform Team + Mobile Team | **Effort**: 30 weeks
+
+- [ ] **GAME2-001**: Mobile screen capture and streaming foundation
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: iOS ReplayKit and Android MediaProjection integration
+
+- [ ] **GAME2-002**: Low-latency streaming pipeline for mobile
+  - Estimated: 4 weeks
+  - Dependencies: GAME2-001
+  - Success: <3s glass-to-glass latency for mobile game streams
+
+- [ ] **GAME2-003**: Universal mobile controller support
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: MFi and HID controllers work with Hearth features
+
+- [ ] **GAME2-004**: Cloud gaming platform detection and integration
+  - Estimated: 4 weeks
+  - Dependencies: None
+  - Success: Xbox Cloud Gaming, GeForce Now status detection
+
+- [ ] **GAME2-005**: Mobile gaming overlay and controls
+  - Estimated: 4 weeks
+  - Dependencies: GAME2-003
+  - Success: Gaming overlay works with touch and controller input
+
+- [ ] **GAME2-006**: Adaptive streaming quality for mobile networks
+  - Estimated: 3 weeks
+  - Dependencies: GAME2-002
+  - Success: Streaming works on 4G/5G with adaptive quality
+
+- [ ] **GAME2-007**: Gaming accessory ecosystem integration
+  - Estimated: 3 weeks
+  - Dependencies: GAME2-003
+  - Success: Gaming triggers, cooling fans, RGB lighting support
+
+- [ ] **GAME2-008**: Mobile tournament system and LFG matching
+  - Estimated: 3 weeks
+  - Dependencies: GAME2-004
+  - Success: Tournament creation and skill-based matchmaking
+
+- [ ] **GAME2-009**: Achievement and social gaming features
+  - Estimated: 2 weeks
+  - Dependencies: GAME2-008
+  - Success: Game Center/Play Games integration, achievement sharing
+
+- [ ] **GAME2-010**: Battery and performance optimization
+  - Estimated: 1 week
+  - Dependencies: GAME2-006
+  - Success: <15% battery impact during streaming
+
+### App Directory & Third-Party Integrations (PRD-016)
+**Target**: Q4 2026 | **Owner**: Platform Team | **Effort**: 14 weeks
+
+- [ ] **APP-001**: App directory backend and public API
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: Approved apps listed and searchable
+
+- [ ] **APP-002**: OAuth 2.0 integration framework for third-party apps
+  - Estimated: 2 weeks
+  - Dependencies: APP-001
+  - Success: Apps can authenticate with Hearth OAuth
+
+- [ ] **APP-003**: Developer portal and app review pipeline
+  - Estimated: 3 weeks
+  - Dependencies: APP-002
+  - Success: Developers can submit apps for review
+
+- [ ] **APP-004**: Mobile app directory UI (browse, search, featured)
+  - Estimated: 2 weeks
+  - Dependencies: APP-001
+  - Success: Users can browse and install apps from mobile
+
+- [ ] **APP-005**: Per-server app management UI
+  - Estimated: 2 weeks
+  - Dependencies: APP-004
+  - Success: Server admins can configure installed apps
+
+- [ ] **APP-006**: App command system and slash command integration
+  - Estimated: 2 weeks
+  - Dependencies: APP-005
+  - Success: App slash commands work in message input
+
+### Interactive Mobile Widgets & Live Activities (PRD-019)
+**Target**: Q3 2026 | **Owner**: Mobile Platform Team | **Effort**: 24 weeks
+
+- [ ] **WIDGET-001**: Core widget infrastructure and data pipeline
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: WebSocket-based widget data system operational
+
+- [ ] **WIDGET-002**: iOS WidgetKit integration and timeline provider
+  - Estimated: 3 weeks
+  - Dependencies: WIDGET-001
+  - Success: Home screen widgets functional on iOS
+
+- [ ] **WIDGET-003**: Android App Widget implementation with Material You
+  - Estimated: 3 weeks
+  - Dependencies: WIDGET-001
+  - Success: Adaptive widgets working on Android 12+
+
+- [ ] **WIDGET-004**: Server activity widget (small, medium, large sizes)
+  - Estimated: 2 weeks
+  - Dependencies: WIDGET-002, WIDGET-003
+  - Success: Server activity displays in all widget sizes
+
+- [ ] **WIDGET-005**: Voice channel widget with real-time updates
+  - Estimated: 3 weeks
+  - Dependencies: WIDGET-004
+  - Success: Live voice channel status and controls
+
+- [ ] **WIDGET-006**: iOS Live Activities and ActivityKit integration
+  - Estimated: 4 weeks
+  - Dependencies: WIDGET-005
+  - Success: Voice channel Live Activities functional
+
+- [ ] **WIDGET-007**: Dynamic Island compact and expanded states
+  - Estimated: 2 weeks
+  - Dependencies: WIDGET-006
+  - Success: Voice controls in Dynamic Island
+
+- [ ] **WIDGET-008**: Android Quick Settings tiles
+  - Estimated: 2 weeks
+  - Dependencies: WIDGET-003
+  - Success: Voice mute and server switcher tiles working
+
+- [ ] **WIDGET-009**: Deep linking and widget interaction handling
+  - Estimated: 2 weeks
+  - Dependencies: WIDGET-004
+  - Success: Widget taps navigate to correct app sections
+
+- [ ] **WIDGET-010**: Performance optimization and battery management
+  - Estimated: 1 week
+  - Dependencies: WIDGET-009
+  - Success: <2% battery impact, <500ms load times
+
+### Teen Safety & Age-Appropriate Experience (PRD-017)
+**Target**: Q2 2026 | **Owner**: Trust & Safety Team | **Effort**: 8 weeks
+
+- [ ] **TS-001**: Age declaration flow at onboarding
+  - Estimated: 1 week
+  - Dependencies: None
+  - Success: All users declare age before using app
+
+- [ ] **TS-002**: Age verification and assurance integration
+  - Estimated: 2 weeks
+  - Dependencies: TS-001
+  - Success: Optional verified age path functional
+
+- [ ] **TS-003**: Teen default experience (DM restrictions, content filtering)
+  - Estimated: 2 weeks
+  - Dependencies: TS-002
+  - Success: Teen accounts see age-appropriate content only
+
+- [ ] **TS-004**: Parental consent flow for under-16 users
+  - Estimated: 1 week
+  - Dependencies: TS-001
+  - Success: Parents can verify and link to teen accounts
+
+- [ ] **TS-005**: Parent dashboard and safety controls
+  - Estimated: 1 week
+  - Dependencies: TS-004
+  - Success: Parents can view teen activity and adjust settings
+
+- [ ] **TS-006**: Trust & Safety backend (flagging, review, escalation)
+  - Estimated: 1 week
+  - Dependencies: TS-003
+  - Success: Safety events auto-flagged and reviewable
+
+### Performance Optimization Sprint (PRD-018)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
+
+- [ ] **PERF-001**: Performance profiling and baseline metrics collection
+  - Estimated: 1 week
+  - Dependencies: None
+  - Success: Baseline metrics documented on 3 device tiers
+
+- [ ] **PERF-002**: JS bundle reduction and code splitting
+  - Estimated: 1 week
+  - Dependencies: PERF-001
+  - Success: Bundle <2.5MB, lazy loading configured
+
+- [ ] **PERF-003**: Cold start and splash screen optimization
+  - Estimated: 1 week
+  - Dependencies: PERF-002
+  - Success: TTI <2s on mid-range devices
+
+- [ ] **PERF-004**: Rendering and list virtualization audit
+  - Estimated: 1 week
+  - Dependencies: PERF-003
+  - Success: 60fps scroll on all message lists
+
+- [ ] **PERF-005**: Memory leak fixes and voice channel tuning
+  - Estimated: 1 week
+  - Dependencies: PERF-004
+  - Success: Memory <180MB idle, voice join <1s
+
+- [ ] **PERF-006**: CI performance budgets and regression harness
+  - Estimated: 1 week
+  - Dependencies: PERF-005
+  - Success: PR fails if bundle grows >5KB
+
 ## P3 Tasks (Future Considerations)
 
 ### Advanced Features
