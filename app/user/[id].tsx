@@ -468,7 +468,7 @@ export default function UserProfileScreen() {
                     onPress={() => router.push(`/(tabs)/server/${server.id}`)}
                     className="flex-row items-center py-2"
                   >
-                    <Avatar name={server.name} size="sm" />
+                    <Avatar name={server.name} size={32} />
                     <Text
                       className={`ml-3 text-sm font-medium ${
                         isDark ? "text-dark-200" : "text-gray-700"

@@ -179,7 +179,7 @@ function MemberItem({
       className="flex-row items-center px-4 py-2"
     >
       <View className="relative">
-        <Avatar name={member.name} size="sm" />
+        <Avatar name={member.name} size={32} />
         <View
           className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2"
           style={{

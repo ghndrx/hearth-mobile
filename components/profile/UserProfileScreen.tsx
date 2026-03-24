@@ -402,7 +402,7 @@ export function UserProfileScreen({
                   `}
                 >
                   {server.icon ? (
-                    <Avatar uri={server.icon} name={server.name} size="xs" />
+                    <Avatar uri={server.icon} name={server.name} size={24} />
                   ) : (
                     <View
                       className={`
