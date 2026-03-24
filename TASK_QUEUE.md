@@ -275,7 +275,121 @@
   - Dependencies: VID-004
   - Success: Multi-party video with screen sharing
 
+### Advanced Audio Processing & Spatial Audio (PRD-013)
+**Target**: Q3 2026 | **Owner**: Mobile Audio Team | **Effort**: 24 weeks
+
+- [ ] **AUDIO-001**: Core AI noise suppression infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: Krisp.ai licensing, WebRTC integration
+  - Success: 95% noise reduction in real-time
+
+- [ ] **AUDIO-002**: Adaptive echo cancellation and voice enhancement
+  - Estimated: 2 weeks
+  - Dependencies: AUDIO-001
+  - Success: ML-powered acoustic echo cancellation operational
+
+- [ ] **AUDIO-003**: Spatial audio positioning engine
+  - Estimated: 3 weeks
+  - Dependencies: AUDIO-002
+  - Success: 3D audio positioning for 50+ participants
+
+- [ ] **AUDIO-004**: Virtual acoustic environments and head tracking
+  - Estimated: 2 weeks
+  - Dependencies: AUDIO-003
+  - Success: Mobile gyroscope-based head tracking functional
+
+- [ ] **AUDIO-005**: Real-time voice effects and modulation
+  - Estimated: 2 weeks
+  - Dependencies: AUDIO-001
+  - Success: Character voice presets and custom filters working
+
+- [ ] **AUDIO-006**: Mobile optimization and battery management
+  - Estimated: 1 week
+  - Dependencies: AUDIO-005
+  - Success: <10% additional battery drain, <15% CPU usage
+
+### Gaming Integration & Rich Presence (PRD-014)
+**Target**: Q4 2026 | **Owner**: Gaming & Integrations Team | **Effort**: 32 weeks
+
+- [ ] **GAME-001**: Game detection engine and Rich Presence API
+  - Estimated: 4 weeks
+  - Dependencies: Platform API partnerships
+  - Success: Auto-detection of top 500 mobile games
+
+- [ ] **GAME-002**: Real-time activity broadcasting and status display
+  - Estimated: 2 weeks
+  - Dependencies: GAME-001
+  - Success: Real-time gaming status sharing operational
+
+- [ ] **GAME-003**: Mobile gaming overlay system (iOS)
+  - Estimated: 4 weeks
+  - Dependencies: iOS Picture-in-Picture permissions
+  - Success: Floating chat controls during gameplay
+
+- [ ] **GAME-004**: Mobile gaming overlay system (Android)
+  - Estimated: 4 weeks
+  - Dependencies: Android system alert window permissions
+  - Success: Cross-game overlay compatibility
+
+- [ ] **GAME-005**: Gaming social features and LFG system
+  - Estimated: 3 weeks
+  - Dependencies: GAME-002
+  - Success: Looking for Group functionality operational
+
+- [ ] **GAME-006**: Platform integration (Game Center, Play Games)
+  - Estimated: 2 weeks
+  - Dependencies: GAME-001
+  - Success: Achievement and leaderboard integration
+
+- [ ] **GAME-007**: Performance optimization and game compatibility
+  - Estimated: 1 week
+  - Dependencies: GAME-003, GAME-004
+  - Success: <5% game performance impact, 95% compatibility
+
 ## P1 Tasks (High Priority)
+
+### Advanced Forum & Thread Management (PRD-015)
+**Target**: Q1 2027 | **Owner**: Community Features Team | **Effort**: 32 weeks
+
+- [ ] **FORUM-001**: Core forum infrastructure and thread hierarchy
+  - Estimated: 3 weeks
+  - Dependencies: Database schema migration
+  - Success: Forum channels with thread organization functional
+
+- [ ] **FORUM-002**: Advanced threading engine and nested replies
+  - Estimated: 3 weeks
+  - Dependencies: FORUM-001
+  - Success: Unlimited depth reply system working
+
+- [ ] **FORUM-003**: Content organization and tagging system
+  - Estimated: 2 weeks
+  - Dependencies: FORUM-002
+  - Success: Custom tags and categories operational
+
+- [ ] **FORUM-004**: Advanced search infrastructure and AI-powered suggestions
+  - Estimated: 4 weeks
+  - Dependencies: Elasticsearch integration
+  - Success: <500ms search results with relevance ranking
+
+- [ ] **FORUM-005**: Message scheduling and automated announcements
+  - Estimated: 2 weeks
+  - Dependencies: FORUM-001
+  - Success: Timed message delivery system functional
+
+- [ ] **FORUM-006**: AI-powered moderation and content filtering
+  - Estimated: 3 weeks
+  - Dependencies: AI/ML service integration
+  - Success: Automated content moderation with 90% accuracy
+
+- [ ] **FORUM-007**: Knowledge base integration and FAQ automation
+  - Estimated: 2 weeks
+  - Dependencies: FORUM-004
+  - Success: Automated FAQ generation and organization
+
+- [ ] **FORUM-008**: Mobile UI optimization and performance tuning
+  - Estimated: 3 weeks
+  - Dependencies: FORUM-007
+  - Success: <3s load times for complex threads, smooth navigation
 
 ### Live Screen Sharing & Streaming (PRD-003)
 **Target**: Q4 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
