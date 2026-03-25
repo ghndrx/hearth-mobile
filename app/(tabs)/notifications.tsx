@@ -131,7 +131,7 @@ function NotificationItem({
           <Avatar
             uri={notification.avatar}
             name={notification.title}
-            size="md"
+            size={40}
           />
         ) : (
           getNotificationIcon(notification.type, isDark)

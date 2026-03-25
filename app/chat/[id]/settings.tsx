@@ -113,7 +113,7 @@ export default function DMSettingsScreen() {
           entering={FadeInDown.delay(50).duration(300)}
           className="items-center mt-6 mb-2"
         >
-          <Avatar name={mockUser.name} size="xl" showStatus status="online" />
+          <Avatar name={mockUser.name} size={56} />
           <Text
             className={`mt-3 text-xl font-bold ${
               isDark ? "text-white" : "text-gray-900"

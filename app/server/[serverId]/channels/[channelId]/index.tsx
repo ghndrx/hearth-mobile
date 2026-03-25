@@ -15,16 +15,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { Avatar } from "../../../../components/ui/Avatar";
+import { Avatar } from "../../../../../components/ui/Avatar";
 import {
   MessageBubble,
   Message,
-} from "../../../../components/chat/MessageBubble";
+} from "../../../../../components/chat/MessageBubble";
 import {
   AttachmentPicker,
   AttachmentPreviewStrip,
   Attachment,
-} from "../../../../components/chat/AttachmentPicker";
+} from "../../../../../components/chat/AttachmentPicker";
 
 // Mock channel messages
 const mockChannelMessages: Message[] = [
@@ -531,7 +531,7 @@ export default function ChannelChatScreen() {
                   className="flex-row items-center px-3 py-2"
                   activeOpacity={0.7}
                 >
-                  <Avatar name={item.name} size="xs" />
+                  <Avatar name={item.name} size={24} />
                   <View className="ml-2 flex-1">
                     <Text
                       className={`text-sm ${

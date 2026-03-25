@@ -849,7 +849,7 @@ function MembersTab({ isDark }: { isDark: boolean }) {
       className="flex-row items-center px-4 py-3"
     >
       <View className="relative">
-        <Avatar name={member.displayName} size="md" />
+        <Avatar name={member.displayName} size={40} />
         <View
           className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 ${
             isDark ? "border-dark-800" : "border-white"
