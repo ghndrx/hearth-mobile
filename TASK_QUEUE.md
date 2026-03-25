@@ -437,7 +437,111 @@
   - Dependencies: GAME-003, GAME-004
   - Success: <5% game performance impact, 95% compatibility
 
+### Biometric Age Verification System (PRD-024)
+**Target**: Q2 2026 | **Owner**: Security & Compliance Team | **Effort**: 9 weeks
+
+- [ ] **BAV-001**: On-device facial age estimation ML model integration
+  - Estimated: 2 weeks
+  - Dependencies: ML model licensing and optimization
+  - Success: 85%+ accuracy on age classification (18+ detection)
+
+- [ ] **BAV-002**: ID verification infrastructure and document processing
+  - Estimated: 2 weeks
+  - Dependencies: BAV-001
+  - Success: Support for 50+ international document types
+
+- [ ] **BAV-003**: Age-gated content controls and access restrictions
+  - Estimated: 1 week
+  - Dependencies: BAV-002
+  - Success: Granular age-based permissions system operational
+
+- [ ] **BAV-004**: Privacy compliance and on-device processing
+  - Estimated: 2 weeks
+  - Dependencies: BAV-001
+  - Success: Zero biometric data transmission, GDPR compliance
+
+- [ ] **BAV-005**: Platform-specific UI/UX implementation
+  - Estimated: 1 week
+  - Dependencies: BAV-003
+  - Success: Seamless verification flow with <2min completion
+
+- [ ] **BAV-006**: Security hardening and anti-spoofing measures
+  - Estimated: 1 week
+  - Dependencies: BAV-004
+  - Success: Liveness detection and document authenticity validation
+
+### AI-Powered Voice Processing & Noise Suppression (PRD-025)
+**Target**: Q3 2026 | **Owner**: Audio Engineering Team | **Effort**: 10 weeks
+
+- [ ] **AIVP-001**: ML noise suppression model integration and optimization
+  - Estimated: 3 weeks
+  - Dependencies: Audio processing framework
+  - Success: 90%+ background noise reduction, <50ms latency
+
+- [ ] **AIVP-002**: Real-time audio pipeline and voice enhancement
+  - Estimated: 2 weeks
+  - Dependencies: AIVP-001
+  - Success: Voice clarity preservation >95%, echo cancellation
+
+- [ ] **AIVP-003**: Platform-specific audio processing (iOS/Android)
+  - Estimated: 2 weeks
+  - Dependencies: AIVP-002
+  - Success: Native audio framework integration, <15% CPU usage
+
+- [ ] **AIVP-004**: Voice activity detection and smart threshold management
+  - Estimated: 1 week
+  - Dependencies: AIVP-003
+  - Success: Automatic threshold adjustment, music preservation mode
+
+- [ ] **AIVP-005**: User controls and settings interface
+  - Estimated: 1 week
+  - Dependencies: AIVP-004
+  - Success: Intuitive noise suppression controls, accessibility support
+
+- [ ] **AIVP-006**: Performance optimization and battery management
+  - Estimated: 1 week
+  - Dependencies: AIVP-005
+  - Success: <10% battery impact, adaptive processing modes
+
 ## P1 Tasks (High Priority)
+
+### Native OS Integration & Live Controls (PRD-026)
+**Target**: Q3 2026 | **Owner**: Mobile Platform Team | **Effort**: 12 weeks
+
+- [ ] **NOSI-001**: iOS lock screen controls and MediaPlayer integration
+  - Estimated: 2 weeks
+  - Dependencies: Voice channel infrastructure
+  - Success: Voice controls accessible from lock screen
+
+- [ ] **NOSI-002**: Live Activities and Dynamic Island implementation
+  - Estimated: 2 weeks
+  - Dependencies: NOSI-001
+  - Success: Real-time voice channel status in Dynamic Island
+
+- [ ] **NOSI-003**: iOS home screen widgets and WidgetKit integration
+  - Estimated: 2 weeks
+  - Dependencies: NOSI-001
+  - Success: Server shortcuts and status widgets functional
+
+- [ ] **NOSI-004**: Android lock screen controls and media session integration
+  - Estimated: 2 weeks
+  - Dependencies: Voice channel infrastructure
+  - Success: Native Android media controls for voice channels
+
+- [ ] **NOSI-005**: Android Quick Settings tiles and home screen widgets
+  - Estimated: 2 weeks
+  - Dependencies: NOSI-004
+  - Success: Material You widgets and quick settings integration
+
+- [ ] **NOSI-006**: CallKit integration and system audio controls
+  - Estimated: 1 week
+  - Dependencies: NOSI-002
+  - Success: Voice channels appear as system "calls"
+
+- [ ] **NOSI-007**: Siri/Assistant integration and voice commands
+  - Estimated: 1 week
+  - Dependencies: NOSI-003, NOSI-005
+  - Success: Voice commands for joining channels and controls
 
 ### Advanced Forum & Thread Management (PRD-015)
 **Target**: Q1 2027 | **Owner**: Community Features Team | **Effort**: 32 weeks
