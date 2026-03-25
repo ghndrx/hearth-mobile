@@ -10,7 +10,7 @@ module.exports = {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@expo/.*|expo-.*|@react-native/.*|react-native|@react-native-community/.*|@react-navigation/.*|expo|expo-router))'
+    'node_modules/(?!(@expo/.*|expo-.*|@react-native/.*|react-native|@react-native-community/.*|@react-navigation/.*|expo|expo-router|expo-secure-store|react-native-reanimated))'
   ],
   collectCoverageFrom: [
     '**/*.{ts,tsx}',

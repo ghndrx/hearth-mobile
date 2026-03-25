@@ -1,14 +1,13 @@
 module.exports = function (api) {
   api.cache(true);
 
-  // Use different config for Jest environment
+  // Use simplified config for Jest environment to avoid worklets issues
   if (process.env.NODE_ENV === 'test') {
     return {
       presets: [
-        ["babel-preset-expo", { jsxImportSource: "nativewind" }],
-        "nativewind/babel",
+        "babel-preset-expo",  // Simplified expo preset without customization
       ],
-      // Remove reanimated plugin for Jest as it causes issues
+      // Remove all plugins for testing to avoid conflicts
       plugins: [],
     };
   }
@@ -18,6 +17,10 @@ module.exports = function (api) {
       ["babel-preset-expo", { jsxImportSource: "nativewind" }],
       "nativewind/babel",
     ],
-    plugins: ["react-native-reanimated/plugin"],
+    plugins: [
+      ["react-native-reanimated/plugin", {
+        relativeSourceLocation: true
+      }]
+    ],
   };
 };

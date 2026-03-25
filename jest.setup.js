@@ -12,8 +12,32 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
-// Silence the warning: Animated: `useNativeDriver` is not supported
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+// Mock react-native Animated warnings (updated for React Native 0.76)
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  return {
+    ...RN,
+    Platform: {
+      ...RN.Platform,
+      OS: 'ios',
+      Version: '17.0',
+      select: jest.fn((obj) => obj.ios),
+    },
+    Animated: {
+      ...RN.Animated,
+      // Suppress useNativeDriver warnings in tests
+      timing: jest.fn(() => ({
+        start: jest.fn(),
+      })),
+      spring: jest.fn(() => ({
+        start: jest.fn(),
+      })),
+      decay: jest.fn(() => ({
+        start: jest.fn(),
+      })),
+    },
+  };
+});
 
 // Mock SafeAreaContext
 jest.mock('react-native-safe-area-context', () => {
@@ -49,6 +73,13 @@ jest.mock('expo-device', () => ({
   modelName: 'iPhone 14',
   deviceName: "John's iPhone",
   osVersion: '17.0',
+}));
+
+// Mock expo-secure-store
+jest.mock('expo-secure-store', () => ({
+  setItemAsync: jest.fn(() => Promise.resolve()),
+  getItemAsync: jest.fn(() => Promise.resolve(null)),
+  deleteItemAsync: jest.fn(() => Promise.resolve()),
 }));
 
 // Mock AsyncStorage
@@ -89,16 +120,4 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({}),
 }));
 
-// Mock Platform
-jest.mock('react-native', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    ...RN,
-    Platform: {
-      ...RN.Platform,
-      OS: 'ios',
-      Version: '17.0',
-      select: jest.fn((obj) => obj.ios),
-    },
-  };
-});
+// Platform mock is consolidated above with Animated mock
