@@ -3,9 +3,11 @@ import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { registerDevice, unregisterDevice } from "./api";
 
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
+const DEVICE_REGISTRATION_KEY = "@hearth/device_registration";
 
 // Notification types for categorization and routing
 export type NotificationType =
@@ -161,7 +163,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
   try {
     // Get project ID from app config
     const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-    
+
     const pushTokenData = await Notifications.getExpoPushTokenAsync({
       projectId,
     });
@@ -169,8 +171,12 @@ export async function registerForPushNotifications(): Promise<string | null> {
 
     // Store token locally
     await AsyncStorage.setItem(PUSH_TOKEN_KEY, token);
-    
+
     console.log("Push token:", token);
+
+    // Register device with backend
+    await registerDeviceWithBackend(token);
+
   } catch (error) {
     console.error("Failed to get push token:", error);
     return null;
@@ -182,6 +188,44 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
 
   return token;
+}
+
+async function registerDeviceWithBackend(token: string): Promise<void> {
+  try {
+    // Gather device information
+    const deviceId = Constants.sessionId || `${Device.brand}-${Device.modelName}-${Date.now()}`;
+    const platform = Platform.OS === 'ios' ? 'ios' : 'android' as const;
+    const deviceName = Device.deviceName || `${Device.brand} ${Device.modelName}`;
+    const osVersion = Device.osVersion || Platform.Version.toString();
+    const appVersion = Constants.expoConfig?.version || '1.0.0';
+
+    // Register with backend
+    const registration = await registerDevice({
+      token,
+      platform,
+      deviceId,
+      deviceName,
+      osVersion,
+      appVersion,
+    });
+
+    // Store registration info locally
+    await AsyncStorage.setItem(
+      DEVICE_REGISTRATION_KEY,
+      JSON.stringify({
+        id: registration.id,
+        deviceId,
+        platform,
+        registeredAt: registration.registeredAt,
+      })
+    );
+
+    console.log("Device registered successfully:", registration.id);
+  } catch (error) {
+    console.error("Failed to register device with backend:", error);
+    // Don't throw - we still want push tokens to work locally
+    // Backend registration is an enhancement, not a requirement
+  }
 }
 
 async function setupAndroidChannels(): Promise<void> {
@@ -296,9 +340,42 @@ export async function getStoredPushToken(): Promise<string | null> {
 
 export async function clearPushToken(): Promise<void> {
   try {
+    // Unregister from backend first
+    await unregisterDeviceFromBackend();
+
+    // Clear local storage
     await AsyncStorage.removeItem(PUSH_TOKEN_KEY);
+    await AsyncStorage.removeItem(DEVICE_REGISTRATION_KEY);
   } catch (error) {
     console.error("Failed to clear push token:", error);
+  }
+}
+
+async function unregisterDeviceFromBackend(): Promise<void> {
+  try {
+    const stored = await AsyncStorage.getItem(DEVICE_REGISTRATION_KEY);
+    if (stored) {
+      const registration = JSON.parse(stored);
+      await unregisterDevice(registration.deviceId);
+      console.log("Device unregistered successfully");
+    }
+  } catch (error) {
+    console.error("Failed to unregister device from backend:", error);
+    // Don't throw - cleanup should continue
+  }
+}
+
+export async function getStoredDeviceRegistration(): Promise<{
+  id: string;
+  deviceId: string;
+  platform: string;
+  registeredAt: number;
+} | null> {
+  try {
+    const stored = await AsyncStorage.getItem(DEVICE_REGISTRATION_KEY);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
   }
 }
 

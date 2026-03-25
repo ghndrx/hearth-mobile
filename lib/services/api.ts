@@ -375,3 +375,58 @@ export async function uploadAttachment(
     createdAt: number;
   };
 }
+
+/**
+ * Device Registration for Push Notifications
+ */
+interface DeviceRegistrationParams {
+  token: string;
+  platform: 'ios' | 'android';
+  deviceId: string;
+  deviceName?: string;
+  osVersion?: string;
+  appVersion?: string;
+}
+
+interface DeviceRegistrationResponse {
+  id: string;
+  token: string;
+  platform: string;
+  deviceId: string;
+  registeredAt: number;
+  lastActiveAt: number;
+}
+
+/**
+ * Register device for push notifications
+ */
+export async function registerDevice(
+  params: DeviceRegistrationParams
+): Promise<DeviceRegistrationResponse> {
+  const { data, error } = await api.post<DeviceRegistrationResponse>(
+    "/devices/register",
+    params,
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("No response data from server");
+  }
+
+  return data;
+}
+
+/**
+ * Unregister device (for logout or app uninstall)
+ */
+export async function unregisterDevice(deviceId: string): Promise<void> {
+  const { error } = await api.delete<void>(`/devices/${deviceId}`, true);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

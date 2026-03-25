@@ -110,7 +110,7 @@ function ContactItem({
       `}
     >
       <View className="relative">
-        <Avatar uri={contact.avatar} name={contact.name} size="md" />
+        <Avatar uri={contact.avatar} name={contact.name} size={40} />
         <View
           className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2"
           style={{

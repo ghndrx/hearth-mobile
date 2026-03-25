@@ -1,4 +1,5 @@
 export * from "./api";
+export { registerDevice, unregisterDevice } from "./api";
 export * from "./auth";
 export * from "./biometric";
 export {
@@ -10,6 +11,7 @@ export {
   saveNotificationSettings,
   registerForPushNotifications,
   getStoredPushToken,
+  getStoredDeviceRegistration,
   clearPushToken,
   getPermissionStatus,
   setBadgeCount,
