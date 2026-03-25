@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 24, 2026
+**Last Updated**: March 25, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -308,6 +308,97 @@
   - Dependencies: AUDIO-005
   - Success: <10% additional battery drain, <15% CPU usage
 
+### Mobile Creator Economy & Monetization Tools (PRD-022)
+**Target**: Q2 2026 | **Owner**: Creator Economy & Mobile Teams | **Effort**: 32 weeks
+
+- [ ] **CREATOR-001**: Creator profile system and verification process
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: Creator verification pipeline operational
+
+- [ ] **CREATOR-002**: Mobile tip jar with payment integration
+  - Estimated: 4 weeks
+  - Dependencies: CREATOR-001, Apple Pay/Google Pay setup
+  - Success: One-tap tipping functional with biometric auth
+
+- [ ] **CREATOR-003**: Creator dashboard with earnings tracking
+  - Estimated: 3 weeks
+  - Dependencies: CREATOR-002
+  - Success: Real-time analytics and revenue tracking working
+
+- [ ] **CREATOR-004**: Subscription platform with tiered benefits
+  - Estimated: 4 weeks
+  - Dependencies: CREATOR-003
+  - Success: Subscription tiers with exclusive content access
+
+- [ ] **CREATOR-005**: Payment processing and payout system
+  - Estimated: 3 weeks
+  - Dependencies: CREATOR-002
+  - Success: Automated creator payouts and tax reporting
+
+- [ ] **CREATOR-006**: Mobile creator tools and content management
+  - Estimated: 2 weeks
+  - Dependencies: CREATOR-004
+  - Success: Mobile-optimized creator workflow
+
+- [ ] **CREATOR-007**: Revenue sharing and analytics system
+  - Estimated: 2 weeks
+  - Dependencies: CREATOR-005
+  - Success: Transparent revenue tracking and insights
+
+- [ ] **CREATOR-008**: Merchandise integration and mobile storefront
+  - Estimated: 3 weeks
+  - Dependencies: CREATOR-006
+  - Success: Mobile merch store with creator revenue sharing
+
+### Advanced Accessibility & Inclusive Design (PRD-023)
+**Target**: Q2 2026 | **Owner**: Accessibility & Mobile Teams | **Effort**: 32 weeks
+
+- [ ] **ACCESS-001**: Enhanced screen reader support and navigation
+  - Estimated: 4 weeks
+  - Dependencies: None
+  - Success: WCAG 2.2 AAA compliance, advanced VoiceOver/TalkBack
+
+- [ ] **ACCESS-002**: Real-time voice transcription system
+  - Estimated: 6 weeks
+  - Dependencies: Cloud STT services, ACCESS-001
+  - Success: 95%+ accuracy live voice-to-text with speaker ID
+
+- [ ] **ACCESS-003**: Cognitive accessibility profile system
+  - Estimated: 4 weeks
+  - Dependencies: ACCESS-001
+  - Success: ADHD/autism/dyslexia accommodations functional
+
+- [ ] **ACCESS-004**: Motor accessibility and assistive device support
+  - Estimated: 4 weeks
+  - Dependencies: ACCESS-003
+  - Success: Switch control, voice commands, head tracking
+
+- [ ] **ACCESS-005**: Visual accessibility enhancements
+  - Estimated: 3 weeks
+  - Dependencies: ACCESS-001
+  - Success: Dynamic contrast, color customization, motion reduction
+
+- [ ] **ACCESS-006**: Voice command integration for all functions
+  - Estimated: 3 weeks
+  - Dependencies: ACCESS-002
+  - Success: Complete app control via voice commands
+
+- [ ] **ACCESS-007**: Neurodiversity interface adaptations
+  - Estimated: 3 weeks
+  - Dependencies: ACCESS-003
+  - Success: Sensory sensitivity accommodations
+
+- [ ] **ACCESS-008**: AI-powered accessibility recommendations
+  - Estimated: 3 weeks
+  - Dependencies: ACCESS-004
+  - Success: Personalized accessibility suggestions
+
+- [ ] **ACCESS-009**: Compliance testing and certification
+  - Estimated: 2 weeks
+  - Dependencies: ACCESS-008
+  - Success: Third-party accessibility audit certification
+
 ### Gaming Integration & Rich Presence (PRD-014)
 **Target**: Q4 2026 | **Owner**: Gaming & Integrations Team | **Effort**: 32 weeks
 
@@ -530,6 +621,59 @@
   - Estimated: 1 week
   - Dependencies: COM-005
   - Success: Activity timeline and community updates
+
+### Real-Time Collaborative Tools & Interactive Activities (PRD-024)
+**Target**: Q1 2027 | **Owner**: Collaboration & Mobile Teams | **Effort**: 48 weeks
+
+- [ ] **COLLAB-001**: Real-time synchronization engine with conflict resolution
+  - Estimated: 6 weeks
+  - Dependencies: WebSocket infrastructure upgrade
+  - Success: <100ms collaboration latency, 99.9% data consistency
+
+- [ ] **COLLAB-002**: Interactive whiteboard with mobile drawing engine
+  - Estimated: 8 weeks
+  - Dependencies: COLLAB-001
+  - Success: Real-time drawing with 50+ users, Apple Pencil support
+
+- [ ] **COLLAB-003**: Live polling and voting system
+  - Estimated: 4 weeks
+  - Dependencies: COLLAB-001
+  - Success: Multiple poll types with real-time results
+
+- [ ] **COLLAB-004**: Collaborative document editing with OT
+  - Estimated: 6 weeks
+  - Dependencies: COLLAB-002
+  - Success: Real-time text editing with cursor tracking
+
+- [ ] **COLLAB-005**: Interactive community games library
+  - Estimated: 4 weeks
+  - Dependencies: COLLAB-003
+  - Success: Trivia, drawing games, icebreakers functional
+
+- [ ] **COLLAB-006**: Structured brainstorming session tools
+  - Estimated: 4 weeks
+  - Dependencies: COLLAB-004
+  - Success: Guided ideation with templates and facilitation
+
+- [ ] **COLLAB-007**: Mobile-optimized collaboration UI
+  - Estimated: 6 weeks
+  - Dependencies: COLLAB-005
+  - Success: Touch controls, gesture support, haptic feedback
+
+- [ ] **COLLAB-008**: Voice channel integration for multimedia collaboration
+  - Estimated: 3 weeks
+  - Dependencies: COLLAB-006
+  - Success: Simultaneous voice and collaboration features
+
+- [ ] **COLLAB-009**: Export and sharing capabilities
+  - Estimated: 2 weeks
+  - Dependencies: COLLAB-007
+  - Success: PDF/image export, integration with file sharing
+
+- [ ] **COLLAB-010**: AI-powered session facilitation and insights
+  - Estimated: 5 weeks
+  - Dependencies: COLLAB-008
+  - Success: Smart suggestions, collaboration analytics
 
 ### Deep OS Integration & Mobile-Native Features (PRD-012)
 **Target**: Q4 2026 | **Owner**: Platform Team | **Effort**: 12 weeks
