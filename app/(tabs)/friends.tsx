@@ -162,7 +162,7 @@ function FriendItem({
       `}
     >
       <View className="relative">
-        <Avatar uri={friend.avatar} name={friend.name} size="md" />
+        <Avatar uri={friend.avatar} name={friend.name} size={40} />
         <View
           className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2"
           style={{
@@ -252,7 +252,7 @@ function FriendRequestItem({
         border-b ${isDark ? "border-dark-800" : "border-gray-100"}
       `}
     >
-      <Avatar uri={request.avatar} name={request.name} size="md" />
+      <Avatar uri={request.avatar} name={request.name} size={40} />
 
       <View className="flex-1 ml-3">
         <Text

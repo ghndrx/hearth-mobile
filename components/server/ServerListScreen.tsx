@@ -23,7 +23,7 @@ interface ServerItemProps {
 function ServerIcon({ server, isDark }: { server: Server; isDark: boolean }) {
   return (
     <View className="relative">
-      <Avatar uri={server.icon} name={server.name} size="lg" />
+      <Avatar uri={server.icon} name={server.name} size={48} />
       {/* Online indicator dot */}
       <View
         className={`

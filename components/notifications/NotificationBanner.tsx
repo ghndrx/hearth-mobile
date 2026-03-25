@@ -191,7 +191,7 @@ export function NotificationBanner() {
               <Avatar
                 uri={notifData.senderAvatar}
                 name={notifData.senderName || "User"}
-                size="md"
+                size={48}
               />
             ) : (
               <View
