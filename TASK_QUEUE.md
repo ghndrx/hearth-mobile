@@ -896,6 +896,105 @@
   - Dependencies: OS-004
   - Success: Full VoiceOver/TalkBack and Material You support
 
+### Mobile-First Thread & Stage Channel Management (PRD-031)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
+
+- [ ] **THREAD-001**: Gesture-based thread navigation system
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Swipe left/right for thread branches, smooth animations
+
+- [ ] **THREAD-002**: Contextual thread actions and moderation tools
+  - Estimated: 2 weeks
+  - Dependencies: THREAD-001
+  - Success: Long-press for thread options, swipe-to-moderate functional
+
+- [ ] **THREAD-003**: Visual thread mapping and conversation clustering
+  - Estimated: 2 weeks
+  - Dependencies: THREAD-002
+  - Success: Mobile-optimized tree view with AI-powered topic grouping
+
+- [ ] **THREAD-004**: Mobile stage channel dashboard and controls
+  - Estimated: 3 weeks
+  - Dependencies: THREAD-003
+  - Success: One-touch speaker management, real-time analytics panel
+
+- [ ] **THREAD-005**: Thread search and filtering optimization
+  - Estimated: 2 weeks
+  - Dependencies: THREAD-004
+  - Success: <200ms search results with conversation context
+
+- [ ] **THREAD-006**: Cross-platform sync and offline thread access
+  - Estimated: 1 week
+  - Dependencies: THREAD-005
+  - Success: Seamless mobile/desktop handoff, offline thread reading
+
+### Advanced Mobile Moderation Suite (PRD-032)
+**Target**: Q3 2026 | **Owner**: Mobile & AI Teams | **Effort**: 14 weeks
+
+- [ ] **MOD-001**: AI-powered content analysis infrastructure
+  - Estimated: 3 weeks
+  - Dependencies: AI/ML infrastructure setup
+  - Success: Real-time multi-modal content scanning with <100ms latency
+
+- [ ] **MOD-002**: Mobile moderation dashboard with gesture controls
+  - Estimated: 2 weeks
+  - Dependencies: MOD-001
+  - Success: Swipe-based moderation actions, customizable toolbar
+
+- [ ] **MOD-003**: Contextual moderation tools and user history panel
+  - Estimated: 2 weeks
+  - Dependencies: MOD-002
+  - Success: One-tap access to user history and violation context
+
+- [ ] **MOD-004**: Smart escalation system and team coordination
+  - Estimated: 3 weeks
+  - Dependencies: MOD-003
+  - Success: AI-driven incident prioritization, real-time team communication
+
+- [ ] **MOD-005**: Community health analytics and predictive alerts
+  - Estimated: 2 weeks
+  - Dependencies: MOD-004
+  - Success: Real-time health metrics, early warning system functional
+
+- [ ] **MOD-006**: Automated response templates and appeals processing
+  - Estimated: 2 weeks
+  - Dependencies: MOD-005
+  - Success: Quick-deploy responses, mobile-optimized appeals workflow
+
+### Mobile Creator Economy & Analytics Dashboard (PRD-033)
+**Target**: Q4 2026 | **Owner**: Mobile & Payments Teams | **Effort**: 16 weeks
+
+- [ ] **CREATOR-001**: Real-time creator analytics dashboard
+  - Estimated: 3 weeks
+  - Dependencies: Analytics infrastructure upgrade
+  - Success: <500ms load time for community metrics and engagement data
+
+- [ ] **CREATOR-002**: Mobile monetization suite with payment processing
+  - Estimated: 4 weeks
+  - Dependencies: CREATOR-001, Payment gateway integration
+  - Success: Subscription management, tips, premium content gates functional
+
+- [ ] **CREATOR-003**: Community growth tools and automation
+  - Estimated: 3 weeks
+  - Dependencies: CREATOR-002
+  - Success: Content scheduler, engagement automation, collaboration network
+
+- [ ] **CREATOR-004**: Mobile content creation and streaming tools
+  - Estimated: 3 weeks
+  - Dependencies: CREATOR-003
+  - Success: Integrated live streaming, mobile-optimized content management
+
+- [ ] **CREATOR-005**: Revenue analytics and financial dashboard
+  - Estimated: 2 weeks
+  - Dependencies: CREATOR-004
+  - Success: Real-time earnings tracking, tax documentation, payout management
+
+- [ ] **CREATOR-006**: Creator support ecosystem and resource library
+  - Estimated: 1 week
+  - Dependencies: CREATOR-005
+  - Success: In-app tutorials, success coaching, creator community access
+
 ## P2 Tasks (Medium Priority)
 
 ### User Experience Enhancements
