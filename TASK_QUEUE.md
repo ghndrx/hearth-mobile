@@ -503,7 +503,96 @@
   - Dependencies: AIVP-005
   - Success: <10% battery impact, adaptive processing modes
 
+### Battery Optimization & Background Processing (PRD-027)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 8 weeks
+
+- [ ] **BATT-001**: Resource monitoring and performance analytics infrastructure
+  - Estimated: 1 week
+  - Dependencies: None
+  - Success: Real-time CPU, memory, and battery usage tracking
+
+- [ ] **BATT-002**: Intelligent background task scheduling and prioritization
+  - Estimated: 2 weeks
+  - Dependencies: BATT-001
+  - Success: Smart task scheduling reduces battery drain by 25%
+
+- [ ] **BATT-003**: Adaptive resource management based on device capabilities
+  - Estimated: 2 weeks
+  - Dependencies: BATT-002
+  - Success: Device-specific optimizations for high/medium/low-end phones
+
+- [ ] **BATT-004**: Network request batching and connection optimization
+  - Estimated: 1 week
+  - Dependencies: BATT-003
+  - Success: Reduced network wake cycles improve battery life by 20%
+
+- [ ] **BATT-005**: Voice channel power optimization during muted states
+  - Estimated: 1 week
+  - Dependencies: BATT-004
+  - Success: 40% battery improvement during voice channel usage
+
+- [ ] **BATT-006**: Power management dashboard and user controls
+  - Estimated: 1 week
+  - Dependencies: BATT-005
+  - Success: User-configurable power saving modes operational
+
 ## P1 Tasks (High Priority)
+
+### Cross-Device Continuity & Seamless Handoff (PRD-028)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
+
+- [ ] **CDC-001**: Device discovery and secure pairing infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Auto-discover and authenticate user devices in <3s
+
+- [ ] **CDC-002**: Real-time settings synchronization across devices
+  - Estimated: 2 weeks
+  - Dependencies: CDC-001
+  - Success: Settings sync in <500ms with conflict resolution
+
+- [ ] **CDC-003**: Voice call handoff between devices
+  - Estimated: 3 weeks
+  - Dependencies: CDC-002
+  - Success: 99%+ successful call transfers with <2s interruption
+
+- [ ] **CDC-004**: Video call and screen sharing handoff
+  - Estimated: 2 weeks
+  - Dependencies: CDC-003
+  - Success: Seamless video call transfers maintaining quality
+
+- [ ] **CDC-005**: Smart device routing and presence awareness
+  - Estimated: 1 week
+  - Dependencies: CDC-004
+  - Success: Intelligent call/notification routing to optimal device
+
+### App Store Integration & Mobile Social Features (PRD-029)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
+
+- [ ] **ASI-001**: iOS App Clips for server preview and quick join
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: 10MB App Clips with 45%+ conversion to full app
+
+- [ ] **ASI-002**: Android Instant Apps for lightweight server access
+  - Estimated: 1 week
+  - Dependencies: ASI-001
+  - Success: Instant apps load in <2s with core functionality
+
+- [ ] **ASI-003**: Siri Shortcuts and Google Assistant integration
+  - Estimated: 1.5 weeks
+  - Dependencies: None
+  - Success: Voice commands for common actions working
+
+- [ ] **ASI-004**: Native share extensions with rich previews
+  - Estimated: 1 week
+  - Dependencies: ASI-003
+  - Success: Rich server/content sharing through system share sheet
+
+- [ ] **ASI-005**: Game Center and Google Play Games integration
+  - Estimated: 0.5 weeks
+  - Dependencies: ASI-004
+  - Success: Friend discovery and social features functional
 
 ### Native OS Integration & Live Controls (PRD-026)
 **Target**: Q3 2026 | **Owner**: Mobile Platform Team | **Effort**: 12 weeks
