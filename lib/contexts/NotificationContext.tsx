@@ -6,11 +6,16 @@ import React, {
 import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useNotificationPermission } from "../hooks/useNotifications";
-import { NotificationSettings, Notification, DEFAULT_NOTIFICATION_SETTINGS } from "../services/notifications";
+import { useDeviceToken } from "../hooks/useDeviceToken";
+import { NotificationSettings, Notification, DEFAULT_NOTIFICATION_SETTINGS, type NativeTokenInfo } from "../services/notifications";
 
 interface NotificationContextValue {
   // Push token
   expoPushToken: string | null;
+
+  // Native FCM/APNs token
+  nativeToken: NativeTokenInfo | null;
+  isNativeTokenRegistered: boolean;
 
   // Current notification (when received in foreground)
   notification: Notification | null;
@@ -30,6 +35,7 @@ interface NotificationContextValue {
 
   // Actions
   clearAllNotifications: () => Promise<void>;
+  refreshNativeToken: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
@@ -52,8 +58,16 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
 
   const { isGranted } = useNotificationPermission();
 
+  const {
+    nativeToken,
+    isRegistered: isNativeTokenRegistered,
+    refreshToken: refreshNativeToken,
+  } = useDeviceToken();
+
   const value: NotificationContextValue = {
     expoPushToken,
+    nativeToken,
+    isNativeTokenRegistered,
     notification,
     settings: settings || DEFAULT_NOTIFICATION_SETTINGS,
     updateSettings,
@@ -63,6 +77,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     isLoading,
     error,
     clearAllNotifications: clearNotifications,
+    refreshNativeToken,
   };
 
   return (

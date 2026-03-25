@@ -381,6 +381,7 @@ export async function uploadAttachment(
  */
 interface DeviceRegistrationParams {
   token: string;
+  tokenType?: 'fcm' | 'apns' | 'expo';
   platform: 'ios' | 'android';
   deviceId: string;
   deviceName?: string;
@@ -391,6 +392,7 @@ interface DeviceRegistrationParams {
 interface DeviceRegistrationResponse {
   id: string;
   token: string;
+  tokenType: string;
   platform: string;
   deviceId: string;
   registeredAt: number;

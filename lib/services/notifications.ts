@@ -4,6 +4,15 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerDevice, unregisterDevice } from "./api";
+import {
+  registerDeviceTokens,
+  unregisterDeviceTokens,
+  startTokenRefreshListener,
+  stopTokenRefreshListener,
+  getStoredNativeToken,
+  type NativeTokenInfo,
+  type TokenType,
+} from "./fcmService";
 
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
@@ -174,8 +183,16 @@ export async function registerForPushNotifications(): Promise<string | null> {
 
     console.log("Push token:", token);
 
-    // Register device with backend
-    await registerDeviceWithBackend(token);
+    // Register both native (FCM/APNs) and Expo tokens with backend
+    const { nativeToken } = await registerDeviceTokens();
+    if (nativeToken) {
+      console.log(`Native ${nativeToken.type} token registered`);
+    }
+
+    // Fall back to Expo-only registration if native token unavailable
+    if (!nativeToken) {
+      await registerDeviceWithBackend(token);
+    }
 
   } catch (error) {
     console.error("Failed to get push token:", error);
@@ -340,7 +357,10 @@ export async function getStoredPushToken(): Promise<string | null> {
 
 export async function clearPushToken(): Promise<void> {
   try {
-    // Unregister from backend first
+    // Unregister native tokens (FCM/APNs) and stop refresh listener
+    await unregisterDeviceTokens();
+
+    // Unregister Expo token from backend
     await unregisterDeviceFromBackend();
 
     // Clear local storage
@@ -426,3 +446,12 @@ export async function dismissAllNotifications(): Promise<void> {
 
 export type NotificationResponse = Notifications.NotificationResponse;
 export type Notification = Notifications.Notification;
+
+// Re-export FCM/APNs types and utilities
+export {
+  getStoredNativeToken,
+  startTokenRefreshListener,
+  stopTokenRefreshListener,
+  type NativeTokenInfo,
+  type TokenType,
+};

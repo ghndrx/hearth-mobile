@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
+import { clearPushToken } from "../services/notifications";
 
 interface User {
   id: string;
@@ -44,6 +45,11 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
   },
 
   logout: async () => {
+    // Unregister device tokens (FCM/APNs) and clear push data
+    await clearPushToken().catch((err) =>
+      console.warn("Failed to clear push tokens on logout:", err)
+    );
+
     await SecureStore.deleteItemAsync("auth_token");
     await SecureStore.deleteItemAsync("user");
     set({ token: null, user: null, isAuthenticated: false });

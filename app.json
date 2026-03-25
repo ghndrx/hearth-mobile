@@ -18,6 +18,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.hearth.mobile",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "associatedDomains": [
         "applinks:hearth.app",
         "applinks:www.hearth.app",
@@ -61,6 +62,7 @@
         "backgroundColor": "#1e1f22"
       },
       "package": "io.hearth.mobile",
+      "googleServicesFile": "./google-services.json",
       "intentFilters": [
         {
           "action": "VIEW",
