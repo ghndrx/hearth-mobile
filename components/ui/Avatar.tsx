@@ -4,11 +4,24 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 interface AvatarProps {
   uri?: string;
   name?: string;
-  size?: number;
+  size?: number | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  status?: 'online' | 'offline' | 'idle' | 'dnd' | 'invisible';
+  showStatus?: boolean;
   style?: any;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({ uri, name, size = 40, style }) => {
+// Size mapping for named sizes
+const SIZE_MAP = {
+  xs: 24,
+  sm: 32,
+  md: 40,
+  lg: 48,
+  xl: 64,
+} as const;
+
+export const Avatar: React.FC<AvatarProps> = ({ uri, name, size = 40, status, showStatus, style }) => {
+  // Convert named size to number
+  const actualSize = typeof size === 'string' ? SIZE_MAP[size] : size;
   const initials = name
     ? name
         .split(' ')
@@ -22,14 +35,37 @@ export const Avatar: React.FC<AvatarProps> = ({ uri, name, size = 40, style }) =
     ? `hsl(${hashCode(name) % 360}, 60%, 60%)`
     : '#888';
 
+  const statusColors = {
+    online: '#23a55a',
+    idle: '#f0b132',
+    dnd: '#f23f42',
+    offline: '#80848e',
+    invisible: '#80848e',
+  };
+
   return (
-    <View style={[styles.container, { width: size, height: size, borderRadius: size / 2 }, style]}>
+    <View style={[styles.container, { width: actualSize, height: actualSize, borderRadius: actualSize / 2 }, style]}>
       {uri ? (
         <Image source={{ uri }} style={styles.image} />
       ) : (
         <View style={[styles.placeholder, { backgroundColor }]}>
-          <Text style={[styles.initials, { fontSize: size * 0.4 }]}>{initials}</Text>
+          <Text style={[styles.initials, { fontSize: actualSize * 0.4 }]}>{initials}</Text>
         </View>
+      )}
+      {showStatus && status && (
+        <View
+          style={[
+            styles.statusIndicator,
+            {
+              backgroundColor: statusColors[status],
+              width: actualSize * 0.3,
+              height: actualSize * 0.3,
+              borderRadius: (actualSize * 0.3) / 2,
+              bottom: -2,
+              right: -2,
+            },
+          ]}
+        />
       )}
     </View>
   );
@@ -46,6 +82,7 @@ function hashCode(str: string): number {
 const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
+    position: 'relative',
   },
   image: {
     width: '100%',
@@ -61,16 +98,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
   },
+  statusIndicator: {
+    position: 'absolute',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
 });
 
 interface AvatarGroupProps {
   users: Array<{ uri?: string; name?: string }>;
-  size?: number;
+  size?: number | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   max?: number;
   style?: any;
 }
 
 export const AvatarGroup: React.FC<AvatarGroupProps> = ({ users, size = 40, max = 3, style }) => {
+  // Convert named size to number
+  const actualSize = typeof size === 'string' ? SIZE_MAP[size] : size;
   const displayUsers = users.slice(0, max);
   const remaining = users.length - max;
 
@@ -80,11 +124,11 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({ users, size = 40, max 
         <View
           key={idx}
           style={[
-            { marginLeft: idx > 0 ? -(size * 0.3) : 0 },
+            { marginLeft: idx > 0 ? -(actualSize * 0.3) : 0 },
             { zIndex: displayUsers.length - idx },
           ]}
         >
-          <Avatar uri={user.uri} name={user.name} size={size} style={{ borderWidth: 2, borderColor: '#fff' }} />
+          <Avatar uri={user.uri} name={user.name} size={actualSize} style={{ borderWidth: 2, borderColor: '#fff' }} />
         </View>
       ))}
       {remaining > 0 && (
@@ -92,10 +136,10 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({ users, size = 40, max 
           style={[
             styles.container,
             {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              marginLeft: -(size * 0.3),
+              width: actualSize,
+              height: actualSize,
+              borderRadius: actualSize / 2,
+              marginLeft: -(actualSize * 0.3),
               zIndex: 0,
               borderWidth: 2,
               borderColor: '#fff',
@@ -103,7 +147,7 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({ users, size = 40, max 
           ]}
         >
           <View style={[styles.placeholder, { backgroundColor: '#888' }]}>
-            <Text style={[styles.initials, { fontSize: size * 0.4 }]}>+{remaining}</Text>
+            <Text style={[styles.initials, { fontSize: actualSize * 0.4 }]}>+{remaining}</Text>
           </View>
         </View>
       )}
