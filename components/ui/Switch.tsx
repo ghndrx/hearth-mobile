@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Switch, type ViewProps } from "react-native";
 import { useColorScheme } from "react-native";
+import { useHaptics } from "../../lib/hooks/useHaptics";
 
 interface SwitchItemProps extends ViewProps {
   title: string;
@@ -21,6 +22,12 @@ export function SwitchItem({
 }: SwitchItemProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const { toggle } = useHaptics();
+
+  const handleValueChange: SwitchItemProps["onValueChange"] = (newValue) => {
+    toggle();
+    onValueChange(newValue);
+  };
 
   return (
     <View
@@ -43,7 +50,7 @@ export function SwitchItem({
       </View>
       <Switch
         value={value}
-        onValueChange={onValueChange}
+        onValueChange={handleValueChange}
         disabled={disabled}
         trackColor={{
           false: isDark ? "#4e5058" : "#d1d5db",

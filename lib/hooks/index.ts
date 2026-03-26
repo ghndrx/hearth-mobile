@@ -44,3 +44,6 @@ export {
   useDeviceSyncPreferences,
   useDeviceDiscoveryPolling,
 } from "./useDeviceDiscovery";
+
+// Haptics hooks
+export { useHaptics } from "./useHaptics";

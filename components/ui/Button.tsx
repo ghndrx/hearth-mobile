@@ -7,6 +7,7 @@ import {
   type TouchableOpacityProps,
 } from "react-native";
 import { useColorScheme } from "react-native";
+import { useHaptics } from "../../lib/hooks/useHaptics";
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -28,10 +29,17 @@ export function Button({
   fullWidth = false,
   disabled,
   className = "",
+  onPress,
   ...props
 }: ButtonProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
+  const { buttonPress } = useHaptics();
+
+  const handlePress: ButtonProps["onPress"] = (event) => {
+    buttonPress();
+    onPress?.(event);
+  };
 
   const baseStyles =
     "flex-row items-center justify-center rounded-lg font-semibold";
@@ -69,6 +77,7 @@ export function Button({
       className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${disabledStyles} ${fullWidth ? "w-full" : ""} ${className}`}
       disabled={disabled || isLoading}
       activeOpacity={0.8}
+      onPress={handlePress}
       {...props}
     >
       {isLoading ? (
