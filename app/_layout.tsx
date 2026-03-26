@@ -14,6 +14,7 @@ import { NetworkStatusBar } from "../components/NetworkStatusBar";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { deepLinkManager, quickActionsService, spotlightService } from "../lib/services";
 import { offlineSyncService } from "../lib/services/offlineSync";
+import { MessageQueueProvider } from "../lib/contexts/MessageQueueContext";
 import { analytics } from "../lib/services/analytics";
 import { useAppStatePerformance } from "../lib/hooks";
 import "../global.css";
@@ -146,12 +147,14 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <NotificationProvider>
             <BiometricProvider>
-              <BiometricLockScreen>
-                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <NetworkStatusBar />
-                <RootLayoutNav />
-                <NotificationBanner />
-              </BiometricLockScreen>
+              <MessageQueueProvider>
+                <BiometricLockScreen>
+                  <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                  <NetworkStatusBar />
+                  <RootLayoutNav />
+                  <NotificationBanner />
+                </BiometricLockScreen>
+              </MessageQueueProvider>
             </BiometricProvider>
           </NotificationProvider>
         </QueryClientProvider>

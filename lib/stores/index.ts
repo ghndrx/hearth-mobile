@@ -5,3 +5,4 @@
 
 export { useAuthStore } from "./auth";
 export { useOfflineQueueStore } from "./offlineQueue";
+export { useMessageCacheStore } from "./messageCache";
