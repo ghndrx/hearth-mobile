@@ -60,3 +60,5 @@ export {
   useReadReceipts,
   type ReadReceipt,
 } from "./ReadReceipts";
+export { EnhancedMediaPicker } from "./EnhancedMediaPicker";
+export { UploadProgressBar } from "./UploadProgressBar";

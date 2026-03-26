@@ -21,6 +21,13 @@ export {
   usePresence,
 } from "./useWebSocket";
 
+// Media picker hooks
+export {
+  useMediaPicker,
+  type UseMediaPickerOptions,
+  type UseMediaPickerReturn,
+} from "./useMediaPicker";
+
 // Performance hooks
 export {
   useComponentPerformance,
