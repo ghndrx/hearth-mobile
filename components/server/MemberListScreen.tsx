@@ -570,7 +570,7 @@ export function MemberListScreen({
     if (onMemberPress) {
       onMemberPress(member);
     } else {
-      router.push(`/profile/${member.user.id}`);
+      router.push(`/user/${member.user.id}`);
     }
   };
 
@@ -880,7 +880,7 @@ export function MemberList({
     if (onMemberPress) {
       onMemberPress(member);
     } else {
-      router.push(`/profile/${member.user.id}`);
+      router.push(`/user/${member.user.id}`);
     }
   };
 

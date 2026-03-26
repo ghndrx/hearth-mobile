@@ -249,7 +249,7 @@ class QuickActionsService {
 
     if (actionId.startsWith("server_") && data?.serverId) {
       router.push({
-        pathname: "/server/[serverId]",
+        pathname: "/server/[serverId]/activity",
         params: { serverId: data.serverId },
       });
       return;

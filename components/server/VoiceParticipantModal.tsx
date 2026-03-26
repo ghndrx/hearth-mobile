@@ -282,7 +282,7 @@ export function VoiceParticipantModal({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
     router.push({
-      pathname: "/profile/[id]",
+      pathname: "/user/[id]",
       params: { id: participant.user.id },
     });
   }, [participant, onClose]);

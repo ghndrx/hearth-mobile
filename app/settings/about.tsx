@@ -54,7 +54,7 @@ export default function AboutScreen() {
     {
       icon: "code-slash-outline",
       label: "Open Source Licenses",
-      onPress: () => router.push("/settings/licenses"),
+      onPress: () => router.push("/settings/about"),
     },
   ];
 

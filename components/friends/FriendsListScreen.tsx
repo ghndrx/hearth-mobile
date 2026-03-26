@@ -466,7 +466,7 @@ export function FriendsListScreen({
       if (onFriendPress) {
         onFriendPress(friend);
       } else {
-        router.push(`/profile/${friend.id}`);
+        router.push(`/user/${friend.id}`);
       }
     },
     [onFriendPress],

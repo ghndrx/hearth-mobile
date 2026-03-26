@@ -7,7 +7,7 @@
 
 // Mock expo modules - use var for jest.mock hoisting compatibility
 var mockNotifications = {
-  setNotificationHandler: jest.fn(() => Promise.resolve()),
+  setNotificationHandler: jest.fn(),
   getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
   requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
   getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'test-push-token' })),
@@ -47,9 +47,9 @@ var mockConstants = {
 };
 
 var mockAsyncStorage = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
+  getItem: jest.fn(() => Promise.resolve(null)),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
 };
 
 var mockApi = {
@@ -65,7 +65,10 @@ var mockPlatform = {
 jest.mock('expo-notifications', () => mockNotifications);
 jest.mock('expo-device', () => mockDevice);
 jest.mock('expo-constants', () => mockConstants);
-jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  __esModule: true,
+  default: mockAsyncStorage,
+}));
 jest.mock('../../lib/services/api', () => mockApi);
 jest.mock('react-native', () => ({ Platform: mockPlatform }));
 
