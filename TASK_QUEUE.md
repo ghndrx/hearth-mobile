@@ -19,7 +19,7 @@
   - Dependencies: Firebase project setup
   - Success: Device token registration working
 
-- [ ] **PN-002**: Basic push notification delivery pipeline
+- [x] **PN-002**: Basic push notification delivery pipeline
   - Estimated: 1 week
   - Dependencies: PN-001
   - Success: Can send/receive notifications
