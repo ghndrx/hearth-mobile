@@ -14,7 +14,7 @@
 ### Push Notifications System (PRD-001)
 **Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
 
-- [ ] **PN-001**: FCM/APNs integration and device registration
+- [x] **PN-001**: FCM/APNs integration and device registration
   - Estimated: 1 week
   - Dependencies: Firebase project setup
   - Success: Device token registration working
