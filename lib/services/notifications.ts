@@ -21,7 +21,7 @@ export type NotificationType =
   | "system";
 
 // Data payload structure for notifications
-export interface NotificationPayload {
+export interface NotificationPayload extends Record<string, unknown> {
   type: NotificationType;
   serverId?: string;
   channelId?: string;

@@ -22,6 +22,7 @@ export {
   dismissAllNotifications,
   NOTIFICATION_CHANNELS,
 } from "./notifications";
+export { notificationPipeline } from "./notificationPipeline";
 export * from "./messageQueue";
 export * from "./websocket";
 export * from "./media";
