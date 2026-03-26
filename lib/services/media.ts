@@ -4,6 +4,9 @@
  */
 
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { apiClient } from './api';
@@ -17,6 +20,7 @@ export interface MediaAsset {
   width?: number;
   height?: number;
   duration?: number;
+  thumbnailUri?: string;
 }
 
 export interface UploadProgress {
@@ -52,6 +56,22 @@ export interface CompressionOptions {
   format?: 'jpeg' | 'png' | 'webp';
 }
 
+export interface DocumentPickerOptions {
+  type?: string[];
+  allowsMultiple?: boolean;
+}
+
+export type UploadState = 'idle' | 'compressing' | 'uploading' | 'done' | 'error';
+
+export interface UploadTask {
+  id: string;
+  asset: MediaAsset;
+  state: UploadState;
+  progress: UploadProgress;
+  error?: string;
+  result?: UploadResult;
+}
+
 const MIME_TYPES: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
@@ -60,8 +80,26 @@ const MIME_TYPES: Record<string, string> = {
   webp: 'image/webp',
   mp4: 'video/mp4',
   mov: 'video/quicktime',
+  avi: 'video/x-msvideo',
+  mkv: 'video/x-matroska',
   pdf: 'application/pdf',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  txt: 'text/plain',
+  zip: 'application/zip',
 };
+
+const DOCUMENT_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/plain',
+  'application/zip',
+];
 
 class MediaService {
   /**
@@ -104,6 +142,29 @@ class MediaService {
   }
 
   /**
+   * Pick documents using the system document picker
+   */
+  async pickDocuments(options: DocumentPickerOptions = {}): Promise<MediaAsset[]> {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: options.type ?? DOCUMENT_TYPES,
+      copyToCacheDirectory: true,
+      multiple: options.allowsMultiple ?? false,
+    });
+
+    if (result.canceled || result.assets.length === 0) {
+      return [];
+    }
+
+    return result.assets.map(asset => ({
+      uri: asset.uri,
+      type: 'file' as const,
+      fileName: asset.name,
+      fileSize: asset.size ?? 0,
+      mimeType: asset.mimeType ?? this.getMimeType(asset.name),
+    }));
+  }
+
+  /**
    * Take a photo or video with the camera
    */
   async captureMedia(
@@ -115,8 +176,8 @@ class MediaService {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: type === 'video' 
-        ? ImagePicker.MediaTypeOptions.Videos 
+      mediaTypes: type === 'video'
+        ? ImagePicker.MediaTypeOptions.Videos
         : ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
@@ -128,6 +189,50 @@ class MediaService {
     }
 
     return this.processAsset(result.assets[0]);
+  }
+
+  /**
+   * Compress an image with the given options
+   */
+  async compressImage(
+    uri: string,
+    options: CompressionOptions = {}
+  ): Promise<{ uri: string; width: number; height: number }> {
+    const {
+      maxWidth = 1920,
+      maxHeight = 1920,
+      quality = 0.7,
+      format = 'jpeg',
+    } = options;
+
+    const actions: ImageManipulator.Action[] = [
+      { resize: { width: maxWidth, height: maxHeight } },
+    ];
+
+    const saveFormat = format === 'png'
+      ? ImageManipulator.SaveFormat.PNG
+      : ImageManipulator.SaveFormat.JPEG;
+
+    const result = await ImageManipulator.manipulateAsync(uri, actions, {
+      compress: quality,
+      format: saveFormat,
+    });
+
+    return { uri: result.uri, width: result.width, height: result.height };
+  }
+
+  /**
+   * Generate a thumbnail for a video
+   */
+  async generateVideoThumbnail(
+    videoUri: string,
+    timeMs: number = 0
+  ): Promise<string> {
+    const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
+      time: timeMs,
+      quality: 0.5,
+    });
+    return uri;
   }
 
   /**
@@ -150,6 +255,14 @@ class MediaService {
       name: asset.fileName,
     } as unknown as Blob);
     formData.append('channelId', channelId);
+
+    if (asset.thumbnailUri) {
+      formData.append('thumbnail', {
+        uri: Platform.OS === 'ios' ? asset.thumbnailUri.replace('file://', '') : asset.thumbnailUri,
+        type: 'image/jpeg',
+        name: `thumb_${asset.fileName}.jpg`,
+      } as unknown as Blob);
+    }
 
     // Use apiClient.upload for progress tracking
     const response = await apiClient.upload<UploadResult>('/media/upload', formData, {
@@ -180,7 +293,7 @@ class MediaService {
     onProgress?: (progress: UploadProgress) => void
   ): Promise<string> {
     const directory = FileSystem.documentDirectory + 'downloads/';
-    
+
     // Ensure directory exists
     const dirInfo = await FileSystem.getInfoAsync(directory);
     if (!dirInfo.exists) {
@@ -188,7 +301,7 @@ class MediaService {
     }
 
     const localPath = directory + fileName;
-    
+
     const downloadResumable = FileSystem.createDownloadResumable(
       url,
       localPath,
@@ -244,6 +357,20 @@ class MediaService {
    */
   isVideo(mimeType: string): boolean {
     return mimeType.startsWith('video/');
+  }
+
+  /**
+   * Get file type icon name based on MIME type
+   */
+  getFileIcon(mimeType: string): string {
+    if (this.isImage(mimeType)) return 'image-outline';
+    if (this.isVideo(mimeType)) return 'videocam-outline';
+    if (mimeType.includes('pdf')) return 'document-text-outline';
+    if (mimeType.includes('word') || mimeType.includes('document')) return 'document-outline';
+    if (mimeType.includes('sheet') || mimeType.includes('excel')) return 'grid-outline';
+    if (mimeType.includes('zip') || mimeType.includes('compressed')) return 'archive-outline';
+    if (mimeType.startsWith('text/')) return 'code-outline';
+    return 'document-outline';
   }
 
   /**
@@ -318,6 +445,15 @@ class MediaService {
       // File size not available
     }
 
+    let thumbnailUri: string | undefined;
+    if (isVideo) {
+      try {
+        thumbnailUri = await this.generateVideoThumbnail(asset.uri);
+      } catch {
+        // Thumbnail generation failed, continue without it
+      }
+    }
+
     return {
       uri: asset.uri,
       type: isVideo ? 'video' : 'image',
@@ -327,6 +463,7 @@ class MediaService {
       width: asset.width,
       height: asset.height,
       duration: asset.duration ?? undefined,
+      thumbnailUri,
     };
   }
 }
