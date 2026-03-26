@@ -2,11 +2,13 @@ import React, {
   createContext,
   useContext,
   ReactNode,
+  useEffect,
 } from "react";
 import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useNotificationPermission } from "../hooks/useNotifications";
 import { NotificationSettings, Notification, DEFAULT_NOTIFICATION_SETTINGS } from "../services/notifications";
+import { notificationPipeline } from "../services/notificationPipeline";
 
 interface NotificationContextValue {
   // Push token
@@ -51,6 +53,35 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   } = usePushNotifications();
 
   const { isGranted } = useNotificationPermission();
+
+  // Initialize notification pipeline when component mounts
+  useEffect(() => {
+    let initialized = false;
+
+    const initializePipeline = async () => {
+      if (initialized) return;
+
+      try {
+        await notificationPipeline.initialize();
+        initialized = true;
+        console.log('[NotificationContext] Pipeline initialized');
+      } catch (error) {
+        console.error('[NotificationContext] Failed to initialize pipeline:', error);
+      }
+    };
+
+    // Initialize pipeline when notifications are enabled and permission is granted
+    if (settings?.enabled && isGranted) {
+      initializePipeline();
+    }
+
+    return () => {
+      if (initialized) {
+        notificationPipeline.shutdown();
+        console.log('[NotificationContext] Pipeline shut down');
+      }
+    };
+  }, [settings?.enabled, isGranted]);
 
   const value: NotificationContextValue = {
     expoPushToken,
