@@ -152,3 +152,27 @@ export * from "./iot";
 
 // Re-export call handoff types
 export * from "./callHandoff";
+
+// Re-export notification delivery types (PN-002)
+export {
+  type NotificationDeliveryRequest,
+  type BatchNotificationDeliveryRequest,
+  type NotificationDeliveryResult,
+  type BatchNotificationDeliveryResult,
+  type DevicePlatform,
+  type NotificationPriority,
+  type NotificationContent,
+  type NotificationCategory,
+  type NotificationAction,
+  type AndroidNotificationOptions,
+  type iOSNotificationOptions,
+  type FCMMessagePayload,
+  type RetryConfig,
+  type NotificationPayload,
+  type DeviceRegistration,
+  type NotificationType,
+  DEFAULT_RETRY_CONFIG,
+  FCM_ERROR_CODES,
+  APNS_ERROR_CODES,
+  RETRYABLE_ERROR_CODES,
+} from "./notificationDelivery";
