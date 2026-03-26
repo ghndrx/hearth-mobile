@@ -4,9 +4,8 @@ import {
   Text,
   FlatList,
   Pressable,
-  Alert,
-  useColorScheme,
-} from "react-native";
+  Alert} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";

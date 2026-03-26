@@ -3,10 +3,9 @@ import {
   View,
   Text,
   ScrollView,
-  useColorScheme,
   RefreshControl,
-  TouchableOpacity,
-} from "react-native";
+  TouchableOpacity} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";

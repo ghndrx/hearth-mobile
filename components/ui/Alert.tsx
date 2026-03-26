@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, type ViewProps } from "react-native";
-import { useColorScheme } from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 
 interface AlertProps extends ViewProps {

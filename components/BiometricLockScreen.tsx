@@ -4,9 +4,8 @@ import {
   Text,
   Pressable,
   StatusBar,
-  StyleSheet,
-  useColorScheme,
-} from "react-native";
+  StyleSheet} from "react-native";
+import { useColorScheme } from "../lib/hooks/useColorScheme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import Animated, {

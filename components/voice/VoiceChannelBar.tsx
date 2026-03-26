@@ -3,12 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  useColorScheme,
   Animated,
   PanResponder,
   Dimensions,
-  LayoutChangeEvent,
-} from "react-native";
+  LayoutChangeEvent} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";

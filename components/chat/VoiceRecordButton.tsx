@@ -7,9 +7,8 @@
 
 import { useState } from "react";
 import {
-  TouchableOpacity,
-  useColorScheme,
-} from "react-native";
+  TouchableOpacity} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { VoiceRecorder, type VoiceRecording } from "./VoiceRecorder";
 

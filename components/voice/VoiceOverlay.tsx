@@ -1,5 +1,6 @@
 import React from "react";
-import { View, useColorScheme } from "react-native";
+import { View} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useVoice } from "../../lib/contexts/VoiceContext";
 import { VoiceChannelBar } from "./VoiceChannelBar";

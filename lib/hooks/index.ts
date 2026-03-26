@@ -3,6 +3,9 @@
  * Re-exports all custom hooks for easy importing
  */
 
+// Theme hooks
+export { useColorScheme } from "./useColorScheme";
+
 // Biometric hooks
 export { useBiometricAuth } from "./useBiometricAuth";
 

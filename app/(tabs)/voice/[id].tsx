@@ -3,10 +3,9 @@ import {
   View,
   Text,
   TouchableOpacity,
-  useColorScheme,
   FlatList,
-  Dimensions,
-} from "react-native";
+  Dimensions} from "react-native";
+import { useColorScheme } from "../../../lib/hooks/useColorScheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";

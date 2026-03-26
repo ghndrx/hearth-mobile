@@ -9,9 +9,8 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  useColorScheme,
-  type ListRenderItem,
-} from "react-native";
+  type ListRenderItem} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import Animated, {
   SlideInDown,
   SlideOutDown,

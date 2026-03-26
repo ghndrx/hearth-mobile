@@ -2,9 +2,8 @@ import React, { useCallback } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
-  useColorScheme,
-} from "react-native";
+  TouchableOpacity} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Avatar } from "../ui/Avatar";

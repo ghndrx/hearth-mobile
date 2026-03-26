@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Switch, type ViewProps } from "react-native";
-import { useColorScheme } from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 
 interface SwitchItemProps extends ViewProps {
   title: string;

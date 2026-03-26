@@ -17,10 +17,9 @@ import {
   TouchableOpacity,
   Animated,
   PanResponder,
-  useColorScheme,
   Platform,
-  Alert,
-} from "react-native";
+  Alert} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import * as Haptics from "expo-haptics";

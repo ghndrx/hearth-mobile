@@ -14,9 +14,8 @@ import {
   View,
   Text,
   TouchableOpacity,
-  useColorScheme,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import * as Haptics from "expo-haptics";

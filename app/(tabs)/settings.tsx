@@ -3,6 +3,8 @@ import { router } from "expo-router";
 import { useAuthStore } from "../../lib/stores/auth";
 import { useNotificationContext } from "../../lib/contexts/NotificationContext";
 import { useBiometric } from "../../lib/contexts/BiometricContext";
+import { useTheme } from "../../lib/contexts/ThemeContext";
+import type { ThemePreference } from "../../lib/stores/theme";
 import {
   SettingsScreen,
   SettingsSection,
@@ -17,6 +19,7 @@ export default function SettingsPage() {
     isPermissionGranted,
   } = useNotificationContext();
   const { settings: biometricSettings, biometricName, capabilities } = useBiometric();
+  const { preference: themePreference, setPreference: setThemePreference, isDark } = useTheme();
 
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [haptics, setHaptics] = useState(true);
@@ -65,6 +68,39 @@ export default function SettingsPage() {
       type: "switch",
       value: haptics,
       onValueChange: setHaptics,
+    },
+  ];
+
+  const themeLabels: Record<ThemePreference, string> = {
+    system: "System",
+    light: "Light",
+    dark: "Dark",
+  };
+
+  const cycleTheme = () => {
+    const order: ThemePreference[] = ["system", "light", "dark"];
+    const nextIndex = (order.indexOf(themePreference) + 1) % order.length;
+    setThemePreference(order[nextIndex]);
+  };
+
+  const appearanceItems: SettingsItem[] = [
+    {
+      id: "theme",
+      icon: isDark ? "moon-outline" : "sunny-outline",
+      label: "Theme",
+      subtitle: themeLabels[themePreference],
+      type: "link",
+      onPress: cycleTheme,
+      showChevron: false,
+    },
+    {
+      id: "darkMode",
+      icon: "moon-outline",
+      label: "Dark Mode",
+      subtitle: "Toggle dark mode on or off",
+      type: "switch",
+      value: isDark,
+      onValueChange: (value) => setThemePreference(value ? "dark" : "light"),
     },
   ];
 
@@ -192,6 +228,11 @@ export default function SettingsPage() {
   const sections: SettingsSection[] = [
     { title: "Notifications", items: notificationItems },
     { title: "Sound & Haptics", items: soundItems },
+    {
+      title: "Appearance",
+      items: appearanceItems,
+      footer: "System follows your device's dark mode setting",
+    },
     { title: "Display", items: displayItems },
     { title: "General", items: generalItems },
     { title: "Privacy & Security", items: privacyItems },

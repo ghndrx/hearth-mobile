@@ -5,13 +5,12 @@ import {
   Modal,
   TouchableOpacity,
   TextInput,
-  useColorScheme,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Image,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Button } from "../ui";

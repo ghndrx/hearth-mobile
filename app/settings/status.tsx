@@ -6,10 +6,9 @@ import {
   Pressable,
   TextInput,
   Alert,
-  useColorScheme,
   KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+  Platform} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Stack } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";

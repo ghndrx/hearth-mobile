@@ -2,9 +2,8 @@ import React, { useEffect } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
-  Text,
-  useColorScheme,
-} from "react-native";
+  Text} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,

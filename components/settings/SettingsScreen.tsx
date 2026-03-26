@@ -3,13 +3,13 @@ import {
   View,
   Text,
   ScrollView,
-  useColorScheme,
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ListItem, ListDivider, SwitchItem } from "../ui";
+import { useTheme } from "../../lib/contexts/ThemeContext";
 
 export interface SettingsSection {
   title: string;
@@ -49,8 +49,7 @@ function SettingsHeader({
   showBackButton = true,
   onBackPress,
 }: SettingsHeaderProps & { onBackPress?: () => void }) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   return (
     <Stack.Screen
@@ -186,8 +185,7 @@ export function SettingsScreen({
   footerText,
   onBackPress,
 }: SettingsScreenProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   return (
     <SafeAreaView className={`flex-1 ${isDark ? "bg-dark-900" : "bg-gray-50"}`}>

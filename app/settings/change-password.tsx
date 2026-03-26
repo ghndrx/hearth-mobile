@@ -3,9 +3,8 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
-  useColorScheme,
-} from "react-native";
+  ScrollView} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Button, PasswordInput, Alert } from "../../components/ui";

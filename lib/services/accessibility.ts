@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import {
   AccessibilityInfo,
   PixelRatio,
-  Platform,
-  useColorScheme,
-} from "react-native";
+  Platform} from "react-native";
+import { useColorScheme } from "../hooks/useColorScheme";
 
 // ============================================================================
 // Types

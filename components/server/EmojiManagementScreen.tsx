@@ -4,13 +4,12 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  useColorScheme,
   RefreshControl,
   Alert,
   TextInput,
   Image,
-  Modal,
-} from "react-native";
+  Modal} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";

@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from "react";
-import { Text, View, Pressable, useColorScheme } from "react-native";
+import { Text, View, Pressable} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

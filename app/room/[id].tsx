@@ -3,10 +3,9 @@ import {
   View,
   Text,
   ScrollView,
-  useColorScheme,
   TouchableOpacity,
-  RefreshControl,
-} from "react-native";
+  RefreshControl} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";

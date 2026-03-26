@@ -3,13 +3,12 @@ import {
   View,
   Text,
   ScrollView,
-  useColorScheme,
   TouchableOpacity,
   Alert,
   Share,
   Clipboard,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";

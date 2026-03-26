@@ -4,9 +4,8 @@ import {
   Text,
   TouchableOpacity,
   Animated,
-  useColorScheme,
-  Pressable,
-} from "react-native";
+  Pressable} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";

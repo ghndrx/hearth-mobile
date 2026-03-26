@@ -11,10 +11,9 @@ import {
   TouchableOpacity,
   Modal,
   ScrollView,
-  useColorScheme,
   StyleSheet,
-  Pressable,
-} from 'react-native';
+  Pressable} from 'react-native';
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '../ui/Avatar';
 

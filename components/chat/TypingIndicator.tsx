@@ -4,7 +4,8 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, Text, useColorScheme } from 'react-native';
+import { View, Text} from 'react-native';
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

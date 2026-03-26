@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { useColorScheme } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../../lib/contexts/ThemeContext";
 
 type TabIconProps = {
   name: React.ComponentProps<typeof Ionicons>["name"];
@@ -14,8 +14,7 @@ function TabIcon({ name, color, size }: TabIconProps) {
 }
 
 export default function TabsLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { isDark } = useTheme();
 
   const colors = {
     background: isDark ? "#1e1f22" : "#ffffff",

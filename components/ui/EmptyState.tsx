@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, useColorScheme, type ViewProps } from "react-native";
+import { View, Text, type ViewProps } from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "./Button";
 

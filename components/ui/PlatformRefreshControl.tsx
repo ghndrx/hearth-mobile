@@ -2,9 +2,8 @@ import React from "react";
 import {
   RefreshControl,
   RefreshControlProps,
-  Platform,
-  useColorScheme,
-} from "react-native";
+  Platform} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 
 // ============================================================================
 // Types

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, useColorScheme, AppState, AppStateStatus } from "react-native";
+import { View, AppState, AppStateStatus } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthStore } from "../lib/stores/auth";
 import { NotificationProvider } from "../lib/contexts/NotificationContext";
 import { BiometricProvider } from "../lib/contexts/BiometricContext";
+import { ThemeProvider, useTheme } from "../lib/contexts/ThemeContext";
 import { NotificationBanner } from "../components/notifications";
 import { BiometricLockScreen } from "../components/BiometricLockScreen";
 import { LoadingSpinner } from "../components/ui";
@@ -130,9 +131,12 @@ function RootLayoutNav() {
   return <Slot />;
 }
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function ThemedStatusBar() {
+  const { isDark } = useTheme();
+  return <StatusBar style={isDark ? "light" : "dark"} />;
+}
 
+export default function RootLayout() {
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
@@ -143,18 +147,20 @@ export default function RootLayout() {
       }}
     >
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <NotificationProvider>
-            <BiometricProvider>
-              <BiometricLockScreen>
-                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <NetworkStatusBar />
-                <RootLayoutNav />
-                <NotificationBanner />
-              </BiometricLockScreen>
-            </BiometricProvider>
-          </NotificationProvider>
-        </QueryClientProvider>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <NotificationProvider>
+              <BiometricProvider>
+                <BiometricLockScreen>
+                  <ThemedStatusBar />
+                  <NetworkStatusBar />
+                  <RootLayoutNav />
+                  <NotificationBanner />
+                </BiometricLockScreen>
+              </BiometricProvider>
+            </NotificationProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </ErrorBoundary>
   );

@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, TouchableOpacity, useColorScheme } from "react-native";
+import { Text, TouchableOpacity} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import type { Scene } from "../../lib/types/iot";
 

@@ -3,21 +3,19 @@ import {
   View,
   Text,
   ScrollView,
-  useColorScheme,
   Pressable,
   Switch,
-  Appearance,
 } from "react-native";
+import { useTheme } from "../../lib/contexts/ThemeContext";
+import type { ThemePreference } from "../../lib/stores/theme";
 import { Stack } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Card } from "../../components/ui";
 
-type ThemeMode = "light" | "dark" | "system";
 type AccentColor = "brand" | "green" | "purple" | "orange" | "pink" | "red";
 
-const THEME_KEY = "@hearth_theme_mode";
 const ACCENT_KEY = "@hearth_accent_color";
 const COMPACT_KEY = "@hearth_compact_mode";
 const REDUCED_MOTION_KEY = "@hearth_reduced_motion";
@@ -32,16 +30,10 @@ const accentColors: { id: AccentColor; name: string; color: string }[] = [
 ];
 
 export default function AppearanceSettingsScreen() {
-  const systemColorScheme = useColorScheme();
-  const [themeMode, setThemeMode] = useState<ThemeMode>("system");
+  const { preference: themeMode, setPreference: setThemePreference, isDark } = useTheme();
   const [accentColor, setAccentColor] = useState<AccentColor>("brand");
   const [compactMode, setCompactMode] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-
-  const isDark =
-    themeMode === "system"
-      ? systemColorScheme === "dark"
-      : themeMode === "dark";
 
   useEffect(() => {
     loadSettings();
@@ -49,15 +41,13 @@ export default function AppearanceSettingsScreen() {
 
   const loadSettings = async () => {
     try {
-      const [savedTheme, savedAccent, savedCompact, savedMotion] =
+      const [savedAccent, savedCompact, savedMotion] =
         await Promise.all([
-          AsyncStorage.getItem(THEME_KEY),
           AsyncStorage.getItem(ACCENT_KEY),
           AsyncStorage.getItem(COMPACT_KEY),
           AsyncStorage.getItem(REDUCED_MOTION_KEY),
         ]);
 
-      if (savedTheme) setThemeMode(savedTheme as ThemeMode);
       if (savedAccent) setAccentColor(savedAccent as AccentColor);
       if (savedCompact) setCompactMode(savedCompact === "true");
       if (savedMotion) setReducedMotion(savedMotion === "true");
@@ -66,19 +56,8 @@ export default function AppearanceSettingsScreen() {
     }
   };
 
-  const saveThemeMode = async (mode: ThemeMode) => {
-    setThemeMode(mode);
-    try {
-      await AsyncStorage.setItem(THEME_KEY, mode);
-      // Apply theme change
-      if (mode !== "system") {
-        Appearance.setColorScheme(mode);
-      } else {
-        Appearance.setColorScheme(null);
-      }
-    } catch (error) {
-      console.error("Failed to save theme mode:", error);
-    }
+  const saveThemePreference = (mode: ThemePreference) => {
+    setThemePreference(mode);
   };
 
   const saveAccentColor = async (color: AccentColor) => {
@@ -128,12 +107,12 @@ export default function AppearanceSettingsScreen() {
         <Animated.View entering={FadeInDown.delay(100).duration(400)}>
           <SectionHeader title="Theme" isDark={isDark} />
           <Card className={`mx-4 ${isDark ? "bg-dark-800" : "bg-white"}`}>
-            {(["system", "light", "dark"] as ThemeMode[]).map((mode, index) => (
+            {(["system", "light", "dark"] as ThemePreference[]).map((mode, index) => (
               <ThemeOption
                 key={mode}
                 mode={mode}
                 isSelected={themeMode === mode}
-                onSelect={() => saveThemeMode(mode)}
+                onSelect={() => saveThemePreference(mode)}
                 isDark={isDark}
                 isLast={index === 2}
               />
@@ -271,7 +250,7 @@ function SectionHeader({ title, isDark }: SectionHeaderProps) {
 }
 
 interface ThemeOptionProps {
-  mode: ThemeMode;
+  mode: ThemePreference;
   isSelected: boolean;
   onSelect: () => void;
   isDark: boolean;
@@ -285,13 +264,13 @@ function ThemeOption({
   isDark,
   isLast,
 }: ThemeOptionProps) {
-  const icons: Record<ThemeMode, React.ComponentProps<typeof Ionicons>["name"]> = {
+  const icons: Record<ThemePreference, React.ComponentProps<typeof Ionicons>["name"]> = {
     system: "phone-portrait",
     light: "sunny",
     dark: "moon",
   };
 
-  const labels: Record<ThemeMode, string> = {
+  const labels: Record<ThemePreference, string> = {
     system: "System Default",
     light: "Light",
     dark: "Dark",

@@ -5,10 +5,9 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
-  useColorScheme,
   Animated,
-  Alert,
-} from "react-native";
+  Alert} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";

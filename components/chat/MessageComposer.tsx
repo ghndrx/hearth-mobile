@@ -6,11 +6,10 @@ import {
   TouchableOpacity,
   Animated,
   Keyboard,
-  useColorScheme,
   type NativeSyntheticEvent,
   type TextInputContentSizeChangeEventData,
-  type TextInputSelectionChangeEventData,
-} from "react-native";
+  type TextInputSelectionChangeEventData} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import {
   AttachmentPicker,

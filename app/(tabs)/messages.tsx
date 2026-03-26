@@ -5,9 +5,8 @@ import {
   FlatList,
   Pressable,
   RefreshControl,
-  useColorScheme,
-  Image,
-} from "react-native";
+  Image} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import Animated, {
   FadeInRight,
   FadeIn,

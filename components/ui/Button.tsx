@@ -6,7 +6,7 @@ import {
   View,
   type TouchableOpacityProps,
 } from "react-native";
-import { useColorScheme } from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;

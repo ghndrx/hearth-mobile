@@ -11,12 +11,11 @@ import {
   Modal,
   Pressable,
   ScrollView,
-  useColorScheme,
   StyleSheet,
   Dimensions,
   FlatList,
-  Animated,
-} from 'react-native';
+  Animated} from 'react-native';
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Avatar } from '../ui/Avatar';

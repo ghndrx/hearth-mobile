@@ -5,9 +5,8 @@ import {
   ScrollView,
   Pressable,
   Switch,
-  Alert,
-  useColorScheme,
-} from "react-native";
+  Alert} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Stack, useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";

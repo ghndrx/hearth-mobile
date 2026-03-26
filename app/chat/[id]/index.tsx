@@ -6,9 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
-  Platform,
-  useColorScheme,
-} from "react-native";
+  Platform} from "react-native";
+import { useColorScheme } from "../../../lib/hooks/useColorScheme";
 import Animated, {
   FadeIn,
   FadeOut,

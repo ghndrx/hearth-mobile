@@ -4,10 +4,9 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  useColorScheme,
   ActivityIndicator,
-  Alert,
-} from "react-native";
+  Alert} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";

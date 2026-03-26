@@ -3,9 +3,8 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Animated,
-  useColorScheme,
-} from "react-native";
+  Animated} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid, AVPlaybackStatus } from "expo-av";
 export interface VoiceMessage {

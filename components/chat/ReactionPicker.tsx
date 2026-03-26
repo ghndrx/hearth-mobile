@@ -11,10 +11,9 @@ import {
   Modal,
   Pressable,
   ScrollView,
-  useColorScheme,
   StyleSheet,
-  Dimensions,
-} from 'react-native';
+  Dimensions} from 'react-native';
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from '@expo/vector-icons';
 
 interface ReactionPickerProps {

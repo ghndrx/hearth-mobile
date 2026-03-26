@@ -4,9 +4,8 @@ import {
   Text,
   Pressable,
   Modal,
-  useColorScheme,
-  type ViewProps,
-} from "react-native";
+  type ViewProps} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

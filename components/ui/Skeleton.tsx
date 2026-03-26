@@ -1,5 +1,6 @@
 import React from "react";
-import { View, useColorScheme, ViewStyle, DimensionValue } from "react-native";
+import { View, ViewStyle, DimensionValue } from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import Animated, {
   useAnimatedStyle,
   withRepeat,

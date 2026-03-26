@@ -9,10 +9,9 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  useColorScheme,
   Linking,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator} from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import Animated, {
   FadeIn,
   useAnimatedStyle,

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, TextInput, type TextInputProps } from "react-native";
-import { useColorScheme } from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 
 interface SearchInputProps extends Omit<TextInputProps, "placeholder"> {

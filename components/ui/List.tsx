@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   type TouchableOpacityProps,
 } from "react-native";
-import { useColorScheme } from "react-native";
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 
 interface ListItemProps extends TouchableOpacityProps {

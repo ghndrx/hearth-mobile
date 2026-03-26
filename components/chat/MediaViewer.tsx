@@ -17,12 +17,11 @@ import {
   Share,
   Alert,
   ActivityIndicator,
-  useColorScheme,
   StyleSheet,
   PanResponder,
   type GestureResponderEvent,
-  type PanResponderGestureState,
-} from 'react-native';
+  type PanResponderGestureState} from 'react-native';
+import { useColorScheme } from "../../lib/hooks/useColorScheme";
 import { Image } from 'expo-image';
 import { Video, ResizeMode, type AVPlaybackStatus } from 'expo-av';
 import * as FileSystem from 'expo-file-system';

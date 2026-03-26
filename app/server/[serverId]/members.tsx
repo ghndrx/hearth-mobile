@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, useColorScheme } from "react-native";
+import { View, Text} from "react-native";
+import { useColorScheme } from "../../../lib/hooks/useColorScheme";
 import { useLocalSearchParams } from "expo-router";
 import { MemberListScreen } from "../../../components/server/MemberListScreen";
 import { LoadingSpinner } from "../../../components/ui";

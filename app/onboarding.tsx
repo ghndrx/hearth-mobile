@@ -2,11 +2,10 @@ import React, { useState, useRef } from "react";
 import {
   View,
   Text,
-  useColorScheme,
   Dimensions,
   FlatList,
-  ViewToken,
-} from "react-native";
+  ViewToken} from "react-native";
+import { useColorScheme } from "../lib/hooks/useColorScheme";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Animated, {

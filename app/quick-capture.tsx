@@ -6,12 +6,11 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  useColorScheme,
   Animated,
   Dimensions,
   PanResponder,
-  Alert,
-} from "react-native";
+  Alert} from "react-native";
+import { useColorScheme } from "../lib/hooks/useColorScheme";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
