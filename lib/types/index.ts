@@ -149,3 +149,6 @@ export * from "./offline";
 
 // Re-export IoT types
 export * from "./iot";
+
+// Re-export widget types
+export * from "./widgets";

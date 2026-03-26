@@ -32,3 +32,6 @@ export {
   useImageLoadPerformance,
   measureNetworkRequest,
 } from "./usePerformance";
+
+// Widget hooks
+export { useWidgets } from "./useWidgets";
