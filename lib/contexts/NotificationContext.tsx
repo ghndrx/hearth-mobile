@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "../hooks/usePushNotifications";
-import { useNotificationPermission } from "../hooks/useNotifications";
+import { useNotificationPermission } from "../hooks/usePermissionManager";
 import { NotificationSettings, Notification, DEFAULT_NOTIFICATION_SETTINGS } from "../services/notifications";
 import { notificationPipeline } from "../services/notificationPipeline";
 
@@ -52,7 +52,14 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     clearNotifications,
   } = usePushNotifications();
 
-  const { isGranted } = useNotificationPermission();
+  const { status: rawPermissionStatus, isGranted } = useNotificationPermission();
+
+  // Map ExtendedPermissionStatus to Notifications.PermissionStatus
+  const permissionStatus: Notifications.PermissionStatus | null =
+    (rawPermissionStatus === "granted" ? "granted" :
+    rawPermissionStatus === "denied" ? "denied" :
+    rawPermissionStatus === "undetermined" ? "undetermined" :
+    null) as Notifications.PermissionStatus | null;
 
   // Initialize notification pipeline when component mounts
   useEffect(() => {
@@ -88,7 +95,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     notification,
     settings: settings || DEFAULT_NOTIFICATION_SETTINGS,
     updateSettings,
-    permissionStatus: null, // usePushNotifications doesn't provide this directly
+    permissionStatus,
     isPermissionGranted: isGranted,
     requestPermission: register,
     isLoading,

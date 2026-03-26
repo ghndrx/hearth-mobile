@@ -28,6 +28,7 @@ import { Video, ResizeMode, type AVPlaybackStatus } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import * as Haptics from 'expo-haptics';
+import { permissionManager } from '../../lib/services/permissionManager';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -426,13 +427,37 @@ export function MediaViewer({
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     try {
-      // Request permissions
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
+      // Request permissions using PermissionManager
+      const permissionResult = await permissionManager.requestPermission("mediaLibrary", true);
+      if (!permissionResult.granted) {
+        const rationale = permissionManager.getRationale("mediaLibrary");
+
         Alert.alert(
-          'Permission Required',
-          'Please allow access to save media to your device.',
-          [{ text: 'OK' }]
+          rationale.title,
+          permissionResult.message || `${rationale.description}\n\n${rationale.benefits.join('\n• ')}`,
+          [
+            { text: 'Cancel' },
+            {
+              text: permissionResult.status === "denied" ? "Open Settings" : "Grant Permission",
+              onPress: async () => {
+                if (permissionResult.status === "denied") {
+                  try {
+                    await permissionManager.openSystemSettings();
+                  } catch (err) {
+                    console.error("Failed to open settings:", err);
+                    Alert.alert("Error", "Please open Settings manually and enable photo library access for Hearth.");
+                  }
+                } else {
+                  // Retry permission request
+                  const retryResult = await permissionManager.requestPermission("mediaLibrary", false);
+                  if (retryResult.granted) {
+                    // Continue with saving after successful retry
+                    await handleSave();
+                  }
+                }
+              }
+            },
+          ]
         );
         return;
       }
