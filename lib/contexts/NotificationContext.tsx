@@ -9,6 +9,8 @@ import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useNotificationPermission } from "../hooks/usePermissionManager";
 import { NotificationSettings, Notification, DEFAULT_NOTIFICATION_SETTINGS } from "../services/notifications";
 import { notificationPipeline } from "../services/notificationPipeline";
+import { richNotifications } from "../services/richNotifications";
+import { notificationActionHandlers } from "../services/notificationActionHandlers";
 
 interface NotificationContextValue {
   // Push token
@@ -61,31 +63,47 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     rawPermissionStatus === "undetermined" ? "undetermined" :
     null) as Notifications.PermissionStatus | null;
 
-  // Initialize notification pipeline when component mounts
+  // Initialize notification services when component mounts
   useEffect(() => {
-    let initialized = false;
+    let servicesInitialized = false;
 
-    const initializePipeline = async () => {
-      if (initialized) return;
+    const initializeNotificationServices = async () => {
+      if (servicesInitialized) return;
 
       try {
+        console.log('[NotificationContext] Initializing notification services...');
+
+        // Initialize rich notifications service first
+        await richNotifications.initialize();
+        console.log('[NotificationContext] Rich notifications service initialized');
+
+        // Initialize action handlers service
+        await notificationActionHandlers.initialize();
+        console.log('[NotificationContext] Action handlers service initialized');
+
+        // Initialize notification pipeline
         await notificationPipeline.initialize();
-        initialized = true;
-        console.log('[NotificationContext] Pipeline initialized');
+        console.log('[NotificationContext] Notification pipeline initialized');
+
+        servicesInitialized = true;
+        console.log('[NotificationContext] All notification services initialized successfully');
       } catch (error) {
-        console.error('[NotificationContext] Failed to initialize pipeline:', error);
+        console.error('[NotificationContext] Failed to initialize notification services:', error);
       }
     };
 
-    // Initialize pipeline when notifications are enabled and permission is granted
+    // Initialize services when notifications are enabled and permission is granted
     if (settings?.enabled && isGranted) {
-      initializePipeline();
+      initializeNotificationServices();
     }
 
     return () => {
-      if (initialized) {
+      if (servicesInitialized) {
+        console.log('[NotificationContext] Shutting down notification services...');
         notificationPipeline.shutdown();
-        console.log('[NotificationContext] Pipeline shut down');
+        notificationActionHandlers.shutdown();
+        richNotifications.shutdown();
+        console.log('[NotificationContext] All notification services shut down');
       }
     };
   }, [settings?.enabled, isGranted]);

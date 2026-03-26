@@ -16,6 +16,7 @@ import {
   type NotificationType,
   NOTIFICATION_CHANNELS
 } from './notifications';
+import { richNotifications } from './richNotifications';
 
 export interface IncomingMessage {
   id: string;
@@ -166,17 +167,32 @@ class NotificationPipelineService {
    * Show notification for incoming message
    */
   private async showMessageNotification(message: IncomingMessage): Promise<void> {
-    const title = this.formatNotificationTitle(message);
-    const body = this.formatNotificationBody(message);
-    const payload = this.createNotificationPayload(message);
-
     try {
-      await scheduleLocalNotification(title, body, payload);
+      // Use rich notifications service for interactive notifications with action buttons
+      await richNotifications.scheduleMessageNotification(message);
       await this.incrementBadgeCount();
 
-      console.log('[NotificationPipeline] Notification sent:', { title, body });
+      console.log('[NotificationPipeline] Rich notification sent:', {
+        type: message.type,
+        channel: message.channel.name,
+        author: message.author.username
+      });
     } catch (error) {
-      console.error('[NotificationPipeline] Failed to show notification:', error);
+      console.error('[NotificationPipeline] Failed to show rich notification:', error);
+
+      // Fallback to basic notification if rich notifications fail
+      try {
+        const title = this.formatNotificationTitle(message);
+        const body = this.formatNotificationBody(message);
+        const payload = this.createNotificationPayload(message);
+
+        await scheduleLocalNotification(title, body, payload);
+        await this.incrementBadgeCount();
+
+        console.log('[NotificationPipeline] Fallback notification sent:', { title, body });
+      } catch (fallbackError) {
+        console.error('[NotificationPipeline] Fallback notification also failed:', fallbackError);
+      }
     }
   }
 
@@ -242,8 +258,8 @@ class NotificationPipelineService {
       return;
     }
 
-    const payload: NotificationPayload = {
-      type: 'friend_request',
+    const payload = {
+      type: 'friend_request' as NotificationType,
       userId: request.user.id,
       title: 'Friend Request',
       body: `${request.user.username} sent you a friend request`,
@@ -251,10 +267,25 @@ class NotificationPipelineService {
     };
 
     try {
-      await scheduleLocalNotification(payload.title, payload.body, payload);
+      // Use rich notifications for friend requests with Accept/Decline actions
+      await richNotifications.scheduleRichNotification(
+        payload.title,
+        payload.body,
+        payload
+      );
       await this.incrementBadgeCount();
+
+      console.log('[NotificationPipeline] Rich friend request notification sent');
     } catch (error) {
-      console.error('[NotificationPipeline] Failed to show friend request notification:', error);
+      console.error('[NotificationPipeline] Failed to show rich friend request notification:', error);
+
+      // Fallback to basic notification
+      try {
+        await scheduleLocalNotification(payload.title, payload.body, payload);
+        await this.incrementBadgeCount();
+      } catch (fallbackError) {
+        console.error('[NotificationPipeline] Fallback friend request notification failed:', fallbackError);
+      }
     }
   }
 
@@ -268,8 +299,8 @@ class NotificationPipelineService {
       return;
     }
 
-    const payload: NotificationPayload = {
-      type: 'server_invite',
+    const payload = {
+      type: 'server_invite' as NotificationType,
       serverId: invite.server.id,
       userId: invite.inviter.id,
       title: 'Server Invite',
@@ -278,10 +309,25 @@ class NotificationPipelineService {
     };
 
     try {
-      await scheduleLocalNotification(payload.title, payload.body, payload);
+      // Use rich notifications for server invites with View action
+      await richNotifications.scheduleRichNotification(
+        payload.title,
+        payload.body,
+        payload
+      );
       await this.incrementBadgeCount();
+
+      console.log('[NotificationPipeline] Rich server invite notification sent');
     } catch (error) {
-      console.error('[NotificationPipeline] Failed to show server invite notification:', error);
+      console.error('[NotificationPipeline] Failed to show rich server invite notification:', error);
+
+      // Fallback to basic notification
+      try {
+        await scheduleLocalNotification(payload.title, payload.body, payload);
+        await this.incrementBadgeCount();
+      } catch (fallbackError) {
+        console.error('[NotificationPipeline] Fallback server invite notification failed:', fallbackError);
+      }
     }
   }
 
@@ -295,8 +341,8 @@ class NotificationPipelineService {
       return;
     }
 
-    const payload: NotificationPayload = {
-      type: 'call',
+    const payload = {
+      type: 'call' as NotificationType,
       channelId: call.channel.id,
       serverId: call.channel.serverId,
       userId: call.caller.id,
@@ -306,10 +352,25 @@ class NotificationPipelineService {
     };
 
     try {
-      await scheduleLocalNotification(payload.title, payload.body, payload);
+      // Use rich notifications for calls with Join/Decline actions
+      await richNotifications.scheduleRichNotification(
+        payload.title,
+        payload.body,
+        payload
+      );
       await this.incrementBadgeCount();
+
+      console.log('[NotificationPipeline] Rich call notification sent');
     } catch (error) {
-      console.error('[NotificationPipeline] Failed to show call notification:', error);
+      console.error('[NotificationPipeline] Failed to show rich call notification:', error);
+
+      // Fallback to basic notification
+      try {
+        await scheduleLocalNotification(payload.title, payload.body, payload);
+        await this.incrementBadgeCount();
+      } catch (fallbackError) {
+        console.error('[NotificationPipeline] Fallback call notification failed:', fallbackError);
+      }
     }
   }
 
