@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 25, 2026
+**Last Updated**: March 26, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -535,6 +535,75 @@
   - Estimated: 1 week
   - Dependencies: BATT-005
   - Success: User-configurable power saving modes operational
+
+### Mobile Security & Privacy Suite (PRD-028)
+**Target**: Q2 2026 | **Owner**: Mobile Security Team | **Effort**: 10 weeks
+
+- [ ] **MPS-001**: Biometric App Lock Implementation
+  - Estimated: 3 weeks
+  - Dependencies: Platform authentication APIs
+  - Success: Face ID/Touch ID app unlock functional
+
+- [ ] **MPS-002**: Disappearing Messages System
+  - Estimated: 2 weeks
+  - Dependencies: E2EE message infrastructure
+  - Success: Auto-delete messages with visual timers
+
+- [ ] **MPS-003**: Secure Chat Mode with Screenshot Protection
+  - Estimated: 3 weeks
+  - Dependencies: MPS-001, MPS-002
+  - Success: Screenshot blocking and secure notifications
+
+- [ ] **MPS-004**: Privacy Dashboard and Controls
+  - Estimated: 2 weeks
+  - Dependencies: MPS-003
+  - Success: Comprehensive privacy settings interface
+
+### Advanced Mobile Content Creation Studio (PRD-029)
+**Target**: Q3 2026 | **Owner**: Content & Mobile Teams | **Effort**: 12 weeks
+
+- [ ] **MCC-001**: Voice Effects & Audio Studio
+  - Estimated: 3 weeks
+  - Dependencies: Audio processing infrastructure
+  - Success: Real-time voice effects in calls
+
+- [ ] **MCC-002**: Mobile Video Editor with Effects
+  - Estimated: 4 weeks
+  - Dependencies: MCC-001
+  - Success: Timeline-based mobile video editing
+
+- [ ] **MCC-003**: AR Camera Filters & Effects
+  - Estimated: 3 weeks
+  - Dependencies: AR/Camera framework integration
+  - Success: Real-time AR filters during video calls
+
+- [ ] **MCC-004**: Collaborative Content Canvas
+  - Estimated: 2 weeks
+  - Dependencies: MCC-002, MCC-003
+  - Success: Real-time collaborative editing tools
+
+### Real-time Mobile Activities & Entertainment Hub (PRD-030)
+**Target**: Q3 2026 | **Owner**: Activities & Mobile Teams | **Effort**: 14 weeks
+
+- [ ] **MAE-001**: Interactive Mobile Games Hub
+  - Estimated: 5 weeks
+  - Dependencies: Real-time sync infrastructure
+  - Success: 5+ mobile games functional in voice channels
+
+- [ ] **MAE-002**: Watch Together & Media Sync
+  - Estimated: 3 weeks
+  - Dependencies: MAE-001
+  - Success: Synchronized video playback with reactions
+
+- [ ] **MAE-003**: Collaborative Activities Suite
+  - Estimated: 4 weeks
+  - Dependencies: MAE-002
+  - Success: Digital board games and planning tools
+
+- [ ] **MAE-004**: Custom Activity SDK Platform
+  - Estimated: 2 weeks
+  - Dependencies: MAE-003
+  - Success: Community can create and publish activities
 
 ## P1 Tasks (High Priority)
 
