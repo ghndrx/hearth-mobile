@@ -41,6 +41,7 @@ export {
 export { PlatformRefreshControl } from "./PlatformRefreshControl";
 export { BottomSheet } from "./BottomSheet";
 export { Toast } from "./Toast";
+export { PermissionRationale } from "./PermissionRationale";
 export {
   EmptyState,
   EmptyMessages,

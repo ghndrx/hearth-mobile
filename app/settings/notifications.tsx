@@ -6,7 +6,6 @@ import {
   useColorScheme,
   TouchableOpacity,
   Alert,
-  Linking,
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,6 +18,7 @@ import {
   Button,
 } from "../../components/ui";
 import { useNotificationContext } from "../../lib/contexts/NotificationContext";
+import { usePermissionManager } from "../../lib/hooks/usePermissionManager";
 
 declare const __DEV__: boolean;
 
@@ -37,7 +37,18 @@ export default function NotificationSettingsScreen() {
     error,
   } = useNotificationContext();
 
+  const {
+    notificationStatus,
+    openSystemSettings: openSystemSettingsViaManager,
+    getRationale,
+    refreshPermissions,
+    lastUpdated,
+  } = usePermissionManager({
+    permissions: ["notifications"],
+  });
+
   const [localSettings, setLocalSettings] = useState(settings);
+  const [showRationale, setShowRationale] = useState(false);
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -47,21 +58,29 @@ export default function NotificationSettingsScreen() {
     key: keyof typeof settings,
     value: boolean
   ) => {
+    // If enabling notifications but no permission, request it first
+    if (key === "enabled" && value && !isPermissionGranted) {
+      const success = await handleRequestPermission();
+      if (!success) {
+        return; // Don't update setting if permission denied
+      }
+    }
+
     // Optimistic update
     setLocalSettings((prev) => ({ ...prev, [key]: value }));
 
     try {
       await updateSettings({ [key]: value });
-    } catch {
+    } catch (err) {
       // Revert on error
       setLocalSettings((prev) => ({ ...prev, [key]: !value }));
       Alert.alert("Error", "Failed to update setting. Please try again.");
     }
   };
 
-  const handleRequestPermission = async () => {
-    if (permissionStatus === "denied") {
-      // Permission was denied, need to go to settings
+  const handleRequestPermission = async (): Promise<boolean> => {
+    if (permissionStatus === "denied" || notificationStatus?.status === "denied") {
+      // Permission was permanently denied, need to go to settings
       Alert.alert(
         "Notifications Disabled",
         "To enable notifications, please go to Settings and allow notifications for Hearth.",
@@ -69,17 +88,65 @@ export default function NotificationSettingsScreen() {
           { text: "Cancel", style: "cancel" },
           {
             text: "Open Settings",
-            onPress: () => Linking.openSettings(),
+            onPress: openSystemSettings,
           },
         ]
       );
+      return false;
     } else {
-      await requestPermission();
+      try {
+        const success = await requestPermission();
+        if (success) {
+          // Refresh permission status after successful grant
+          await refreshPermissions();
+        }
+        return success;
+      } catch (err) {
+        console.error("Permission request failed:", err);
+        return false;
+      }
     }
   };
 
-  const openSystemSettings = () => {
-    Linking.openSettings();
+  const openSystemSettings = async () => {
+    try {
+      await openSystemSettingsViaManager();
+    } catch (err) {
+      console.error("Failed to open settings:", err);
+      Alert.alert("Error", "Could not open system settings. Please open Settings manually and find Hearth.");
+    }
+  };
+
+  const handleShowRationale = () => {
+    const rationale = getRationale("notifications");
+    Alert.alert(
+      rationale.title,
+      `${rationale.description}\n\nBenefits:\n${rationale.benefits.map(b => `• ${b}`).join('\n')}${rationale.alternatives ? `\n\nAlternative: ${rationale.alternatives}` : ''}`,
+      [
+        { text: "Maybe Later", style: "cancel" },
+        {
+          text: "Enable Now",
+          onPress: handleRequestPermission,
+        },
+      ]
+    );
+  };
+
+  const getPermissionStatusIcon = () => {
+    if (isPermissionGranted) {
+      return <Ionicons name="checkmark-circle" size={20} color="#10b981" />;
+    } else if (permissionStatus === "denied") {
+      return <Ionicons name="close-circle" size={20} color="#ef4444" />;
+    } else {
+      return <Ionicons name="help-circle" size={20} color="#f59e0b" />;
+    }
+  };
+
+  const getPermissionStatusText = () => {
+    if (isPermissionGranted) return "Granted";
+    if (permissionStatus === "denied") return "Denied";
+    if (permissionStatus === "undetermined") return "Not Requested";
+    return "Unknown";
   };
 
   return (
@@ -109,21 +176,111 @@ export default function NotificationSettingsScreen() {
       />
 
       <ScrollView className="flex-1">
-        {/* Permission Banner */}
+        {/* Permission Status Card */}
+        <View className="mx-4 mt-4">
+          <Card className="p-4">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text
+                className={`text-lg font-semibold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Permission Status
+              </Text>
+              <TouchableOpacity
+                onPress={refreshPermissions}
+                className="p-1"
+              >
+                <Ionicons
+                  name="refresh"
+                  size={20}
+                  color={isDark ? "#80848e" : "#6b7280"}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                {getPermissionStatusIcon()}
+                <Text
+                  className={`ml-2 font-medium ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  {getPermissionStatusText()}
+                </Text>
+              </View>
+
+              {!isPermissionGranted && (
+                <View className="flex-row space-x-2">
+                  <TouchableOpacity
+                    onPress={handleShowRationale}
+                    className={`px-3 py-1 rounded-md ${
+                      isDark ? "bg-blue-500/20" : "bg-blue-100"
+                    }`}
+                  >
+                    <Text className="text-blue-500 text-xs font-medium">
+                      Why?
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleRequestPermission}
+                    className={`px-3 py-1 rounded-md ${
+                      isDark ? "bg-green-500/20" : "bg-green-100"
+                    }`}
+                  >
+                    <Text className="text-green-500 text-xs font-medium">
+                      {permissionStatus === "denied" ? "Settings" : "Grant"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
+            {lastUpdated && (
+              <Text
+                className={`text-xs mt-2 ${
+                  isDark ? "text-dark-400" : "text-gray-500"
+                }`}
+              >
+                Last checked: {lastUpdated.toLocaleTimeString()}
+              </Text>
+            )}
+
+            {notificationStatus?.message && (
+              <Text
+                className={`text-xs mt-2 ${
+                  notificationStatus.granted ? "text-green-600" : "text-amber-600"
+                }`}
+              >
+                {notificationStatus.message}
+              </Text>
+            )}
+          </Card>
+        </View>
+
+        {/* Permission Banner for Non-Granted State */}
         {!isPermissionGranted && (
           <View className="mx-4 mt-4">
-            <Card className="p-4">
+            <Card className={`p-4 ${
+              permissionStatus === "denied"
+                ? "bg-red-500/10 border-red-500/30"
+                : "bg-amber-500/10 border-amber-500/30"
+            }`}>
               <View className="flex-row items-center">
                 <View
                   className={`
                     w-12 h-12 rounded-full items-center justify-center mr-4
-                    ${isDark ? "bg-amber-500/20" : "bg-amber-100"}
+                    ${permissionStatus === "denied"
+                      ? (isDark ? "bg-red-500/20" : "bg-red-100")
+                      : (isDark ? "bg-amber-500/20" : "bg-amber-100")
+                    }
                   `}
                 >
                   <Ionicons
-                    name="notifications-off-outline"
+                    name={permissionStatus === "denied" ? "close-circle-outline" : "notifications-off-outline"}
                     size={24}
-                    color="#f59e0b"
+                    color={permissionStatus === "denied" ? "#ef4444" : "#f59e0b"}
                   />
                 </View>
                 <View className="flex-1">
@@ -132,27 +289,49 @@ export default function NotificationSettingsScreen() {
                       isDark ? "text-white" : "text-gray-900"
                     }`}
                   >
-                    Notifications Disabled
+                    {permissionStatus === "denied"
+                      ? "Notifications Blocked"
+                      : "Notifications Not Enabled"
+                    }
                   </Text>
                   <Text
                     className={`text-sm mt-0.5 ${
                       isDark ? "text-dark-400" : "text-gray-500"
                     }`}
                   >
-                    Enable notifications to stay updated
+                    {permissionStatus === "denied"
+                      ? "You'll need to enable notifications in System Settings"
+                      : "Grant permission to receive notifications"
+                    }
                   </Text>
                 </View>
               </View>
-              <Button
-                title="Enable Notifications"
-                variant="primary"
-                size="sm"
-                className="mt-4"
-                onPress={handleRequestPermission}
-                leftIcon={
-                  <Ionicons name="notifications" size={16} color="white" />
-                }
-              />
+              <View className="flex-row mt-4 space-x-2">
+                <Button
+                  title="Learn Why"
+                  variant="secondary"
+                  size="sm"
+                  className="flex-1"
+                  onPress={handleShowRationale}
+                  leftIcon={
+                    <Ionicons name="information-circle" size={16} color={isDark ? "#80848e" : "#6b7280"} />
+                  }
+                />
+                <Button
+                  title={permissionStatus === "denied" ? "Open Settings" : "Grant Permission"}
+                  variant="primary"
+                  size="sm"
+                  className="flex-1"
+                  onPress={handleRequestPermission}
+                  leftIcon={
+                    <Ionicons
+                      name={permissionStatus === "denied" ? "settings" : "notifications"}
+                      size={16}
+                      color="white"
+                    />
+                  }
+                />
+              </View>
             </Card>
           </View>
         )}
@@ -161,24 +340,37 @@ export default function NotificationSettingsScreen() {
         {error && (
           <View className="mx-4 mt-4">
             <Card className="p-4 bg-red-500/10 border-red-500/30">
-              <Text className="text-red-500">{error}</Text>
+              <View className="flex-row items-center">
+                <Ionicons name="alert-circle" size={20} color="#ef4444" />
+                <Text className="ml-2 text-red-500 flex-1">{error}</Text>
+              </View>
             </Card>
           </View>
         )}
 
         {/* Master Toggle */}
-        <View className="mx-4 mt-4">
-          <Text
-            className={`
-              text-xs 
-              font-semibold 
-              uppercase 
-              mb-2
-              ${isDark ? "text-dark-400" : "text-gray-500"}
-            `}
-          >
-            Master Control
-          </Text>
+        <View className="mx-4 mt-6">
+          <View className="flex-row items-center justify-between mb-2">
+            <Text
+              className={`
+                text-xs
+                font-semibold
+                uppercase
+                ${isDark ? "text-dark-400" : "text-gray-500"}
+              `}
+            >
+              Master Control
+            </Text>
+            {isPermissionGranted && (
+              <Text
+                className={`text-xs ${
+                  isDark ? "text-green-400" : "text-green-600"
+                }`}
+              >
+                System Permission: Granted
+              </Text>
+            )}
+          </View>
           <View
             className={`
               rounded-xl
@@ -192,12 +384,14 @@ export default function NotificationSettingsScreen() {
               title="Enable All Notifications"
               subtitle={
                 localSettings.enabled
-                  ? "You will receive notifications"
+                  ? isPermissionGranted
+                    ? "You will receive notifications"
+                    : "Enabled (but system permission required)"
                   : "All notifications are disabled"
               }
               value={localSettings.enabled}
               onValueChange={(value) => handleToggle("enabled", value)}
-              disabled={!isPermissionGranted || isLoading}
+              disabled={isLoading}
             />
           </View>
         </View>
@@ -206,9 +400,9 @@ export default function NotificationSettingsScreen() {
         <View className="mx-4 mt-6">
           <Text
             className={`
-              text-xs 
-              font-semibold 
-              uppercase 
+              text-xs
+              font-semibold
+              uppercase
               mb-2
               ${isDark ? "text-dark-400" : "text-gray-500"}
             `}
@@ -222,7 +416,7 @@ export default function NotificationSettingsScreen() {
               ${isDark ? "bg-dark-800" : "bg-white"}
               border
               ${isDark ? "border-dark-700" : "border-gray-200"}
-              ${!localSettings.enabled ? "opacity-50" : ""}
+              ${(!localSettings.enabled || !isPermissionGranted) ? "opacity-50" : ""}
             `}
           >
             <SwitchItem
@@ -275,18 +469,18 @@ export default function NotificationSettingsScreen() {
           </View>
         </View>
 
-        {/* Alerts */}
+        {/* Alerts & Presentation */}
         <View className="mx-4 mt-6">
           <Text
             className={`
-              text-xs 
-              font-semibold 
-              uppercase 
+              text-xs
+              font-semibold
+              uppercase
               mb-2
               ${isDark ? "text-dark-400" : "text-gray-500"}
             `}
           >
-            Alerts
+            Alerts & Presentation
           </Text>
           <View
             className={`
@@ -295,7 +489,7 @@ export default function NotificationSettingsScreen() {
               ${isDark ? "bg-dark-800" : "bg-white"}
               border
               ${isDark ? "border-dark-700" : "border-gray-200"}
-              ${!localSettings.enabled ? "opacity-50" : ""}
+              ${(!localSettings.enabled || !isPermissionGranted) ? "opacity-50" : ""}
             `}
           >
             <SwitchItem
@@ -336,9 +530,9 @@ export default function NotificationSettingsScreen() {
         <View className="mx-4 mt-6">
           <Text
             className={`
-              text-xs 
-              font-semibold 
-              uppercase 
+              text-xs
+              font-semibold
+              uppercase
               mb-2
               ${isDark ? "text-dark-400" : "text-gray-500"}
             `}
@@ -352,14 +546,14 @@ export default function NotificationSettingsScreen() {
               ${isDark ? "bg-dark-800" : "bg-white"}
               border
               ${isDark ? "border-dark-700" : "border-gray-200"}
-              ${!localSettings.enabled ? "opacity-50" : ""}
+              ${(!localSettings.enabled || !isPermissionGranted) ? "opacity-50" : ""}
             `}
           >
             <SwitchItem
               title="Enable Quiet Hours"
               subtitle={
                 localSettings.quietHoursEnabled
-                  ? `${localSettings.quietHoursStart} - ${localSettings.quietHoursEnd}`
+                  ? `Active: ${localSettings.quietHoursStart} - ${localSettings.quietHoursEnd}`
                   : "Disable notifications during set times"
               }
               value={localSettings.quietHoursEnabled}
@@ -372,21 +566,77 @@ export default function NotificationSettingsScreen() {
           {localSettings.quietHoursEnabled && localSettings.enabled && (
             <Text
               className={`
-                text-xs 
-                mt-2 
+                text-xs
+                mt-2
                 ${isDark ? "text-dark-500" : "text-gray-400"}
               `}
             >
               During quiet hours, notifications will be silenced but still
-              appear in your notification center.
+              appear in your notification center. Uses device timezone.
             </Text>
           )}
         </View>
 
-        {/* System Settings Link */}
+        {/* Advanced Settings */}
         <View className="mx-4 mt-6">
+          <Text
+            className={`
+              text-xs
+              font-semibold
+              uppercase
+              mb-2
+              ${isDark ? "text-dark-400" : "text-gray-500"}
+            `}
+          >
+            Advanced
+          </Text>
+
+          {/* System Settings Link */}
           <TouchableOpacity
             onPress={openSystemSettings}
+            className={`
+              flex-row items-center justify-between
+              p-4
+              rounded-xl
+              ${isDark ? "bg-dark-800" : "bg-white"}
+              border
+              ${isDark ? "border-dark-700" : "border-gray-200"}
+              mb-3
+            `}
+          >
+            <View className="flex-row items-center">
+              <Ionicons
+                name="settings-outline"
+                size={22}
+                color={isDark ? "#80848e" : "#6b7280"}
+              />
+              <View className="ml-3">
+                <Text
+                  className={`font-medium ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  System Notification Settings
+                </Text>
+                <Text
+                  className={`text-xs ${
+                    isDark ? "text-dark-400" : "text-gray-500"
+                  }`}
+                >
+                  Manage platform-level notification preferences
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="open-outline"
+              size={20}
+              color={isDark ? "#80848e" : "#6b7280"}
+            />
+          </TouchableOpacity>
+
+          {/* Refresh Permissions */}
+          <TouchableOpacity
+            onPress={refreshPermissions}
             className={`
               flex-row items-center justify-between
               p-4
@@ -398,20 +648,29 @@ export default function NotificationSettingsScreen() {
           >
             <View className="flex-row items-center">
               <Ionicons
-                name="settings-outline"
+                name="refresh-outline"
                 size={22}
                 color={isDark ? "#80848e" : "#6b7280"}
               />
-              <Text
-                className={`ml-3 font-medium ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}
-              >
-                System Notification Settings
-              </Text>
+              <View className="ml-3">
+                <Text
+                  className={`font-medium ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  Refresh Permission Status
+                </Text>
+                <Text
+                  className={`text-xs ${
+                    isDark ? "text-dark-400" : "text-gray-500"
+                  }`}
+                >
+                  Check latest permission state from system
+                </Text>
+              </View>
             </View>
             <Ionicons
-              name="open-outline"
+              name="chevron-forward"
               size={20}
               color={isDark ? "#80848e" : "#6b7280"}
             />
@@ -423,14 +682,14 @@ export default function NotificationSettingsScreen() {
           <View className="mx-4 mt-6 mb-8">
             <Text
               className={`
-                text-xs 
-                font-semibold 
-                uppercase 
+                text-xs
+                font-semibold
+                uppercase
                 mb-2
                 ${isDark ? "text-dark-400" : "text-gray-500"}
               `}
             >
-              Debug
+              Debug Information
             </Text>
             <Card className="p-4">
               <Text
@@ -447,7 +706,14 @@ export default function NotificationSettingsScreen() {
                   isDark ? "text-dark-400" : "text-gray-500"
                 }`}
               >
-                Permission: {permissionStatus}
+                Context Permission: {permissionStatus || "null"}
+              </Text>
+              <Text
+                className={`text-xs mt-1 ${
+                  isDark ? "text-dark-400" : "text-gray-500"
+                }`}
+              >
+                Manager Permission: {notificationStatus?.status || "null"}
               </Text>
               <Text
                 className={`text-xs mt-1 ${
@@ -455,6 +721,13 @@ export default function NotificationSettingsScreen() {
                 }`}
               >
                 Platform: {Platform.OS} {Platform.Version}
+              </Text>
+              <Text
+                className={`text-xs mt-1 ${
+                  isDark ? "text-dark-400" : "text-gray-500"
+                }`}
+              >
+                Can Ask Again: {notificationStatus?.canAskAgain ? "Yes" : "No"}
               </Text>
             </Card>
           </View>

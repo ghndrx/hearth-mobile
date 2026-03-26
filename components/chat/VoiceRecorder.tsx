@@ -25,6 +25,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import * as Haptics from "expo-haptics";
 import * as FileSystem from "expo-file-system";
+import { permissionManager } from "../../lib/services/permissionManager";
 
 export interface VoiceRecording {
   uri: string;
@@ -121,15 +122,36 @@ export function VoiceRecorder({
 
     const startRecording = async () => {
       try {
-        // Request permissions
-        const permission = await Audio.requestPermissionsAsync();
-        if (!permission.granted) {
+        // Request permissions using PermissionManager
+        const permissionResult = await permissionManager.requestPermission("microphone", true);
+        if (!permissionResult.granted) {
+          const rationale = permissionManager.getRationale("microphone");
+
           Alert.alert(
-            "Microphone Permission Required",
-            "Please enable microphone access to record voice messages.",
+            rationale.title,
+            permissionResult.message || `${rationale.description}\n\n${rationale.alternatives || ""}`,
             [
               { text: "Cancel", onPress: onCancel },
-              { text: "Settings", onPress: () => {} },
+              {
+                text: permissionResult.status === "denied" ? "Open Settings" : "Retry",
+                onPress: async () => {
+                  if (permissionResult.status === "denied") {
+                    try {
+                      await permissionManager.openSystemSettings();
+                    } catch (err) {
+                      console.error("Failed to open settings:", err);
+                      Alert.alert("Error", "Please open Settings manually and enable microphone access for Hearth.");
+                    }
+                  } else {
+                    // Retry permission request
+                    const retryResult = await permissionManager.requestPermission("microphone", false);
+                    if (retryResult.granted) {
+                      // Continue with recording after successful retry
+                      startRecording();
+                    }
+                  }
+                }
+              },
             ]
           );
           return;
