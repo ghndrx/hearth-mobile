@@ -33,14 +33,42 @@ export interface NotificationPayload extends Record<string, unknown> {
   imageUrl?: string;
 }
 
+// Notification level for per-channel/server overrides
+export type NotificationLevel = 'all' | 'mentions' | 'nothing' | 'default';
+
+// Per-category sound/vibration customization
+export interface CategoryAlertConfig {
+  sound: boolean;
+  vibration: boolean;
+}
+
+// Quiet hours schedule with per-day support
+export interface QuietHoursSchedule {
+  enabled: boolean;
+  startTime: string; // "22:00"
+  endTime: string; // "07:00"
+  days: number[]; // 0=Sun, 1=Mon, ... 6=Sat — empty means every day
+}
+
+// Per-channel/server notification override
+export interface ChannelNotificationOverride {
+  id: string; // channelId or serverId
+  type: 'channel' | 'server';
+  name: string;
+  level: NotificationLevel;
+  serverName?: string;
+}
+
 export interface NotificationSettings {
   enabled: boolean;
   messages: boolean;
   dms: boolean;
   mentions: boolean;
   serverActivity: boolean;
+  serverAnnouncements: boolean;
   friendRequests: boolean;
   calls: boolean;
+  voiceChannelEvents: boolean;
   sounds: boolean;
   vibration: boolean;
   badgeCount: boolean;
@@ -48,7 +76,23 @@ export interface NotificationSettings {
   quietHoursEnabled: boolean;
   quietHoursStart: string; // "22:00"
   quietHoursEnd: string; // "07:00"
+  quietHoursSchedule: QuietHoursSchedule;
+  // Per-category sound/vibration customization
+  categoryAlerts: Record<string, CategoryAlertConfig>;
+  // Per-channel/server overrides
+  channelOverrides: ChannelNotificationOverride[];
 }
+
+export const DEFAULT_CATEGORY_ALERTS: Record<string, CategoryAlertConfig> = {
+  dms: { sound: true, vibration: true },
+  mentions: { sound: true, vibration: true },
+  messages: { sound: true, vibration: false },
+  calls: { sound: true, vibration: true },
+  serverActivity: { sound: false, vibration: false },
+  serverAnnouncements: { sound: true, vibration: false },
+  friendRequests: { sound: true, vibration: false },
+  voiceChannelEvents: { sound: true, vibration: false },
+};
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   enabled: true,
@@ -56,8 +100,10 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   dms: true,
   mentions: true,
   serverActivity: true,
+  serverAnnouncements: true,
   friendRequests: true,
   calls: true,
+  voiceChannelEvents: true,
   sounds: true,
   vibration: true,
   badgeCount: true,
@@ -65,15 +111,27 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   quietHoursEnabled: false,
   quietHoursStart: "22:00",
   quietHoursEnd: "07:00",
+  quietHoursSchedule: {
+    enabled: false,
+    startTime: "22:00",
+    endTime: "07:00",
+    days: [], // every day
+  },
+  categoryAlerts: DEFAULT_CATEGORY_ALERTS,
+  channelOverrides: [],
 };
 
 // Configure default notification behavior
 Notifications.setNotificationHandler({
-  handleNotification: async (_notification) => {
+  handleNotification: async (notification) => {
     const settings = await getNotificationSettings();
-    
-    // Check quiet hours
-    if (settings.quietHoursEnabled && isQuietHours(settings)) {
+
+    // Check quiet hours (use schedule if enabled, otherwise legacy toggle)
+    const quietHoursActive = settings.quietHoursSchedule?.enabled
+      ? isQuietHours(settings)
+      : settings.quietHoursEnabled && isQuietHours(settings);
+
+    if (quietHoursActive) {
       return {
         shouldShowAlert: false,
         shouldPlaySound: false,
@@ -83,9 +141,40 @@ Notifications.setNotificationHandler({
       };
     }
 
+    // Check per-channel override
+    const data = notification.request.content.data as Partial<NotificationPayload> | undefined;
+    if (data?.channelId) {
+      const level = getChannelNotificationLevel(settings, data.channelId, data.serverId);
+      if (level === 'nothing') {
+        return {
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+          shouldShowBanner: false,
+          shouldShowList: false,
+        };
+      }
+      if (level === 'mentions' && data.type !== 'mention') {
+        return {
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+          shouldShowBanner: false,
+          shouldShowList: true,
+        };
+      }
+    }
+
+    // Determine per-category sound/vibration
+    const category = data?.type || 'message';
+    const categoryKey = category === 'dm' ? 'dms' : category === 'mention' || category === 'reply' ? 'mentions' : category === 'friend_request' ? 'friendRequests' : category === 'server_invite' ? 'serverActivity' : category === 'call' ? 'calls' : 'messages';
+    const categoryAlert = settings.categoryAlerts?.[categoryKey];
+    const shouldPlaySound = settings.enabled && settings.sounds && (categoryAlert?.sound ?? true);
+    const shouldVibrate = settings.enabled && settings.vibration && (categoryAlert?.vibration ?? true);
+
     return {
       shouldShowAlert: settings.enabled,
-      shouldPlaySound: settings.enabled && settings.sounds,
+      shouldPlaySound,
       shouldSetBadge: settings.enabled && settings.badgeCount,
       shouldShowBanner: settings.enabled,
       shouldShowList: true,
@@ -96,16 +185,95 @@ Notifications.setNotificationHandler({
 function isQuietHours(settings: NotificationSettings): boolean {
   const now = new Date();
   const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-  
-  const start = settings.quietHoursStart;
-  const end = settings.quietHoursEnd;
-  
+
+  // Use schedule if available, otherwise fall back to legacy fields
+  const schedule = settings.quietHoursSchedule;
+  const start = schedule?.enabled ? schedule.startTime : settings.quietHoursStart;
+  const end = schedule?.enabled ? schedule.endTime : settings.quietHoursEnd;
+
+  // Check day-of-week if schedule has specific days
+  if (schedule?.enabled && schedule.days.length > 0) {
+    const currentDay = now.getDay(); // 0=Sun, 6=Sat
+    if (!schedule.days.includes(currentDay)) {
+      return false;
+    }
+  }
+
   // Handle overnight quiet hours (e.g., 22:00 - 07:00)
   if (start > end) {
     return currentTime >= start || currentTime < end;
   }
-  
+
   return currentTime >= start && currentTime < end;
+}
+
+/**
+ * Get the notification level for a specific channel or server
+ */
+export function getChannelNotificationLevel(
+  settings: NotificationSettings,
+  channelId: string,
+  serverId?: string
+): NotificationLevel {
+  // Check channel-specific override first
+  const channelOverride = settings.channelOverrides.find(
+    (o) => o.id === channelId && o.type === 'channel'
+  );
+  if (channelOverride && channelOverride.level !== 'default') {
+    return channelOverride.level;
+  }
+
+  // Check server-level override
+  if (serverId) {
+    const serverOverride = settings.channelOverrides.find(
+      (o) => o.id === serverId && o.type === 'server'
+    );
+    if (serverOverride && serverOverride.level !== 'default') {
+      return serverOverride.level;
+    }
+  }
+
+  return 'default';
+}
+
+/**
+ * Save a channel or server notification override
+ */
+export async function saveChannelOverride(
+  override: ChannelNotificationOverride
+): Promise<NotificationSettings> {
+  const current = await getNotificationSettings();
+  const existing = current.channelOverrides.findIndex(
+    (o) => o.id === override.id && o.type === override.type
+  );
+
+  const updated = [...current.channelOverrides];
+  if (override.level === 'default') {
+    // Remove override if set back to default
+    if (existing >= 0) {
+      updated.splice(existing, 1);
+    }
+  } else if (existing >= 0) {
+    updated[existing] = override;
+  } else {
+    updated.push(override);
+  }
+
+  return saveNotificationSettings({ channelOverrides: updated });
+}
+
+/**
+ * Remove a channel or server notification override
+ */
+export async function removeChannelOverride(
+  id: string,
+  type: 'channel' | 'server'
+): Promise<NotificationSettings> {
+  const current = await getNotificationSettings();
+  const updated = current.channelOverrides.filter(
+    (o) => !(o.id === id && o.type === type)
+  );
+  return saveNotificationSettings({ channelOverrides: updated });
 }
 
 export async function getNotificationSettings(): Promise<NotificationSettings> {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,21 @@ import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+import {
+  saveChannelOverride,
+  removeChannelOverride,
+  getNotificationSettings,
+  getChannelNotificationLevel,
+  type NotificationLevel,
+  type ChannelNotificationOverride,
+} from "../../../../../lib/services/notifications";
+
+const NOTIFICATION_LEVELS: { label: string; value: NotificationLevel; description: string }[] = [
+  { label: "Default", value: "default", description: "Use global setting" },
+  { label: "All", value: "all", description: "All messages" },
+  { label: "Mentions", value: "mentions", description: "@mentions only" },
+  { label: "Nothing", value: "nothing", description: "Muted" },
+];
 
 export default function ChannelSettingsScreen() {
   const { serverId, channelId } = useLocalSearchParams<{
@@ -31,6 +46,43 @@ export default function ChannelSettingsScreen() {
   const [slowMode, setSlowMode] = useState(0);
   const [isPrivate, setIsPrivate] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [notificationLevel, setNotificationLevel] = useState<NotificationLevel>("default");
+
+  // Load current notification level for this channel
+  useEffect(() => {
+    const loadNotificationLevel = async () => {
+      if (!channelId) return;
+      try {
+        const settings = await getNotificationSettings();
+        const level = getChannelNotificationLevel(settings, channelId, serverId);
+        setNotificationLevel(level);
+      } catch (err) {
+        console.error("Failed to load notification level:", err);
+      }
+    };
+    loadNotificationLevel();
+  }, [channelId, serverId]);
+
+  const handleNotificationLevelChange = useCallback(async (level: NotificationLevel) => {
+    if (!channelId) return;
+    const previousLevel = notificationLevel;
+    setNotificationLevel(level);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    try {
+      const override: ChannelNotificationOverride = {
+        id: channelId,
+        type: "channel",
+        name: channelName,
+        level,
+        serverName: serverId,
+      };
+      await saveChannelOverride(override);
+    } catch (err) {
+      setNotificationLevel(previousLevel);
+      Alert.alert("Error", "Failed to update notification level.");
+    }
+  }, [channelId, channelName, serverId, notificationLevel]);
 
   const slowModeOptions = [
     { label: "Off", value: 0 },
@@ -352,8 +404,63 @@ export default function ChannelSettingsScreen() {
           </Text>
         </Animated.View>
 
+        {/* Notification Override */}
+        <Animated.View entering={FadeInDown.delay(250).duration(300)} className="mt-6">
+          <Text
+            className={`px-4 pb-2 text-xs uppercase tracking-wide ${
+              isDark ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            Notification Override
+          </Text>
+          <View
+            className={`mx-4 rounded-xl overflow-hidden ${
+              isDark ? "bg-dark-800" : "bg-white"
+            }`}
+          >
+            <View className="px-4 py-3">
+              <View className="flex-row flex-wrap" style={{ gap: 8 }}>
+                {NOTIFICATION_LEVELS.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    onPress={() => handleNotificationLevelChange(opt.value)}
+                    className={`px-4 py-2 rounded-full ${
+                      notificationLevel === opt.value
+                        ? opt.value === "nothing"
+                          ? "bg-red-500"
+                          : "bg-brand"
+                        : isDark
+                        ? "bg-dark-700"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${
+                        notificationLevel === opt.value
+                          ? "text-white"
+                          : isDark
+                          ? "text-dark-200"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+          <Text
+            className={`px-4 mt-2 text-xs ${
+              isDark ? "text-gray-500" : "text-gray-400"
+            }`}
+          >
+            {NOTIFICATION_LEVELS.find(l => l.value === notificationLevel)?.description || "Override notification behavior for this channel."}
+          </Text>
+        </Animated.View>
+
         {/* Danger Zone */}
-        <Animated.View entering={FadeInDown.delay(250).duration(300)} className="mt-8">
+        <Animated.View entering={FadeInDown.delay(300).duration(300)} className="mt-8">
           <Text
             className={`px-4 pb-2 text-xs uppercase tracking-wide text-red-500`}
           >

@@ -2,11 +2,11 @@
  * Tests for Push Notifications Service
  *
  * Tests the FCM/APNs integration and device registration functionality
- * for PN-001 implementation.
+ * for PN-001 implementation, plus PN-003 granular notification controls.
  */
 
-// Mock expo modules
-const mockNotifications = {
+// Mock expo modules - use var for jest.mock hoisting compatibility
+var mockNotifications = {
   setNotificationHandler: jest.fn(),
   getPermissionsAsync: jest.fn(),
   requestPermissionsAsync: jest.fn(),
@@ -26,7 +26,7 @@ const mockNotifications = {
   },
 };
 
-const mockDevice = {
+var mockDevice = {
   isDevice: true,
   brand: 'Apple',
   modelName: 'iPhone 14',
@@ -34,7 +34,7 @@ const mockDevice = {
   osVersion: '17.0',
 };
 
-const mockConstants = {
+var mockConstants = {
   sessionId: 'test-session-id',
   expoConfig: {
     version: '1.0.0',
@@ -46,7 +46,7 @@ const mockConstants = {
   },
 };
 
-const mockAsyncStorage = {
+var mockAsyncStorage = {
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
@@ -83,25 +83,15 @@ import {
   cancelNotification,
   cancelAllNotifications,
   dismissAllNotifications,
+  getChannelNotificationLevel,
+  saveChannelOverride,
+  removeChannelOverride,
   DEFAULT_NOTIFICATION_SETTINGS,
+  DEFAULT_CATEGORY_ALERTS,
+  type NotificationSettings,
+  type ChannelNotificationOverride,
+  type NotificationLevel,
 } from '../../lib/services/notifications';
-
-type NotificationSettings = {
-  enabled: boolean;
-  messages: boolean;
-  dms: boolean;
-  mentions: boolean;
-  serverActivity: boolean;
-  friendRequests: boolean;
-  calls: boolean;
-  sounds: boolean;
-  vibration: boolean;
-  badgeCount: boolean;
-  showPreviews: boolean;
-  quietHoursEnabled: boolean;
-  quietHoursStart: string;
-  quietHoursEnd: string;
-};
 
 describe('Notifications Service', () => {
   beforeEach(() => {
@@ -211,6 +201,18 @@ describe('Notifications Service', () => {
         JSON.stringify({ ...currentSettings, ...updates })
       );
       expect(newSettings).toEqual({ ...currentSettings, ...updates });
+    });
+
+    it('should save server announcements and voice channel events toggles', async () => {
+      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(DEFAULT_NOTIFICATION_SETTINGS));
+
+      const updated = await saveNotificationSettings({
+        serverAnnouncements: false,
+        voiceChannelEvents: false,
+      });
+
+      expect(updated.serverAnnouncements).toBe(false);
+      expect(updated.voiceChannelEvents).toBe(false);
     });
   });
 
@@ -388,6 +390,285 @@ describe('Notifications Service', () => {
           shouldShowList: true,
         });
       }
+    });
+
+    it('should respect day-of-week schedule', async () => {
+      // Simulate a Monday at 23:00
+      const monday = new Date('2026-03-30T23:00:00'); // Monday
+      jest.spyOn(global, 'Date').mockImplementation(() => monday);
+
+      const settings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        quietHoursEnabled: false,
+        quietHoursSchedule: {
+          enabled: true,
+          startTime: '22:00',
+          endTime: '07:00',
+          days: [1, 5], // Monday and Friday only
+        },
+      };
+
+      const handler = mockNotifications.setNotificationHandler.mock.calls[0]?.[0];
+
+      if (handler && 'handleNotification' in handler) {
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(settings));
+
+        const result = await handler.handleNotification({} as any);
+
+        // Should be quiet (Monday is in the days list)
+        expect(result.shouldShowAlert).toBe(false);
+        expect(result.shouldPlaySound).toBe(false);
+      }
+    });
+  });
+
+  describe('per-channel notification overrides (PN-003)', () => {
+    it('should return default level when no overrides exist', () => {
+      const settings = { ...DEFAULT_NOTIFICATION_SETTINGS, channelOverrides: [] };
+      const level = getChannelNotificationLevel(settings, 'channel-1', 'server-1');
+      expect(level).toBe('default');
+    });
+
+    it('should return channel-specific override', () => {
+      const settings: NotificationSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [
+          { id: 'channel-1', type: 'channel', name: 'general', level: 'mentions' },
+        ],
+      };
+      const level = getChannelNotificationLevel(settings, 'channel-1', 'server-1');
+      expect(level).toBe('mentions');
+    });
+
+    it('should return server-level override when no channel override exists', () => {
+      const settings: NotificationSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [
+          { id: 'server-1', type: 'server', name: 'My Server', level: 'nothing' },
+        ],
+      };
+      const level = getChannelNotificationLevel(settings, 'channel-1', 'server-1');
+      expect(level).toBe('nothing');
+    });
+
+    it('should prefer channel override over server override', () => {
+      const settings: NotificationSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [
+          { id: 'server-1', type: 'server', name: 'My Server', level: 'nothing' },
+          { id: 'channel-1', type: 'channel', name: 'general', level: 'all' },
+        ],
+      };
+      const level = getChannelNotificationLevel(settings, 'channel-1', 'server-1');
+      expect(level).toBe('all');
+    });
+
+    it('should fall through to server override when channel override is default', () => {
+      const settings: NotificationSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [
+          { id: 'server-1', type: 'server', name: 'My Server', level: 'mentions' },
+          { id: 'channel-1', type: 'channel', name: 'general', level: 'default' },
+        ],
+      };
+      const level = getChannelNotificationLevel(settings, 'channel-1', 'server-1');
+      expect(level).toBe('mentions');
+    });
+
+    it('should save a new channel override', async () => {
+      const existingSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [],
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(existingSettings));
+
+      const override: ChannelNotificationOverride = {
+        id: 'channel-1',
+        type: 'channel',
+        name: 'general',
+        level: 'mentions',
+      };
+
+      const result = await saveChannelOverride(override);
+
+      expect(result.channelOverrides).toHaveLength(1);
+      expect(result.channelOverrides[0]).toEqual(override);
+    });
+
+    it('should update existing channel override', async () => {
+      const existingSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [
+          { id: 'channel-1', type: 'channel', name: 'general', level: 'mentions' },
+        ],
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(existingSettings));
+
+      const override: ChannelNotificationOverride = {
+        id: 'channel-1',
+        type: 'channel',
+        name: 'general',
+        level: 'nothing',
+      };
+
+      const result = await saveChannelOverride(override);
+
+      expect(result.channelOverrides).toHaveLength(1);
+      expect(result.channelOverrides[0].level).toBe('nothing');
+    });
+
+    it('should remove override when set to default', async () => {
+      const existingSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [
+          { id: 'channel-1', type: 'channel', name: 'general', level: 'mentions' },
+        ],
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(existingSettings));
+
+      const override: ChannelNotificationOverride = {
+        id: 'channel-1',
+        type: 'channel',
+        name: 'general',
+        level: 'default',
+      };
+
+      const result = await saveChannelOverride(override);
+
+      expect(result.channelOverrides).toHaveLength(0);
+    });
+
+    it('should remove a channel override', async () => {
+      const existingSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        channelOverrides: [
+          { id: 'channel-1', type: 'channel', name: 'general', level: 'mentions' },
+          { id: 'channel-2', type: 'channel', name: 'dev', level: 'nothing' },
+        ],
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(existingSettings));
+
+      const result = await removeChannelOverride('channel-1', 'channel');
+
+      expect(result.channelOverrides).toHaveLength(1);
+      expect(result.channelOverrides[0].id).toBe('channel-2');
+    });
+  });
+
+  describe('per-category sound/vibration customization (PN-003)', () => {
+    it('should have default category alerts', () => {
+      expect(DEFAULT_CATEGORY_ALERTS).toBeDefined();
+      expect(DEFAULT_CATEGORY_ALERTS.dms).toEqual({ sound: true, vibration: true });
+      expect(DEFAULT_CATEGORY_ALERTS.mentions).toEqual({ sound: true, vibration: true });
+      expect(DEFAULT_CATEGORY_ALERTS.messages).toEqual({ sound: true, vibration: false });
+      expect(DEFAULT_CATEGORY_ALERTS.calls).toEqual({ sound: true, vibration: true });
+      expect(DEFAULT_CATEGORY_ALERTS.serverActivity).toEqual({ sound: false, vibration: false });
+      expect(DEFAULT_CATEGORY_ALERTS.serverAnnouncements).toEqual({ sound: true, vibration: false });
+      expect(DEFAULT_CATEGORY_ALERTS.friendRequests).toEqual({ sound: true, vibration: false });
+      expect(DEFAULT_CATEGORY_ALERTS.voiceChannelEvents).toEqual({ sound: true, vibration: false });
+    });
+
+    it('should save category alert customizations', async () => {
+      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(DEFAULT_NOTIFICATION_SETTINGS));
+
+      const customAlerts = {
+        ...DEFAULT_CATEGORY_ALERTS,
+        dms: { sound: false, vibration: true },
+      };
+
+      const result = await saveNotificationSettings({ categoryAlerts: customAlerts });
+
+      expect(result.categoryAlerts.dms).toEqual({ sound: false, vibration: true });
+    });
+
+    it('should use category alerts in notification handler', async () => {
+      const mockDateFn = (hour: number, minute: number = 0) => {
+        const date = new Date();
+        date.setHours(hour, minute, 0, 0);
+        jest.spyOn(global, 'Date').mockImplementation(() => date);
+      };
+      mockDateFn(14, 0); // daytime, not quiet hours
+
+      const settings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        enabled: true,
+        sounds: true,
+        vibration: true,
+        categoryAlerts: {
+          ...DEFAULT_CATEGORY_ALERTS,
+          dms: { sound: false, vibration: false },
+        },
+      };
+
+      const handler = mockNotifications.setNotificationHandler.mock.calls[0]?.[0];
+
+      if (handler && 'handleNotification' in handler) {
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(settings));
+
+        const result = await handler.handleNotification({
+          request: {
+            content: {
+              data: { type: 'dm', channelId: 'ch-1', title: 'Test', body: 'Hello' },
+            },
+          },
+        } as any);
+
+        // DM category has sound: false, vibration: false
+        expect(result.shouldPlaySound).toBe(false);
+      }
+
+      jest.restoreAllMocks();
+    });
+
+    it('should mute channel notifications when override is nothing', async () => {
+      const mockDateFn = (hour: number, minute: number = 0) => {
+        const date = new Date();
+        date.setHours(hour, minute, 0, 0);
+        jest.spyOn(global, 'Date').mockImplementation(() => date);
+      };
+      mockDateFn(14, 0);
+
+      const settings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        enabled: true,
+        channelOverrides: [
+          { id: 'ch-muted', type: 'channel', name: 'muted-channel', level: 'nothing' },
+        ],
+      };
+
+      const handler = mockNotifications.setNotificationHandler.mock.calls[0]?.[0];
+
+      if (handler && 'handleNotification' in handler) {
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(settings));
+
+        const result = await handler.handleNotification({
+          request: {
+            content: {
+              data: { type: 'message', channelId: 'ch-muted', title: 'Test', body: 'Hello' },
+            },
+          },
+        } as any);
+
+        expect(result.shouldShowAlert).toBe(false);
+        expect(result.shouldPlaySound).toBe(false);
+        expect(result.shouldShowList).toBe(false);
+      }
+
+      jest.restoreAllMocks();
+    });
+  });
+
+  describe('notification settings defaults (PN-003)', () => {
+    it('should include all PN-003 fields in defaults', () => {
+      expect(DEFAULT_NOTIFICATION_SETTINGS.serverAnnouncements).toBe(true);
+      expect(DEFAULT_NOTIFICATION_SETTINGS.voiceChannelEvents).toBe(true);
+      expect(DEFAULT_NOTIFICATION_SETTINGS.quietHoursSchedule).toBeDefined();
+      expect(DEFAULT_NOTIFICATION_SETTINGS.quietHoursSchedule.enabled).toBe(false);
+      expect(DEFAULT_NOTIFICATION_SETTINGS.quietHoursSchedule.startTime).toBe('22:00');
+      expect(DEFAULT_NOTIFICATION_SETTINGS.quietHoursSchedule.endTime).toBe('07:00');
+      expect(DEFAULT_NOTIFICATION_SETTINGS.quietHoursSchedule.days).toEqual([]);
+      expect(DEFAULT_NOTIFICATION_SETTINGS.categoryAlerts).toBeDefined();
+      expect(DEFAULT_NOTIFICATION_SETTINGS.channelOverrides).toEqual([]);
     });
   });
 });
