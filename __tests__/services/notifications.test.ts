@@ -7,17 +7,17 @@
 
 // Mock expo modules - use var for jest.mock hoisting compatibility
 var mockNotifications = {
-  setNotificationHandler: jest.fn(),
-  getPermissionsAsync: jest.fn(),
-  requestPermissionsAsync: jest.fn(),
-  getExpoPushTokenAsync: jest.fn(),
-  setNotificationChannelAsync: jest.fn(),
-  setBadgeCountAsync: jest.fn(),
-  getBadgeCountAsync: jest.fn(),
-  scheduleNotificationAsync: jest.fn(),
-  cancelScheduledNotificationAsync: jest.fn(),
-  cancelAllScheduledNotificationsAsync: jest.fn(),
-  dismissAllNotificationsAsync: jest.fn(),
+  setNotificationHandler: jest.fn(() => Promise.resolve()),
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'test-push-token' })),
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve()),
+  setBadgeCountAsync: jest.fn(() => Promise.resolve()),
+  getBadgeCountAsync: jest.fn(() => Promise.resolve(0)),
+  scheduleNotificationAsync: jest.fn(() => Promise.resolve('notification-id')),
+  cancelScheduledNotificationAsync: jest.fn(() => Promise.resolve()),
+  cancelAllScheduledNotificationsAsync: jest.fn(() => Promise.resolve()),
+  dismissAllNotificationsAsync: jest.fn(() => Promise.resolve()),
   AndroidImportance: {
     MAX: 'max',
     HIGH: 'high',
@@ -52,12 +52,12 @@ var mockAsyncStorage = {
   removeItem: jest.fn(),
 };
 
-const mockApi = {
+var mockApi = {
   registerDevice: jest.fn(),
   unregisterDevice: jest.fn(),
 };
 
-const mockPlatform = {
+var mockPlatform = {
   OS: 'ios',
   Version: '17.0',
 };
