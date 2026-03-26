@@ -39,7 +39,7 @@ export interface IncomingMessage {
   mentions?: string[];
   threadId?: string;
   timestamp: number;
-  type: 'message' | 'dm' | 'mention' | 'reply';
+  type: 'message' | 'dm' | 'mention' | 'reply' | 'call' | 'friend_request' | 'server_invite' | 'system';
 }
 
 export interface FriendRequest {
