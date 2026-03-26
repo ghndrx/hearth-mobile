@@ -39,9 +39,13 @@ import {
   SkeletonMessage,
   SkeletonLoader,
 } from "../../../components/ui/Skeleton";
+import { useMessageQueue } from "../../../lib/contexts/MessageQueueContext";
+import { useMessageCacheStore } from "../../../lib/stores/messageCache";
+import { useAuthStore } from "../../../lib/stores/auth";
+import type { Message as CachedMessage } from "../../../lib/types";
 
 // ---------------------------------------------------------------------------
-// Mock data
+// Mock data (fallback when no cached data)
 // ---------------------------------------------------------------------------
 
 interface ChatParticipant {
@@ -135,12 +139,70 @@ function ChatSkeleton() {
 // ---------------------------------------------------------------------------
 
 export default function ChatScreen() {
-  const { id: _id } = useLocalSearchParams<{ id: string }>();
+  const { id: channelId } = useLocalSearchParams<{ id: string }>();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const flatListRef = useRef<FlatList>(null);
 
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  // Offline queue and cache
+  const { queueMessage, getChannelMessages, isOnline, retryMessage } = useMessageQueue();
+  const { getMessages: getCachedMessages, cacheMessages } = useMessageCacheStore();
+  const { user } = useAuthStore();
+  const currentUserId = user?.id ?? "2";
+
+  // Merge cached messages with queued (pending/sending) messages
+  const queuedMessages = getChannelMessages(channelId ?? "");
+  const cachedMessages = getCachedMessages(channelId ?? "");
+
+  // Convert cached messages to display format
+  const cachedAsDisplay: Message[] = useMemo(
+    () =>
+      cachedMessages.map((m: CachedMessage) => ({
+        id: m.id,
+        content: m.content,
+        senderId: m.authorId,
+        senderName: m.author?.displayName ?? m.authorId,
+        senderAvatar: m.author?.avatar,
+        timestamp: new Date(m.createdAt),
+        isCurrentUser: m.authorId === currentUserId,
+        status: "read" as const,
+        attachments: m.attachments?.map((a) => ({
+          type: (a.contentType.startsWith("image/")
+            ? "image"
+            : a.contentType.startsWith("audio/")
+              ? "audio"
+              : "file") as "image" | "file" | "audio",
+          uri: a.url,
+          name: a.filename,
+          size: a.size,
+        })),
+      })),
+    [cachedMessages, currentUserId]
+  );
+
+  // Convert queued messages to display format
+  const queuedAsDisplay: Message[] = useMemo(
+    () =>
+      queuedMessages
+        .filter((m) => m.status !== "sent")
+        .map((m) => ({
+          id: m.localId,
+          localId: m.localId,
+          content: m.content,
+          senderId: m.authorId,
+          senderName: user?.displayName ?? "You",
+          timestamp: new Date(m.queuedAt),
+          isCurrentUser: true,
+          status: m.status === "failed" ? "sending" : (m.status as "sending" | "sent"),
+        })),
+    [queuedMessages, user]
+  );
+
+  // Use cached + queued if we have cached data, otherwise fall back to mock
+  const hasCache = cachedMessages.length > 0;
+  const baseMessages = hasCache ? cachedAsDisplay : mockMessages;
+
+  const [messages, setMessages] = useState<Message[]>(baseMessages);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
@@ -149,6 +211,29 @@ export default function ChatScreen() {
   const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [showAttachmentPicker, setShowAttachmentPicker] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
+
+  // Merge base messages with queued outgoing messages
+  useEffect(() => {
+    // Deduplicate: queued messages that already appeared in cache (by serverId match)
+    const existingIds = new Set(baseMessages.map((m) => m.id));
+    const newQueued = queuedAsDisplay.filter((m) => !existingIds.has(m.id));
+    setMessages([...baseMessages, ...newQueued]);
+  }, [baseMessages, queuedAsDisplay]);
+
+  // Cache messages when they're loaded from the server (mock for now)
+  useEffect(() => {
+    if (!hasCache && channelId) {
+      // Cache mock messages for offline access
+      const toCache: CachedMessage[] = mockMessages.map((m) => ({
+        id: m.id,
+        content: m.content,
+        authorId: m.senderId,
+        channelId: channelId,
+        createdAt: m.timestamp.toISOString(),
+      }));
+      cacheMessages(channelId, toCache);
+    }
+  }, [channelId, hasCache, cacheMessages]);
 
   // Send button animation
   const sendScale = useSharedValue(1);
@@ -177,7 +262,7 @@ export default function ChatScreen() {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  const sendMessage = useCallback(() => {
+  const handleSendMessage = useCallback(() => {
     if (!inputText.trim() && pendingAttachments.length === 0) return;
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -195,14 +280,28 @@ export default function ChatScreen() {
       size: att.size,
     }));
 
+    // Queue message for offline-safe sending
+    const queued = queueMessage(
+      inputText.trim(),
+      channelId ?? "",
+      currentUserId,
+      {
+        replyTo: replyTo
+          ? { messageId: replyTo.id, content: replyTo.content, authorName: replyTo.senderName }
+          : undefined,
+      }
+    );
+
+    // Optimistically add to local display
     const newMessage: Message = {
-      id: Date.now().toString(),
+      id: queued.localId,
+      localId: queued.localId,
       content: inputText.trim(),
-      senderId: "2",
-      senderName: "You",
+      senderId: currentUserId,
+      senderName: user?.displayName ?? "You",
       timestamp: new Date(),
       isCurrentUser: true,
-      status: "sending",
+      status: isOnline ? "sending" : "sending",
       attachments: messageAttachments.length > 0 ? messageAttachments : undefined,
       replyTo: replyTo
         ? { id: replyTo.id, content: replyTo.content, senderName: replyTo.senderName }
@@ -213,24 +312,7 @@ export default function ChatScreen() {
     setInputText("");
     setPendingAttachments([]);
     setReplyTo(null);
-
-    // Simulate status transitions
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id ? { ...msg, status: "sent" } : msg,
-        ),
-      );
-    }, 500);
-
-    setTimeout(() => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === newMessage.id ? { ...msg, status: "delivered" } : msg,
-        ),
-      );
-    }, 1500);
-  }, [inputText, pendingAttachments, replyTo, sendScale]);
+  }, [inputText, pendingAttachments, replyTo, sendScale, queueMessage, channelId, currentUserId, user, isOnline]);
 
   const handleReply = useCallback((message: Message) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -474,7 +556,7 @@ export default function ChatScreen() {
 
           <Animated.View style={sendAnimStyle}>
             <TouchableOpacity
-              onPress={sendMessage}
+              onPress={handleSendMessage}
               disabled={!inputText.trim() && pendingAttachments.length === 0}
               className={`w-10 h-10 rounded-full items-center justify-center ${
                 inputText.trim() || pendingAttachments.length > 0

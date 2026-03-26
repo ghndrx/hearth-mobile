@@ -4,8 +4,10 @@
  */
 
 import { useOfflineQueueStore } from "../stores/offlineQueue";
-import { sendMessage, uploadAttachment } from "./api";
+import { useMessageCacheStore } from "../stores/messageCache";
+import { sendMessage, uploadAttachment, api } from "./api";
 import type { QueuedMessage } from "../types/offline";
+import type { Message } from "../types";
 import NetInfo from "@react-native-community/netinfo";
 
 class OfflineSyncService {
@@ -205,11 +207,51 @@ class OfflineSyncService {
   private setupNetworkListener() {
     NetInfo.addEventListener((state) => {
       if (state.isConnected) {
-        console.log("Network connected, processing queue");
+        console.log("Network connected, processing queue and syncing missed messages");
         // Trigger immediate processing when network becomes available
         this.processQueue();
+        // Fetch any messages we missed while offline
+        this.syncMissedMessages();
       }
     });
+  }
+
+  /**
+   * Fetch messages that were received while the device was offline.
+   * Iterates over all cached channels and requests messages newer than
+   * the last cached timestamp.
+   */
+  private async syncMissedMessages() {
+    const cacheStore = useMessageCacheStore.getState();
+    const channelIds = Object.keys(cacheStore.channels);
+
+    if (channelIds.length === 0) return;
+
+    console.log(`Syncing missed messages for ${channelIds.length} channels`);
+
+    for (const channelId of channelIds) {
+      try {
+        const lastTimestamp = cacheStore.getLastMessageTimestamp(channelId);
+        const params = lastTimestamp ? `?after=${encodeURIComponent(lastTimestamp)}` : "";
+
+        const { data, error } = await api.get<{ messages: Message[] }>(
+          `/channels/${channelId}/messages${params}`,
+          true
+        );
+
+        if (error) {
+          console.warn(`Failed to sync channel ${channelId}:`, error.message);
+          continue;
+        }
+
+        if (data?.messages && data.messages.length > 0) {
+          cacheStore.cacheMessages(channelId, data.messages);
+          console.log(`Synced ${data.messages.length} missed messages for channel ${channelId}`);
+        }
+      } catch (err) {
+        console.warn(`Error syncing channel ${channelId}:`, err);
+      }
+    }
   }
 
   /**
@@ -217,6 +259,16 @@ class OfflineSyncService {
    */
   async processNow() {
     return this.processQueue();
+  }
+
+  /**
+   * Manually trigger missed message sync
+   */
+  async syncNow() {
+    const networkState = await NetInfo.fetch();
+    if (networkState.isConnected) {
+      await this.syncMissedMessages();
+    }
   }
 }
 
@@ -238,5 +290,7 @@ export function useOfflineSync() {
     retryMessage: store.retryMessage,
     retryAllFailed: store.retryAllFailed,
     clearSent: store.clearSent,
+    /** Manually trigger sync of missed messages */
+    syncMissedMessages: () => offlineSyncService.syncNow(),
   };
 }
