@@ -4,7 +4,10 @@
  */
 
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 import { Platform } from 'react-native';
 import { apiClient } from './api';
 
@@ -52,6 +55,13 @@ export interface CompressionOptions {
   format?: 'jpeg' | 'png' | 'webp';
 }
 
+export interface DocumentPickerResult {
+  uri: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+}
+
 const MIME_TYPES: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
@@ -61,7 +71,29 @@ const MIME_TYPES: Record<string, string> = {
   mp4: 'video/mp4',
   mov: 'video/quicktime',
   pdf: 'application/pdf',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ppt: 'application/vnd.ms-powerpoint',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  txt: 'text/plain',
+  zip: 'application/zip',
 };
+
+const DOCUMENT_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/plain',
+  'text/csv',
+  'application/zip',
+  'application/x-zip-compressed',
+];
 
 class MediaService {
   /**
@@ -265,6 +297,126 @@ class MediaService {
     if (dirInfo.exists) {
       await FileSystem.deleteAsync(directory, { idempotent: true });
     }
+  }
+
+  /**
+   * Compress an image with the given options
+   */
+  async compressImage(
+    uri: string,
+    options: CompressionOptions = {}
+  ): Promise<{ uri: string; width: number; height: number; fileSize: number }> {
+    const {
+      maxWidth = 1920,
+      maxHeight = 1920,
+      quality = 0.8,
+      format = 'jpeg',
+    } = options;
+
+    const actions: ImageManipulator.Action[] = [
+      { resize: { width: maxWidth, height: maxHeight } },
+    ];
+
+    const saveFormat =
+      format === 'png'
+        ? ImageManipulator.SaveFormat.PNG
+        : ImageManipulator.SaveFormat.JPEG;
+
+    const result = await ImageManipulator.manipulateAsync(uri, actions, {
+      compress: quality,
+      format: saveFormat,
+    });
+
+    let fileSize = 0;
+    try {
+      const info = await FileSystem.getInfoAsync(result.uri);
+      if (info.exists && 'size' in info) {
+        fileSize = info.size ?? 0;
+      }
+    } catch {
+      // Size not available
+    }
+
+    return {
+      uri: result.uri,
+      width: result.width,
+      height: result.height,
+      fileSize,
+    };
+  }
+
+  /**
+   * Generate a thumbnail for a video
+   */
+  async generateVideoThumbnail(
+    videoUri: string,
+    timeMs: number = 0
+  ): Promise<string | null> {
+    try {
+      const result = await VideoThumbnails.getThumbnailAsync(videoUri, {
+        time: timeMs,
+        quality: 0.7,
+      });
+      return result.uri;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Pick documents/files from the file system
+   */
+  async pickDocuments(options: {
+    multiple?: boolean;
+    type?: string[];
+  } = {}): Promise<MediaAsset[]> {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: options.type ?? DOCUMENT_TYPES,
+      copyToCacheDirectory: true,
+      multiple: options.multiple ?? false,
+    });
+
+    if (result.canceled || result.assets.length === 0) {
+      return [];
+    }
+
+    return result.assets.map((asset) => ({
+      uri: asset.uri,
+      type: 'file' as const,
+      fileName: asset.name,
+      fileSize: asset.size ?? 0,
+      mimeType: asset.mimeType ?? this.getMimeType(asset.name),
+    }));
+  }
+
+  /**
+   * Pick any file type (unrestricted)
+   */
+  async pickAnyFile(multiple: boolean = false): Promise<MediaAsset[]> {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: '*/*',
+      copyToCacheDirectory: true,
+      multiple,
+    });
+
+    if (result.canceled || result.assets.length === 0) {
+      return [];
+    }
+
+    return result.assets.map((asset) => {
+      const mimeType = asset.mimeType ?? this.getMimeType(asset.name);
+      let type: 'image' | 'video' | 'file' = 'file';
+      if (this.isImage(mimeType)) type = 'image';
+      else if (this.isVideo(mimeType)) type = 'video';
+
+      return {
+        uri: asset.uri,
+        type,
+        fileName: asset.name,
+        fileSize: asset.size ?? 0,
+        mimeType,
+      };
+    });
   }
 
   /**

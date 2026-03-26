@@ -21,6 +21,9 @@ export {
   usePresence,
 } from "./useWebSocket";
 
+// Media picker hooks
+export { useMediaPicker } from "./useMediaPicker";
+
 // Performance hooks
 export {
   useComponentPerformance,

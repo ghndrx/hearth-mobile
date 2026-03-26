@@ -15,8 +15,11 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   AttachmentPicker,
   AttachmentPreviewStrip,
+  UploadProgressBar,
+  DragDropOverlay,
   type Attachment,
 } from "./AttachmentPicker";
+import { useMediaUploadStore } from "@/lib/stores/mediaUpload";
 import {
   MentionAutocomplete,
   useMentionDetection,
@@ -74,6 +77,10 @@ interface MessageComposerProps {
   giphyApiKey?: string;
   /** Whether haptic feedback is enabled */
   hapticsEnabled?: boolean;
+  /** Show image compression options in picker */
+  showCompressionOptions?: boolean;
+  /** Upload progress map (attachment id -> percentage) */
+  uploadProgress?: Record<string, number>;
 }
 
 export function MessageComposer({
@@ -96,6 +103,8 @@ export function MessageComposer({
   gifEnabled = true,
   giphyApiKey,
   hapticsEnabled = true,
+  showCompressionOptions = false,
+  uploadProgress = {},
 }: MessageComposerProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -106,7 +115,10 @@ export function MessageComposer({
   const [isAttachmentPickerVisible, setIsAttachmentPickerVisible] =
     useState(false);
   const [isGifPickerVisible, setIsGifPickerVisible] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
+
+  const activeUploads = useMediaUploadStore((s) => s.getActiveUploads());
 
   const inputRef = useRef<TextInput>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -402,10 +414,14 @@ export function MessageComposer({
         </View>
       )}
 
+      {/* Upload Progress Bar */}
+      <UploadProgressBar uploads={activeUploads} />
+
       {/* Attachment Preview Strip */}
       <AttachmentPreviewStrip
         attachments={attachments}
         onRemove={handleRemoveAttachment}
+        uploadProgress={uploadProgress}
       />
 
       {/* Composer Row */}
@@ -533,12 +549,16 @@ export function MessageComposer({
         </View>
       )}
 
+      {/* Drag & Drop Overlay */}
+      <DragDropOverlay visible={isDragOver} />
+
       {/* Attachment Picker Modal */}
       <AttachmentPicker
         visible={isAttachmentPickerVisible}
         onClose={() => setIsAttachmentPickerVisible(false)}
         onAttachmentsSelected={handleAttachmentsSelected}
         maxAttachments={maxAttachments - attachments.length}
+        showCompressionOptions={showCompressionOptions}
       />
 
       {/* GIF Picker Modal */}
