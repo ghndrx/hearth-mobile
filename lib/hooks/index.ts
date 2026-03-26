@@ -32,3 +32,15 @@ export {
   useImageLoadPerformance,
   measureNetworkRequest,
 } from "./usePerformance";
+
+// Device discovery hooks
+export {
+  useDeviceDiscovery,
+  useDeviceRegistration,
+  useDeviceList,
+  useDeviceCompatibility,
+  useCallHandoff,
+  useDevicePresence,
+  useDeviceSyncPreferences,
+  useDeviceDiscoveryPolling,
+} from "./useDeviceDiscovery";

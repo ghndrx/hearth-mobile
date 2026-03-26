@@ -67,6 +67,16 @@ export enum WebSocketMessageType {
   // DM events
   DM_NEW = 'dm:new',
   DM_UPDATE = 'dm:update',
+
+  // Device discovery and call handoff events
+  DEVICE_DISCOVERED = 'device:discovered',
+  DEVICE_UPDATED = 'device:updated',
+  DEVICE_PRESENCE_CHANGED = 'device:presence_changed',
+  DEVICE_DISCONNECTED = 'device:disconnected',
+  CALL_HANDOFF_INITIATED = 'call:handoff:initiated',
+  CALL_HANDOFF_PROGRESS = 'call:handoff:progress',
+  CALL_HANDOFF_COMPLETED = 'call:handoff:completed',
+  CALL_HANDOFF_FAILED = 'call:handoff:failed',
 }
 
 export interface WebSocketConfig {

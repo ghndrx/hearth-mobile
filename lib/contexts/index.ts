@@ -20,3 +20,8 @@ export {
   VoiceProvider,
   useVoice,
 } from "./VoiceContext";
+
+export {
+  DeviceDiscoveryProvider,
+  useDeviceDiscovery,
+} from "./DeviceDiscoveryContext";

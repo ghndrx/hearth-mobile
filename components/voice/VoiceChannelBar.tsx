@@ -13,7 +13,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Avatar } from "../ui/Avatar";
-import type { Channel, VoiceParticipant, VoiceState, User } from "../../lib/types";
+import { CallHandoffButton } from "../deviceDiscovery";
+import { useDeviceDiscovery } from "../../lib/hooks";
+import type { Channel, VoiceParticipant, VoiceState, User, CallState, UserDevice } from "../../lib/types";
 
 // ============================================================================
 // Types
@@ -146,6 +148,8 @@ function MinimizedBar({
   onExpand,
   onDisconnect,
   isDark,
+  hasHandoffDevices,
+  currentCallState,
 }: {
   channel: Channel;
   participants: VoiceParticipant[];
@@ -153,6 +157,8 @@ function MinimizedBar({
   onExpand: () => void;
   onDisconnect: () => void;
   isDark: boolean;
+  hasHandoffDevices: boolean;
+  currentCallState: CallState;
 }) {
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -223,6 +229,23 @@ function MinimizedBar({
       {/* Participant avatars */}
       <ParticipantAvatars participants={participants} maxDisplay={2} />
 
+      {/* Handoff button (if available) */}
+      {hasHandoffDevices && (
+        <CallHandoffButton
+          callState={currentCallState}
+          variant="compact"
+          requiredCapabilities={{
+            supportsWebRTC: true,
+            hasMicrophone: true,
+          }}
+          className="ml-2"
+          onHandoffStarted={(device: UserDevice) => {
+            console.log(`Call handoff initiated to ${device.name}`);
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }}
+        />
+      )}
+
       {/* Quick disconnect */}
       <TouchableOpacity
         onPress={(e) => {
@@ -267,11 +290,58 @@ export function VoiceChannelBar({
   const slideAnim = useRef(new Animated.Value(0)).current;
   const { width: _screenWidth } = Dimensions.get("window");
 
+  // Device discovery for call handoff
+  const { state: deviceState } = useDeviceDiscovery();
+
   // Find current user's participant info
   const currentParticipant = participants.find(
     (p) => p.user.id === currentUser.id
   );
   const isSpeaking = currentParticipant?.isSpeaking ?? false;
+
+  // Build current call state for handoff
+  const currentCallState: CallState = {
+    callId: channel.id,
+    channelId: channel.id,
+    serverId: channel.serverId,
+    participants: participants.map(p => ({
+      userId: p.user.id,
+      deviceId: deviceState.currentDevice?.id || "",
+      isMuted: p.isMuted,
+      isDeafened: p.isDeafened,
+      isVideoOn: p.isVideoOn || false,
+      isScreenSharing: p.isScreenSharing || false,
+      isSpeaking: p.isSpeaking,
+      joinedAt: p.joinedAt.toISOString(),
+      connectionQuality: "excellent", // Would need actual connection quality data
+    })),
+    isScreenSharing: false,
+    recordingState: "inactive",
+    audioSettings: {
+      inputVolume: 100,
+      outputVolume: 100,
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true,
+    },
+    videoSettings: {
+      resolution: "720p",
+      frameRate: 30,
+      quality: "medium",
+      backgroundBlur: false,
+    },
+    startedAt: new Date().toISOString(),
+    duration: 0, // Would need actual call duration
+  };
+
+  // Check if handoff is available (has compatible online devices)
+  const compatibleDevices = deviceState.discoveredDevices.filter(device =>
+    !device.isCurrentDevice &&
+    device.presence === "online" &&
+    device.capabilities.supportsWebRTC &&
+    device.capabilities.hasMicrophone
+  );
+  const hasHandoffDevices = compatibleDevices.length > 0;
 
   useEffect(() => {
     Animated.spring(slideAnim, {
@@ -336,6 +406,8 @@ export function VoiceChannelBar({
         onExpand={handleExpand}
         onDisconnect={handleDisconnect}
         isDark={isDark}
+        hasHandoffDevices={hasHandoffDevices}
+        currentCallState={currentCallState}
       />
     );
   }
@@ -419,36 +491,55 @@ export function VoiceChannelBar({
       {/* Voice Controls */}
       <View
         className={`
-          flex-row items-center justify-center px-4 py-3 border-t
+          flex-row items-center justify-between px-4 py-3 border-t
           ${isDark ? "border-dark-700" : "border-gray-100"}
         `}
       >
-        <ControlButton
-          icon={voiceState.isMuted ? "mic-off" : "mic"}
-          isActive={voiceState.isMuted}
-          onPress={onMuteToggle}
-          isDark={isDark}
-        />
-        <View className="w-3" />
-        <ControlButton
-          icon={voiceState.isDeafened ? "volume-off" : "volume-high"}
-          isActive={voiceState.isDeafened}
-          onPress={onDeafenToggle}
-          isDark={isDark}
-        />
-        <View className="w-3" />
-        <TouchableOpacity
-          onPress={handleDisconnect}
-          activeOpacity={0.7}
-          className="w-12 h-12 rounded-full bg-red-500 items-center justify-center"
-        >
-          <Ionicons
-            name="call"
-            size={24}
-            color="white"
-            style={{ transform: [{ rotate: "135deg" }] }}
+        {/* Left controls */}
+        <View className="flex-row items-center">
+          <ControlButton
+            icon={voiceState.isMuted ? "mic-off" : "mic"}
+            isActive={voiceState.isMuted}
+            onPress={onMuteToggle}
+            isDark={isDark}
           />
-        </TouchableOpacity>
+          <View className="w-3" />
+          <ControlButton
+            icon={voiceState.isDeafened ? "volume-off" : "volume-high"}
+            isActive={voiceState.isDeafened}
+            onPress={onDeafenToggle}
+            isDark={isDark}
+          />
+          <View className="w-3" />
+          <TouchableOpacity
+            onPress={handleDisconnect}
+            activeOpacity={0.7}
+            className="w-12 h-12 rounded-full bg-red-500 items-center justify-center"
+          >
+            <Ionicons
+              name="call"
+              size={24}
+              color="white"
+              style={{ transform: [{ rotate: "135deg" }] }}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Handoff button */}
+        {hasHandoffDevices && (
+          <CallHandoffButton
+            callState={currentCallState}
+            variant="compact"
+            requiredCapabilities={{
+              supportsWebRTC: true,
+              hasMicrophone: true,
+            }}
+            onHandoffStarted={(device: UserDevice) => {
+              console.log(`Call handoff initiated to ${device.name}`);
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }}
+          />
+        )}
       </View>
     </Animated.View>
   );
