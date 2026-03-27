@@ -1,5 +1,5 @@
 module.exports = {
-  preset: 'jest-expo',
+  preset: 'react-native',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
@@ -11,16 +11,25 @@ module.exports = {
     '!coverage/**',
   ],
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)'
+    'node_modules/(?!(react-native|@react-native|react-clone-referenced-element|@react-native-community|expo|@expo|@unimodules|unimodules|sentry-expo|native-base|react-native-svg|react-navigation|@react-navigation|@expo/.*|expo-.*|@expo-google-fonts|react-native-.*)/)'
   ],
   transform: {
-    '^.+\\.(ts|tsx)$': ['babel-jest', {
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', {
       configFile: false,
       presets: [
         ['@babel/preset-env', { targets: { node: 'current' } }],
         '@babel/preset-typescript',
-        ['@babel/preset-react', { runtime: 'automatic' }]
+        '@babel/preset-react',
+        'module:metro-react-native-babel-preset',
+      ],
+      plugins: [
+        '@babel/plugin-proposal-class-properties',
+        '@babel/plugin-transform-flow-strip-types',
       ],
     }],
+  },
+  testEnvironment: 'node',
+  moduleNameMapper: {
+    '^react-native$': 'react-native',
   },
 };
