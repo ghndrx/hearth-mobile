@@ -82,6 +82,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="bot-dev"
+        options={{
+          title: "Bot Dev",
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="code-slash-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
