@@ -1,4 +1,10 @@
-import 'react-native-gesture-handler/jestSetup';
+// Setup gesture handler for tests
+require('react-native-gesture-handler/jestSetup');
+
+// Mock React Native polyfills to avoid Flow type syntax issues
+jest.mock('@react-native/js-polyfills/error-guard', () => ({
+  setGlobalErrorHandler: jest.fn(),
+}));
 
 // Mock React Native modules
 jest.mock('react-native-reanimated', () => {
@@ -71,8 +77,25 @@ jest.mock('expo-constants', () => ({
   }
 }));
 
+// expo-battery is handled by moduleNameMapper
+
+jest.mock('@react-native-community/netinfo', () => ({
+  addEventListener: jest.fn(() => ({ unsubscribe: jest.fn() })),
+  fetch: jest.fn(() => Promise.resolve({
+    type: 'wifi',
+    isConnected: true,
+    isInternetReachable: true,
+    details: {
+      strength: 99,
+      frequency: 5000,
+      ipAddress: '192.168.1.100',
+    }
+  })),
+  configure: jest.fn(),
+}));
+
 // Mock API service
-jest.mock('../lib/services/api', () => ({
+jest.mock('./lib/services/api', () => ({
   registerDevice: jest.fn(() => Promise.resolve({
     id: 'device-reg-123',
     registeredAt: Date.now()
@@ -81,7 +104,7 @@ jest.mock('../lib/services/api', () => ({
 }));
 
 // Mock websocket service
-jest.mock('../lib/services/websocket', () => ({
+jest.mock('./lib/services/websocket', () => ({
   websocketService: {
     subscribe: jest.fn(),
     unsubscribe: jest.fn(),
@@ -95,5 +118,4 @@ jest.mock('../lib/services/websocket', () => ({
   },
 }));
 
-// Silence the warning: Animated: `useNativeDriver` is not supported because the native animated module is missing
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+// React Native Animated module is handled by our custom mock

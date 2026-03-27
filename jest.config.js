@@ -1,5 +1,4 @@
 module.exports = {
-  preset: 'react-native',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testPathIgnorePatterns: ['/node_modules/'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
@@ -18,18 +17,23 @@ module.exports = {
       configFile: false,
       presets: [
         ['@babel/preset-env', { targets: { node: 'current' } }],
+        ['@babel/preset-flow', { all: true }],
         '@babel/preset-typescript',
-        '@babel/preset-react',
-        'module:metro-react-native-babel-preset',
+        ['@babel/preset-react', { runtime: 'automatic' }],
       ],
       plugins: [
-        '@babel/plugin-proposal-class-properties',
+        ['@babel/plugin-proposal-class-properties', { loose: true }],
         '@babel/plugin-transform-flow-strip-types',
+        ['@babel/plugin-transform-private-methods', { loose: true }],
+        ['@babel/plugin-transform-private-property-in-object', { loose: true }],
       ],
     }],
   },
   testEnvironment: 'node',
   moduleNameMapper: {
-    '^react-native$': 'react-native',
+    '^react-native$': '<rootDir>/jest/react-native-mock.js',
+    '^@react-native/js-polyfills/(.*)$': '<rootDir>/jest/polyfill-mock.js',
+    '^expo-battery$': '<rootDir>/jest/expo-battery-mock.js',
+    '^@/(.*)$': '<rootDir>/$1',
   },
 };
