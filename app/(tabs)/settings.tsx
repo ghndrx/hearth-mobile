@@ -179,6 +179,26 @@ export default function SettingsPage() {
     },
   ];
 
+  const developerItems: SettingsItem[] = [
+    {
+      id: "api-management",
+      icon: "analytics-outline",
+      label: "API Management",
+      subtitle: "Monitor API usage and rate limits",
+      type: "link",
+      showChevron: true,
+      onPress: () => router.push("/settings/api-management"),
+    },
+    {
+      id: "debug",
+      icon: "bug-outline",
+      label: "Debug Tools",
+      subtitle: "Development utilities",
+      type: "link",
+      showChevron: true,
+    },
+  ];
+
   const dangerItems: SettingsItem[] = [
     {
       id: "delete",
@@ -201,6 +221,11 @@ export default function SettingsPage() {
       items: dataItems,
       footer:
         "Media files are automatically downloaded when connected to Wi-Fi",
+    },
+    {
+      title: "Developer",
+      items: developerItems,
+      footer: "Tools for API monitoring and development debugging",
     },
     { title: "Danger Zone", items: dangerItems },
   ];

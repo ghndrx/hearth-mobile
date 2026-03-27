@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
+import { createApiMiddleware } from "./apiMonitoring";
 
 // API base URL - configurable via app.config.js extra or default
 const API_BASE_URL =
@@ -27,6 +28,7 @@ interface RequestOptions {
 
 class ApiClient {
   private baseUrl: string;
+  private monitoring = createApiMiddleware();
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
@@ -45,6 +47,8 @@ class ApiClient {
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
     const { method = "GET", body, headers = {}, requireAuth = false } = options;
+    const startTime = Date.now();
+    const requestTracker = this.monitoring.onRequest(endpoint, method, startTime);
 
     const requestHeaders: Record<string, string> = {
       "Content-Type": "application/json",
@@ -76,29 +80,47 @@ class ApiClient {
         body: body ? JSON.stringify(body) : undefined,
       });
 
+      const endTime = Date.now();
+
       // Handle no content responses
       if (response.status === 204) {
+        requestTracker.trackResponse(response.status, endTime);
         return { data: null, error: null };
       }
 
       const responseData = await response.json();
 
       if (!response.ok) {
+        const errorMessage = responseData.message || "An error occurred";
+        requestTracker.trackResponse(response.status, endTime, errorMessage);
+
+        // Check for rate limit headers
+        if (response.status === 429) {
+          const resetTime = response.headers.get('X-RateLimit-Reset') ||
+                           response.headers.get('Retry-After');
+          this.monitoring.onRateLimit(endpoint, method, resetTime || undefined);
+        }
+
         return {
           data: null,
           error: {
             code: responseData.error || "unknown_error",
-            message: responseData.message || "An error occurred",
+            message: errorMessage,
             status: response.status,
           },
         };
       }
 
+      requestTracker.trackResponse(response.status, endTime);
       return { data: responseData as T, error: null };
     } catch (error) {
       // Network error or JSON parse error
+      const endTime = Date.now();
       const message =
         error instanceof Error ? error.message : "Network request failed";
+
+      requestTracker.trackResponse(0, endTime, message);
+
       return {
         data: null,
         error: {
