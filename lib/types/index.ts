@@ -144,6 +144,89 @@ export interface ServerMember {
   isOwner?: boolean;
 }
 
+// API Management Types
+export interface ApiEndpoint {
+  id: string;
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  path: string;
+  name: string;
+  description?: string;
+  rateLimit?: {
+    requests: number;
+    windowMs: number;
+  };
+}
+
+export interface ApiUsageMetrics {
+  endpointId: string;
+  endpoint: string;
+  method: string;
+  requestCount: number;
+  successCount: number;
+  errorCount: number;
+  averageResponseTime: number;
+  minResponseTime: number;
+  maxResponseTime: number;
+  rateLimitHits: number;
+  lastRequestAt?: string;
+  timeWindow: string; // e.g., "1h", "24h", "7d"
+}
+
+export interface ApiRateLimit {
+  endpointId: string;
+  endpoint: string;
+  method: string;
+  limit: number;
+  remaining: number;
+  resetTime: string;
+  windowMs: number;
+  isBlocked: boolean;
+}
+
+export interface ApiRequest {
+  id: string;
+  endpointId: string;
+  endpoint: string;
+  method: string;
+  statusCode: number;
+  responseTime: number;
+  timestamp: string;
+  userAgent?: string;
+  errorMessage?: string;
+  requestSize?: number;
+  responseSize?: number;
+}
+
+export interface ApiDashboardStats {
+  totalRequests: number;
+  successRate: number;
+  averageResponseTime: number;
+  rateLimitViolations: number;
+  activeEndpoints: number;
+  requestsToday: number;
+  requestsThisHour: number;
+  topEndpoints: Array<{
+    endpoint: string;
+    method: string;
+    requestCount: number;
+    successRate: number;
+  }>;
+  recentErrors: Array<{
+    endpoint: string;
+    method: string;
+    error: string;
+    timestamp: string;
+  }>;
+}
+
+export interface ApiMonitoringEvent {
+  type: "request" | "error" | "rate_limit" | "slow_response";
+  endpoint: string;
+  method: string;
+  data: any;
+  timestamp: string;
+}
+
 // Re-export offline types
 export * from "./offline";
 
