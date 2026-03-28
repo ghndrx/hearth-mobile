@@ -1,13 +1,13 @@
 const { defaults } = require('jest-config');
 
 module.exports = {
-  preset: 'jest-expo',
+  // preset: 'jest-expo', // Temporarily disabled due to React Native 0.76 compatibility issues
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'node',
   setupFiles: [], // Skip React Native setup files that are causing issues with RN 0.76
   transformIgnorePatterns: [
     // Don't transform node_modules except for React Native modules and our own code
-    'node_modules/(?!(react-native|@react-native|expo|@expo|@react-navigation|react-native-reanimated|react-native-gesture-handler|@react-native-async-storage|@react-native-community|react-native-safe-area-context|react-native-screens)/)',
+    'node_modules/(?!(react-native|@react-native|expo|@expo|expo-modules-core|@react-navigation|react-native-reanimated|react-native-gesture-handler|@react-native-async-storage|@react-native-community|react-native-safe-area-context|react-native-screens)/)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -16,12 +16,17 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     // Mock specific polyfill files that contain Flow syntax
     '^@react-native/js-polyfills/(.*)': '<rootDir>/__mocks__/empty.js',
+    // Mock expo-modules-core that has ES module syntax issues
+    '^expo-modules-core$': '<rootDir>/__mocks__/empty.js',
+    '^expo-modules-core/(.*)': '<rootDir>/__mocks__/empty.js',
   },
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/.expo/',
     // Ignore the specific polyfill directories that are causing issues
     '<rootDir>/node_modules/@react-native/js-polyfills',
+    // Ignore babel config files
+    '<rootDir>/babel.config.*',
   ],
   collectCoverageFrom: [
     'lib/**/*.{ts,tsx}',

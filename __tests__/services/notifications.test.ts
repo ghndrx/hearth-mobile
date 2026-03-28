@@ -5,8 +5,7 @@
  * for PN-001 implementation.
  */
 
-// Mock expo modules
-const mockNotifications = {
+jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
   getPermissionsAsync: jest.fn(),
   requestPermissionsAsync: jest.fn(),
@@ -24,17 +23,17 @@ const mockNotifications = {
     DEFAULT: 'default',
     LOW: 'low',
   },
-};
+}));
 
-const mockDevice = {
+jest.mock('expo-device', () => ({
   isDevice: true,
   brand: 'Apple',
   modelName: 'iPhone 14',
   deviceName: 'John\'s iPhone',
   osVersion: '17.0',
-};
+}));
 
-const mockConstants = {
+jest.mock('expo-constants', () => ({
   sessionId: 'test-session-id',
   expoConfig: {
     version: '1.0.0',
@@ -44,32 +43,35 @@ const mockConstants = {
       },
     },
   },
-};
+}));
 
-const mockAsyncStorage = {
+jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
-};
+}));
 
-const mockApi = {
+jest.mock('../../lib/services/api', () => ({
   registerDevice: jest.fn(),
   unregisterDevice: jest.fn(),
-};
+}));
 
-const mockPlatform = {
-  OS: 'ios',
-  Version: '17.0',
-};
+jest.mock('react-native', () => ({
+  Platform: {
+    OS: 'ios',
+    Version: '17.0',
+  },
+}));
 
-jest.mock('expo-notifications', () => mockNotifications);
-jest.mock('expo-device', () => mockDevice);
-jest.mock('expo-constants', () => mockConstants);
-jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
-jest.mock('../../lib/services/api', () => mockApi);
-jest.mock('react-native', () => ({ Platform: mockPlatform }));
+// Import modules first for typed mocking
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Api from '../../lib/services/api';
+import { Platform } from 'react-native';
 
-// Import the service after mocking
+// Import the service after mocking - this triggers the setNotificationHandler call
 import {
   registerForPushNotifications,
   getNotificationSettings,
@@ -85,6 +87,14 @@ import {
   dismissAllNotifications,
   DEFAULT_NOTIFICATION_SETTINGS,
 } from '../../lib/services/notifications';
+
+// Get mock instances
+const mockNotifications = jest.mocked(Notifications);
+const mockDevice = jest.mocked(Device);
+const mockConstants = jest.mocked(Constants);
+const mockAsyncStorage = jest.mocked(AsyncStorage);
+const mockApi = jest.mocked(Api);
+const mockPlatform = jest.mocked(Platform);
 
 type NotificationSettings = {
   enabled: boolean;
@@ -110,11 +120,24 @@ describe('Notifications Service', () => {
 
   describe('registerForPushNotifications', () => {
     it('should return null if not running on physical device', async () => {
-      mockDevice.isDevice = false;
+      // Mock Device.isDevice to return false for this test
+      Object.defineProperty(Device, 'isDevice', {
+        get: () => false,
+        configurable: true,
+      });
+
+      // Set up basic mocks even though they shouldn't be called
+      mockNotifications.getPermissionsAsync.mockResolvedValue({ status: 'denied' } as any);
 
       const token = await registerForPushNotifications();
 
       expect(token).toBeNull();
+
+      // Reset for other tests
+      Object.defineProperty(Device, 'isDevice', {
+        get: () => true,
+        configurable: true,
+      });
     });
 
     it('should request permissions and get push token on physical device', async () => {
