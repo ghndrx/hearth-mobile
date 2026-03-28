@@ -680,6 +680,105 @@
   - Dependencies: IOT-010
   - Success: 10+ connected devices per user supported
 
+### Real-Time Multi-Modal Communication Hub (PRD-040)
+**Target**: Q2 2026 | **Owner**: Mobile Team + Voice/Video Team | **Effort**: 14 weeks
+
+- [ ] **MM-001**: Multi-modal communication foundation and mode switching
+  - Estimated: 4 weeks
+  - Dependencies: Voice/video infrastructure
+  - Success: Seamless text ↔ voice ↔ video transitions without connection loss
+
+- [ ] **MM-002**: Picture-in-picture system for video and voice overlay
+  - Estimated: 3 weeks
+  - Dependencies: MM-001
+  - Success: Floating video controls during text chat with <200ms activation
+
+- [ ] **MM-003**: Smart audio management and intelligent ducking
+  - Estimated: 2 weeks
+  - Dependencies: MM-002
+  - Success: Automatic media volume adjustment with <50ms response
+
+- [ ] **MM-004**: Background voice processing and call recovery
+  - Estimated: 2 weeks
+  - Dependencies: MM-003
+  - Success: Voice connection maintained during app switching
+
+- [ ] **MM-005**: Advanced call orchestration and queuing
+  - Estimated: 2 weeks
+  - Dependencies: MM-004
+  - Success: Call promotion and multi-call management functional
+
+- [ ] **MM-006**: Cross-modal context preservation and sharing
+  - Estimated: 1 week
+  - Dependencies: MM-005
+  - Success: Context maintained across communication mode changes
+
+### Intelligent Mobile Community Management (PRD-041)
+**Target**: Q2 2026 | **Owner**: Community Team + Mobile Team | **Effort**: 12 weeks
+
+- [ ] **ICM-001**: Touch-optimized moderation dashboard foundation
+  - Estimated: 3 weeks
+  - Dependencies: Community management infrastructure
+  - Success: Swipe-based moderation working with <500ms response
+
+- [ ] **ICM-002**: AI-powered threat detection system
+  - Estimated: 3 weeks
+  - Dependencies: ICM-001, AI/ML infrastructure
+  - Success: 95%+ threat detection accuracy with mobile alerts
+
+- [ ] **ICM-003**: Mobile-native user management and analytics
+  - Estimated: 2 weeks
+  - Dependencies: ICM-002
+  - Success: Touch-friendly user profiles and community health metrics
+
+- [ ] **ICM-004**: Smart community analytics and creator tools
+  - Estimated: 2 weeks
+  - Dependencies: ICM-003
+  - Success: Mobile creator dashboard with revenue tracking
+
+- [ ] **ICM-005**: One-tap community setup and growth tools
+  - Estimated: 1 week
+  - Dependencies: ICM-004
+  - Success: Complete community creation in <30 seconds
+
+- [ ] **ICM-006**: AI training and customization for communities
+  - Estimated: 1 week
+  - Dependencies: ICM-005
+  - Success: Community-specific AI model training functional
+
+### Contextual Mobile Intelligence & Adaptive UX (PRD-042)
+**Target**: Q3 2026 | **Owner**: AI/ML Team + Mobile Team | **Effort**: 16 weeks
+
+- [ ] **CMI-001**: Intelligence engine and pattern recognition foundation
+  - Estimated: 4 weeks
+  - Dependencies: AI/ML infrastructure, user analytics
+  - Success: 85%+ accuracy in user intent prediction
+
+- [ ] **CMI-002**: Predictive UI adaptation and contextual actions
+  - Estimated: 4 weeks
+  - Dependencies: CMI-001
+  - Success: 65% reduction in navigation taps to common destinations
+
+- [ ] **CMI-003**: Smart notification orchestration and timing
+  - Estimated: 3 weeks
+  - Dependencies: CMI-002, notification infrastructure
+  - Success: 90%+ user satisfaction with notification timing
+
+- [ ] **CMI-004**: Adaptive performance and network optimization
+  - Estimated: 2 weeks
+  - Dependencies: CMI-003
+  - Success: 50% improvement in perceived app responsiveness
+
+- [ ] **CMI-005**: Proactive community and content recommendations
+  - Estimated: 2 weeks
+  - Dependencies: CMI-004
+  - Success: 200% increase in feature discovery through suggestions
+
+- [ ] **CMI-006**: Advanced workflow intelligence and automation
+  - Estimated: 1 week
+  - Dependencies: CMI-005
+  - Success: Pattern recognition for routine tasks with automation
+
 ## P1 Tasks (High Priority)
 
 ### Cross-Device Continuity & Seamless Handoff (PRD-028)
