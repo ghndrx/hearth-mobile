@@ -1400,10 +1400,82 @@
 - **PN-006**: Background processing - Battery optimization challenges
 - **MS-003**: Video compression - Performance and storage concerns
 
+### Advanced Offline Message Queuing & Conflict Resolution (PRD-034)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
+
+- [ ] **QUEUE-001**: Core queue infrastructure and dependency tracking
+  - Estimated: 3 weeks
+  - Dependencies: SQLite optimization, background task framework
+  - Success: Intelligent message dependency preservation
+
+- [ ] **QUEUE-002**: Operational transformation conflict resolution engine
+  - Estimated: 3 weeks
+  - Dependencies: QUEUE-001, proven OT algorithms
+  - Success: 95% automatic conflict resolution without user intervention
+
+- [ ] **QUEUE-003**: Cross-device state synchronization with vector clocks
+  - Estimated: 3 weeks
+  - Dependencies: QUEUE-002, device fingerprinting
+  - Success: <2 second cross-device state sync
+
+- [ ] **QUEUE-004**: Smart conflict detection and user resolution UI
+  - Estimated: 3 weeks
+  - Dependencies: QUEUE-003
+  - Success: Seamless conflict resolution experience, <0.1% message loss
+
+### Advanced Biometric Security with Zero-Knowledge Architecture (PRD-035)
+**Target**: Q3 2026 | **Owner**: Security Team + Mobile Team | **Effort**: 16 weeks
+
+- [ ] **BIO-001**: Multi-modal biometric authentication system
+  - Estimated: 4 weeks
+  - Dependencies: Secure enclave/TEE integration, biometric APIs
+  - Success: Face, fingerprint, voice recognition working
+
+- [ ] **BIO-002**: Behavioral analytics and continuous authentication
+  - Estimated: 4 weeks
+  - Dependencies: BIO-001, ML model integration
+  - Success: Real-time behavioral risk scoring operational
+
+- [ ] **BIO-003**: Zero-knowledge encryption architecture with Signal protocol
+  - Estimated: 4 weeks
+  - Dependencies: BIO-002, cryptographic libraries
+  - Success: Client-side E2E encryption with hardware key management
+
+- [ ] **BIO-004**: Voice authentication and deepfake detection
+  - Estimated: 4 weeks
+  - Dependencies: BIO-003, audio processing ML models
+  - Success: Speaker verification with anti-spoofing measures
+
+### Live Screen Sharing with Real-Time Collaboration Tools (PRD-036)
+**Target**: Q3 2026 | **Owner**: Mobile Team + Platform Team | **Effort**: 14 weeks
+
+- [ ] **COLLAB-001**: Mobile screen capture with adaptive streaming
+  - Estimated: 4 weeks
+  - Dependencies: Platform screen capture APIs, WebRTC infrastructure
+  - Success: 60fps adaptive streaming with <300ms latency
+
+- [ ] **COLLAB-002**: Real-time multi-user annotation system
+  - Estimated: 3 weeks
+  - Dependencies: COLLAB-001, conflict resolution algorithms
+  - Success: Synchronized annotations with user attribution
+
+- [ ] **COLLAB-003**: Shared cursors and co-control capabilities
+  - Estimated: 3 weeks
+  - Dependencies: COLLAB-002, secure input transmission
+  - Success: Real-time cursor sharing and remote control permissions
+
+- [ ] **COLLAB-004**: AI-enhanced quality optimization and recording
+  - Estimated: 4 weeks
+  - Dependencies: COLLAB-003, ML quality optimization
+  - Success: Smart quality adjustment and session recording features
+
 ### Dependencies & Blockers
 - CDN setup required for media sharing tasks
 - Backend API updates needed for notification delivery
 - Legal review required for screen sharing permissions
+- Secure hardware requirements for advanced biometric features
+- WebRTC infrastructure scaling for collaboration features
+- ML model deployment pipeline for AI-enhanced features
 
 ## Success Metrics
 
