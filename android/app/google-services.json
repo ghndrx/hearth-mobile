@@ -1,0 +1,24 @@
+{
+  "__comment": "TODO: Replace this placeholder with actual google-services.json from Firebase Console",
+  "__instructions": [
+    "1. Go to https://console.firebase.google.com/",
+    "2. Create/select your project",
+    "3. Add Android app with your bundle ID",
+    "4. Download google-services.json",
+    "5. Replace this file with the downloaded version"
+  ],
+  "project_info": {
+    "project_number": "PLACEHOLDER",
+    "project_id": "hearth-mobile-placeholder"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "PLACEHOLDER",
+        "android_client_info": {
+          "package_name": "com.hearth.mobile"
+        }
+      }
+    }
+  ]
+}

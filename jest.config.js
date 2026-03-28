@@ -7,7 +7,7 @@ module.exports = {
   setupFiles: [], // Skip React Native setup files that are causing issues with RN 0.76
   transformIgnorePatterns: [
     // Don't transform node_modules except for React Native modules and our own code
-    'node_modules/(?!(react-native|@react-native|expo|@expo|@react-navigation|react-native-reanimated|react-native-gesture-handler|@react-native-async-storage|@react-native-community|react-native-safe-area-context|react-native-screens)/)',
+    'node_modules/(?!(react-native|@react-native|expo|@expo|@react-navigation|react-native-reanimated|react-native-gesture-handler|@react-native-async-storage|@react-native-community|react-native-safe-area-context|react-native-screens|expo-modules-core)/)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -16,6 +16,14 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     // Mock specific polyfill files that contain Flow syntax
     '^@react-native/js-polyfills/(.*)': '<rootDir>/__mocks__/empty.js',
+    // Mock expo to work with jest-expo
+    '^expo$': '<rootDir>/__mocks__/expo.js',
+    // Mock expo-modules-core to prevent web index from loading
+    '^expo-modules-core$': '<rootDir>/__mocks__/expo-modules-core.js',
+    '^expo-modules-core/src/web/index.web$': '<rootDir>/__mocks__/expo-modules-core/src/web/index.web.ts',
+    // Mock expo/src/winter required by jest-expo
+    '^expo/src/winter$': '<rootDir>/__mocks__/expo/src/winter/index.ts',
+    '^expo/src/winter/(.*)$': '<rootDir>/__mocks__/expo/src/winter/index.ts',
   },
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
