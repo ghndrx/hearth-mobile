@@ -214,6 +214,72 @@
   - Dependencies: SEC-005
   - Success: Account security dashboard operational
 
+### Real-Time Voice Processing Engine (PRD-040)
+**Target**: Q3 2026 | **Owner**: Voice Engineering Team | **Effort**: 16 weeks
+
+- [ ] **VP-001**: WebRTC core infrastructure setup
+  - Estimated: 2 weeks
+  - Dependencies: Adaptive Voice Encoding (PRD-038)
+  - Success: Basic peer-to-peer voice connections working
+
+- [ ] **VP-002**: Multi-participant voice support
+  - Estimated: 2 weeks
+  - Dependencies: VP-001
+  - Success: 10+ concurrent voice participants functional
+
+- [ ] **VP-003**: AI noise suppression integration
+  - Estimated: 3 weeks
+  - Dependencies: VP-002
+  - Success: RNNoise-based background noise removal operational
+
+- [ ] **VP-004**: Echo cancellation and voice activity detection
+  - Estimated: 3 weeks
+  - Dependencies: VP-003
+  - Success: Professional-grade audio processing working
+
+- [ ] **VP-005**: Mobile platform integration (iOS CallKit, Android Telecom)
+  - Estimated: 2 weeks
+  - Dependencies: VP-004
+  - Success: Native call interface and system integration
+
+- [ ] **VP-006**: Performance optimization and battery management
+  - Estimated: 4 weeks
+  - Dependencies: VP-005
+  - Success: <5% battery impact, <150ms latency achieved
+
+### Cross-Device Continuity & Smart Notification Sync (PRD-041)
+**Target**: Q2 2026 | **Owner**: Platform Experience Team | **Effort**: 12 weeks
+
+- [ ] **CD-001**: Device management and session tracking
+  - Estimated: 1 week
+  - Dependencies: Push Notifications (PRD-001)
+  - Success: Multi-device authentication and session management
+
+- [ ] **CD-002**: Real-time state synchronization engine
+  - Estimated: 2 weeks
+  - Dependencies: CD-001
+  - Success: Read/unread states sync within 500ms across devices
+
+- [ ] **CD-003**: Smart notification routing and deduplication
+  - Estimated: 2 weeks
+  - Dependencies: CD-002
+  - Success: <2% duplicate notifications, intelligent device targeting
+
+- [ ] **CD-004**: Context preservation (drafts, scroll position, search)
+  - Estimated: 2 weeks
+  - Dependencies: CD-003, Intelligent Message Search (PRD-039)
+  - Success: Seamless conversation state transfer between devices
+
+- [ ] **CD-005**: Activity detection and priority scoring
+  - Estimated: 2 weeks
+  - Dependencies: CD-004
+  - Success: Accurate active device detection and smart notification routing
+
+- [ ] **CD-006**: Performance optimization and conflict resolution
+  - Estimated: 3 weeks
+  - Dependencies: CD-005
+  - Success: <1% battery impact, robust multi-device conflict handling
+
 ### AI-Powered Communication Features (PRD-010)
 **Target**: Q1 2027 | **Owner**: AI Team | **Effort**: 16 weeks
 
@@ -762,6 +828,49 @@
   - Success: <500ms cached queries, offline search for recent messages
 
 ## P1 Tasks (High Priority)
+
+### Advanced Gaming Integration & Rich Presence (PRD-042)
+**Target**: Q3 2026 | **Owner**: Gaming Experience Team | **Effort**: 14 weeks
+
+- [ ] **GAM-001**: Game detection system and database
+  - Estimated: 2 weeks
+  - Dependencies: Real-Time Voice Processing (PRD-040)
+  - Success: Automatic detection of top 100 mobile games with >95% accuracy
+
+- [ ] **GAM-002**: Rich presence engine and game state tracking
+  - Estimated: 2 weeks
+  - Dependencies: GAM-001, Cross-Device Continuity (PRD-041)
+  - Success: Real-time game status sharing with detailed game information
+
+- [ ] **GAM-003**: Gaming overlay system for voice controls
+  - Estimated: 2 weeks
+  - Dependencies: GAM-002
+  - Success: Floating voice controls during gameplay with minimal performance impact
+
+- [ ] **GAM-004**: Performance monitoring and optimization
+  - Estimated: 1 week
+  - Dependencies: GAM-003
+  - Success: <5% impact on game performance and battery life
+
+- [ ] **GAM-005**: Looking for Group (LFG) social features
+  - Estimated: 2 weeks
+  - Dependencies: GAM-004
+  - Success: Game-specific team matching and social gaming features
+
+- [ ] **GAM-006**: Gaming achievements and profile integration
+  - Estimated: 2 weeks
+  - Dependencies: GAM-005
+  - Success: iOS Game Center and Google Play Games integration
+
+- [ ] **GAM-007**: Gaming event scheduling and community tools
+  - Estimated: 2 weeks
+  - Dependencies: GAM-006
+  - Success: Organized gaming sessions and tournament features
+
+- [ ] **GAM-008**: Security, privacy and performance optimization
+  - Estimated: 1 week
+  - Dependencies: GAM-007
+  - Success: Comprehensive testing and production deployment
 
 ### Adaptive Voice Encoding & Dynamic Codec Switching (PRD-038)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
