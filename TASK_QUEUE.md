@@ -680,7 +680,141 @@
   - Dependencies: IOT-010
   - Success: 10+ connected devices per user supported
 
+### Voice Channel Analytics & Presence Intelligence (PRD-037)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
+
+- [ ] **VCA-001**: Voice event streaming system and data pipeline
+  - Estimated: 2 weeks
+  - Dependencies: Voice infrastructure upgrade
+  - Success: Real-time voice analytics events processing
+
+- [ ] **VCA-002**: Analytics processing engine and metrics calculation
+  - Estimated: 2 weeks
+  - Dependencies: VCA-001
+  - Success: Engagement scoring and participation metrics functional
+
+- [ ] **VCA-003**: Mobile analytics dashboard UI and visualization
+  - Estimated: 2 weeks
+  - Dependencies: VCA-002
+  - Success: Real-time analytics display with live metrics
+
+- [ ] **VCA-004**: Gamification system with badges and achievements
+  - Estimated: 2 weeks
+  - Dependencies: VCA-003
+  - Success: Voice activity streaks and quality achievements working
+
+- [ ] **VCA-005**: Predictive features and optimization suggestions
+  - Estimated: 1 week
+  - Dependencies: VCA-004
+  - Success: Optimal call timing predictions and user recommendations
+
+- [ ] **VCA-006**: Privacy controls and data retention automation
+  - Estimated: 1 week
+  - Dependencies: VCA-005
+  - Success: GDPR compliant analytics with user privacy controls
+
+### Intelligent Message Search with Conversational AI (PRD-039)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 16 weeks
+
+- [ ] **IMS-001**: Natural language query processing and intent recognition
+  - Estimated: 2 weeks
+  - Dependencies: AI/ML infrastructure setup
+  - Success: 80% accuracy for common conversational search queries
+
+- [ ] **IMS-002**: Semantic search engine with embedding models
+  - Estimated: 2 weeks
+  - Dependencies: IMS-001
+  - Success: Context-aware search with similarity matching functional
+
+- [ ] **IMS-003**: Privacy-preserving on-device indexing system
+  - Estimated: 2 weeks
+  - Dependencies: IMS-002
+  - Success: Encrypted local search index with <50MB storage impact
+
+- [ ] **IMS-004**: Cloud-device synchronization and index management
+  - Estimated: 1 week
+  - Dependencies: IMS-003
+  - Success: Cross-device search index sync with conflict resolution
+
+- [ ] **IMS-005**: Conversation context recovery and thread reconstruction
+  - Estimated: 2 weeks
+  - Dependencies: IMS-004
+  - Success: Automatic context windows and conversation summarization
+
+- [ ] **IMS-006**: Advanced filtering and sentiment analysis
+  - Estimated: 2 weeks
+  - Dependencies: IMS-005
+  - Success: Content type, user, and sentiment-based search filters
+
+- [ ] **IMS-007**: Mobile search UI with natural language input
+  - Estimated: 2 weeks
+  - Dependencies: IMS-006
+  - Success: Intuitive search interface with voice search support
+
+- [ ] **IMS-008**: Cross-server search and relationship detection
+  - Estimated: 2 weeks
+  - Dependencies: IMS-007
+  - Success: Search across all user servers with intelligent result ranking
+
+- [ ] **IMS-009**: Performance optimization and offline search capabilities
+  - Estimated: 1 week
+  - Dependencies: IMS-008
+  - Success: <500ms cached queries, offline search for recent messages
+
 ## P1 Tasks (High Priority)
+
+### Adaptive Voice Encoding & Dynamic Codec Switching (PRD-038)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
+
+- [ ] **AVEC-001**: Network monitoring system and metrics collection
+  - Estimated: 1 week
+  - Dependencies: Enhanced WebRTC network APIs
+  - Success: Real-time bandwidth, latency, and packet loss detection
+
+- [ ] **AVEC-002**: Codec selection engine and switching algorithms
+  - Estimated: 1 week
+  - Dependencies: AVEC-001
+  - Success: Intelligent codec selection based on network conditions
+
+- [ ] **AVEC-003**: Audio buffer management for seamless transitions
+  - Estimated: 1 week
+  - Dependencies: AVEC-002
+  - Success: Zero-dropout codec switching with crossfade algorithms
+
+- [ ] **AVEC-004**: Platform-specific codec library integration (iOS/Android)
+  - Estimated: 1 week
+  - Dependencies: AVEC-003
+  - Success: EVS, Opus, and LC3 codecs functional on both platforms
+
+- [ ] **AVEC-005**: Real-time switching implementation and testing
+  - Estimated: 1 week
+  - Dependencies: AVEC-004
+  - Success: Automatic codec switching without audio artifacts
+
+- [ ] **AVEC-006**: Predictive network analysis and ML models
+  - Estimated: 2 weeks
+  - Dependencies: AVEC-005
+  - Success: Proactive codec switching based on network trends
+
+- [ ] **AVEC-007**: Device-aware optimization and thermal management
+  - Estimated: 1 week
+  - Dependencies: AVEC-006
+  - Success: CPU and battery optimization based on device capabilities
+
+- [ ] **AVEC-008**: Quality validation and automatic adjustment
+  - Estimated: 1 week
+  - Dependencies: AVEC-007
+  - Success: Audio quality monitoring with automatic corrections
+
+- [ ] **AVEC-009**: User-facing codec information and settings
+  - Estimated: 1 week
+  - Dependencies: AVEC-008
+  - Success: Transparent codec usage display and manual overrides
+
+- [ ] **AVEC-010**: Performance monitoring and final optimization
+  - Estimated: 1 week
+  - Dependencies: AVEC-009
+  - Success: 60% data reduction achieved, 35% battery improvement
 
 ### Cross-Device Continuity & Seamless Handoff (PRD-028)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
