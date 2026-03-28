@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 25, 2026
+**Last Updated**: March 28, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -535,6 +535,150 @@
   - Estimated: 1 week
   - Dependencies: BATT-005
   - Success: User-configurable power saving modes operational
+
+### Mobile Device Performance & Health Monitoring (PRD-030)
+**Target**: Q2 2026 | **Owner**: Mobile Performance Team | **Effort**: 16 weeks
+
+- [ ] **PERF-001**: Real-time device metrics collection infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: iOS/Android performance API integration
+  - Success: CPU, memory, battery tracking with <100ms latency
+
+- [ ] **PERF-002**: Performance health scoring algorithm and dashboard
+  - Estimated: 2 weeks
+  - Dependencies: PERF-001
+  - Success: 0-100 performance score with component breakdown
+
+- [ ] **PERF-003**: Network quality analytics and optimization engine
+  - Estimated: 3 weeks
+  - Dependencies: PERF-002
+  - Success: Real-time network monitoring with 40% data usage reduction
+
+- [ ] **PERF-004**: Thermal monitoring and CPU throttling detection
+  - Estimated: 2 weeks
+  - Dependencies: PERF-001
+  - Success: Temperature alerts with automatic performance scaling
+
+- [ ] **PERF-005**: One-tap performance optimization system
+  - Estimated: 3 weeks
+  - Dependencies: PERF-003, PERF-004
+  - Success: Automated tuning reduces resource usage by 20%
+
+- [ ] **PERF-006**: Health APIs integration and cross-device analytics
+  - Estimated: 2 weeks
+  - Dependencies: PERF-005
+  - Success: HealthKit/Battery Manager integration functional
+
+- [ ] **PERF-007**: User-facing performance controls and custom modes
+  - Estimated: 2 weeks
+  - Dependencies: PERF-006
+  - Success: Gaming/battery saver/balanced modes operational
+
+### Advanced Mobile Backup & Data Recovery (PRD-031)
+**Target**: Q3 2026 | **Owner**: Mobile Infrastructure Team | **Effort**: 24 weeks
+
+- [ ] **BACKUP-001**: End-to-end encrypted backup infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: Cloud storage setup, encryption library integration
+  - Success: Zero-knowledge backup with user-controlled keys
+
+- [ ] **BACKUP-002**: Intelligent data synchronization and conflict resolution
+  - Estimated: 3 weeks
+  - Dependencies: BACKUP-001
+  - Success: Real-time cross-device sync with <5s latency
+
+- [ ] **BACKUP-003**: Complete account restoration on new devices
+  - Estimated: 3 weeks
+  - Dependencies: BACKUP-002
+  - Success: Full restore in <30 seconds, 99.99% data integrity
+
+- [ ] **BACKUP-004**: Selective backup prioritization and scheduling
+  - Estimated: 2 weeks
+  - Dependencies: BACKUP-001
+  - Success: Smart backup with 70% compression ratio
+
+- [ ] **BACKUP-005**: Point-in-time recovery and granular restore
+  - Estimated: 3 weeks
+  - Dependencies: BACKUP-003
+  - Success: Recovery to specific timestamps with minute precision
+
+- [ ] **BACKUP-006**: Cross-platform data migration (iOS ↔ Android)
+  - Estimated: 3 weeks
+  - Dependencies: BACKUP-005
+  - Success: Seamless migration with 100% data fidelity
+
+- [ ] **BACKUP-007**: Enterprise compliance and governance features
+  - Estimated: 3 weeks
+  - Dependencies: BACKUP-006
+  - Success: GDPR/HIPAA compliance with audit logging
+
+- [ ] **BACKUP-008**: Network optimization and CDN integration
+  - Estimated: 2 weeks
+  - Dependencies: BACKUP-004
+  - Success: Global backup with resumable transfers
+
+- [ ] **BACKUP-009**: Local cache management and offline capability
+  - Estimated: 1 week
+  - Dependencies: BACKUP-008
+  - Success: Offline drafts and queued sync operations
+
+### Mobile Wearable Integration & IoT Ecosystem (PRD-032)
+**Target**: Q3 2026 | **Owner**: IoT & Wearables Team | **Effort**: 32 weeks
+
+- [ ] **IOT-001**: Apple Watch native app with core messaging
+  - Estimated: 4 weeks
+  - Dependencies: watchOS SDK, HealthKit integration
+  - Success: Read/reply messages, voice controls from wrist
+
+- [ ] **IOT-002**: WearOS app with Material Design and health integration
+  - Estimated: 4 weeks
+  - Dependencies: WearOS SDK, Google Fit integration
+  - Success: Native Android wearable experience operational
+
+- [ ] **IOT-003**: Wireless earbuds enhancement and spatial audio
+  - Estimated: 3 weeks
+  - Dependencies: Advanced audio codec support
+  - Success: Gesture controls and 3D positioning functional
+
+- [ ] **IOT-004**: CarPlay/Android Auto hands-free integration
+  - Estimated: 3 weeks
+  - Dependencies: Automotive platform certification
+  - Success: Voice-only interaction optimized for driving safety
+
+- [ ] **IOT-005**: Smart home automation and ambient notifications
+  - Estimated: 4 weeks
+  - Dependencies: HomeKit/Google Assistant/Alexa APIs
+  - Success: Status automation and smart display integration
+
+- [ ] **IOT-006**: Fitness tracker integration and activity-based presence
+  - Estimated: 3 weeks
+  - Dependencies: IOT-001, IOT-002
+  - Success: Workout detection with automatic presence updates
+
+- [ ] **IOT-007**: Gaming peripheral integration and RGB control
+  - Estimated: 2 weeks
+  - Dependencies: IOT-003
+  - Success: Gaming headset support with lighting synchronization
+
+- [ ] **IOT-008**: Advanced automotive integration and fleet management
+  - Estimated: 3 weeks
+  - Dependencies: IOT-004
+  - Success: Tesla integration and enterprise vehicle features
+
+- [ ] **IOT-009**: Emergency safety features and crash detection
+  - Estimated: 2 weeks
+  - Dependencies: IOT-006
+  - Success: Emergency contacts with 99.99% reliability
+
+- [ ] **IOT-010**: Cross-device battery optimization and performance
+  - Estimated: 2 weeks
+  - Dependencies: IOT-009
+  - Success: <5% battery drain from IoT connectivity
+
+- [ ] **IOT-011**: Device management dashboard and user controls
+  - Estimated: 2 weeks
+  - Dependencies: IOT-010
+  - Success: 10+ connected devices per user supported
 
 ## P1 Tasks (High Priority)
 
