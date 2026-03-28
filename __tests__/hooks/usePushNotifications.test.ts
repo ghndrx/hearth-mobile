@@ -6,12 +6,14 @@
  */
 
 // Mock expo-router
-const mockRouter = {
-  push: jest.fn(),
-};
+jest.mock('expo-router', () => ({
+  router: {
+    push: jest.fn(),
+  },
+}));
 
 // Mock expo notifications
-const mockNotifications = {
+jest.mock('expo-notifications', () => ({
   addNotificationReceivedListener: jest.fn(),
   addNotificationResponseReceivedListener: jest.fn(),
   getBadgeCountAsync: jest.fn(),
@@ -19,10 +21,10 @@ const mockNotifications = {
   dismissAllNotificationsAsync: jest.fn(),
   getPresentedNotificationsAsync: jest.fn(),
   dismissNotificationAsync: jest.fn(),
-};
+}));
 
 // Mock the notifications service
-const mockNotificationsService = {
+jest.mock('../../lib/services/notifications', () => ({
   registerForPushNotifications: jest.fn(),
   getNotificationSettings: jest.fn(),
   saveNotificationSettings: jest.fn(),
@@ -45,19 +47,27 @@ const mockNotificationsService = {
     quietHoursStart: '22:00',
     quietHoursEnd: '07:00',
   },
-};
+}));
 
 // Mock React Native AppState
-const mockAppState = {
-  addEventListener: jest.fn(),
-};
-
-jest.mock('expo-router', () => ({ router: mockRouter }));
-jest.mock('expo-notifications', () => mockNotifications);
-jest.mock('react-native', () => ({ AppState: mockAppState }));
-jest.mock('../../lib/services/notifications', () => mockNotificationsService);
+jest.mock('react-native', () => ({
+  AppState: {
+    addEventListener: jest.fn(),
+  },
+}));
 
 import { usePushNotifications } from '../../lib/hooks/usePushNotifications';
+
+// Get references to mocked modules
+import { router } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import * as NotificationsService from '../../lib/services/notifications';
+import { AppState } from 'react-native';
+
+const mockRouter = router as jest.Mocked<typeof router>;
+const mockNotifications = Notifications as jest.Mocked<typeof Notifications>;
+const mockNotificationsService = NotificationsService as jest.Mocked<typeof NotificationsService>;
+const mockAppState = AppState as jest.Mocked<typeof AppState>;
 
 describe('usePushNotifications Hook', () => {
   beforeEach(() => {

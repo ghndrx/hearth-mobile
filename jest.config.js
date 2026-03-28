@@ -31,6 +31,10 @@ module.exports = {
     // Ignore the specific polyfill directories that are causing issues
     '<rootDir>/node_modules/@react-native/js-polyfills',
   ],
+  testMatch: [
+    '**/__tests__/**/*.(js|jsx|ts|tsx)',
+    '**/?(*.)(test|spec).(js|jsx|ts|tsx)'
+  ],
   collectCoverageFrom: [
     'lib/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',
@@ -39,6 +43,6 @@ module.exports = {
   ],
   moduleFileExtensions: [...defaults.moduleFileExtensions, 'ts', 'tsx'],
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './babel.config.test.js' }],
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: './babel.config.jest.js' }],
   },
 };
