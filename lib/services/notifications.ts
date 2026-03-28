@@ -146,21 +146,20 @@ export async function registerForPushNotifications(): Promise<string | null> {
     return null;
   }
 
-  // Check/request permissions
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
-
-  if (existingStatus !== "granted") {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== "granted") {
-    console.log("Push notification permission denied");
-    return null;
-  }
-
   try {
+    // Check/request permissions
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      console.log("Push notification permission denied");
+      return null;
+    }
     // Get project ID from app config
     const projectId = Constants.expoConfig?.extra?.eas?.projectId;
 
@@ -177,17 +176,16 @@ export async function registerForPushNotifications(): Promise<string | null> {
     // Register device with backend
     await registerDeviceWithBackend(token);
 
+    // Configure Android notification channel
+    if (Platform.OS === "android") {
+      await setupAndroidChannels();
+    }
+
+    return token;
   } catch (error) {
     console.error("Failed to get push token:", error);
     return null;
   }
-
-  // Configure Android notification channel
-  if (Platform.OS === "android") {
-    await setupAndroidChannels();
-  }
-
-  return token;
 }
 
 async function registerDeviceWithBackend(token: string): Promise<void> {
