@@ -94,8 +94,11 @@
         "WRITE_EXTERNAL_STORAGE",
         "RECORD_AUDIO",
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
-      ]
+        "USE_FINGERPRINT",
+        "RECEIVE_BOOT_COMPLETED",
+        "WAKE_LOCK"
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -123,6 +126,19 @@
         "expo-image-picker",
         {
           "photosPermission": "Allow Hearth to access your photos for sharing in chat."
+        }
+      ],
+      "@react-native-firebase/app",
+      [
+        "@react-native-firebase/messaging",
+        {
+          "ios": {
+            "enableForegroundNotifications": true
+          },
+          "android": {
+            "enableForegroundService": true,
+            "enableBackgroundProcessing": true
+          }
         }
       ]
     ],

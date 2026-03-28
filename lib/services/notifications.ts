@@ -147,6 +147,37 @@ export async function registerForPushNotifications(): Promise<string | null> {
   }
 
   try {
+    // Try Firebase messaging first for production FCM/APNs
+    try {
+      const { initializeFirebaseMessaging, isFirebaseMessagingSupported } = require('./firebaseMessaging');
+
+      if (await isFirebaseMessagingSupported()) {
+        console.log("Using Firebase messaging for push notifications");
+        token = await initializeFirebaseMessaging();
+
+        if (token) {
+          // Store token locally
+          await AsyncStorage.setItem(PUSH_TOKEN_KEY, token);
+          console.log("Firebase token:", token);
+
+          // Register device with backend
+          await registerDeviceWithBackend(token);
+
+          // Configure Android notification channel
+          if (Platform.OS === "android") {
+            await setupAndroidChannels();
+          }
+
+          return token;
+        }
+      }
+    } catch (firebaseError) {
+      console.log("Firebase messaging not available, falling back to Expo:", firebaseError);
+    }
+
+    // Fallback to Expo notifications
+    console.log("Using Expo notifications for push notifications");
+
     // Check/request permissions
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -160,6 +191,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
       console.log("Push notification permission denied");
       return null;
     }
+
     // Get project ID from app config
     const projectId = Constants.expoConfig?.extra?.eas?.projectId;
 
@@ -171,7 +203,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
     // Store token locally
     await AsyncStorage.setItem(PUSH_TOKEN_KEY, token);
 
-    console.log("Push token:", token);
+    console.log("Expo push token:", token);
 
     // Register device with backend
     await registerDeviceWithBackend(token);
@@ -420,6 +452,33 @@ export async function cancelAllNotifications(): Promise<void> {
 
 export async function dismissAllNotifications(): Promise<void> {
   await Notifications.dismissAllNotificationsAsync();
+}
+
+/**
+ * Display a notification (used by Firebase foreground message handler)
+ */
+export async function displayNotification({
+  title,
+  body,
+  data,
+}: {
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+}): Promise<void> {
+  try {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body,
+        data: data || {},
+        sound: 'default',
+      },
+      trigger: null, // Show immediately
+    });
+  } catch (error) {
+    console.error('Failed to display notification:', error);
+  }
 }
 
 export type NotificationResponse = Notifications.NotificationResponse;

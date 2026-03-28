@@ -12,6 +12,11 @@ import {
   NotificationResponse,
   Notification,
 } from "../services/notifications";
+import {
+  registerPushToken,
+  disablePushNotifications,
+  enablePushNotifications,
+} from "../services/api";
 
 interface NotificationData {
   type?: "message" | "mention" | "friend_request" | "server" | "call";
@@ -172,8 +177,8 @@ export function useNotifications(): UseNotificationsResult {
 
       if (token) {
         setExpoPushToken(token);
-        // TODO: Send token to your backend server
-        // await api.registerPushToken(token);
+        // Send token to backend server
+        await registerPushToken(token);
       }
     } catch (err) {
       setError(
@@ -191,14 +196,14 @@ export function useNotifications(): UseNotificationsResult {
         const newSettings = await saveNotificationSettings(updates);
         setSettings(newSettings);
 
-        // If disabling all notifications, you might want to unregister
-        // from the server but keep the token locally for re-enabling
+        // If disabling all notifications, notify the server
+        // but keep the token locally for re-enabling
         if (updates.enabled === false) {
-          // TODO: Notify backend that notifications are disabled
-          // await api.disablePushNotifications();
+          // Notify backend that notifications are disabled
+          await disablePushNotifications();
         } else if (updates.enabled === true && expoPushToken) {
-          // TODO: Re-enable on backend
-          // await api.enablePushNotifications(expoPushToken);
+          // Re-enable notifications on backend
+          await enablePushNotifications(expoPushToken);
         }
       } catch (err) {
         setError(

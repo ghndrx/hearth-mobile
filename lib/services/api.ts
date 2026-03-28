@@ -452,3 +452,48 @@ export async function unregisterDevice(deviceId: string): Promise<void> {
     throw new Error(error.message);
   }
 }
+
+/**
+ * Update push token for the current user's device
+ */
+export async function registerPushToken(token: string): Promise<void> {
+  const { error } = await api.post<void>(
+    "/devices/token",
+    { token },
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+/**
+ * Disable push notifications for the current user's device
+ */
+export async function disablePushNotifications(): Promise<void> {
+  const { error } = await api.patch<void>(
+    "/devices/notifications/disable",
+    {},
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+/**
+ * Enable push notifications for the current user's device
+ */
+export async function enablePushNotifications(token: string): Promise<void> {
+  const { error } = await api.patch<void>(
+    "/devices/notifications/enable",
+    { token },
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
