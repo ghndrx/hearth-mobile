@@ -1031,6 +1031,77 @@
   - Dependencies: CDC-005
   - Success: Secure cross-device clipboard and file sharing
 
+### Mobile QR Desktop Login & Cross-Device Authentication (PRD-048)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & Security Team | **Effort**: 10 weeks
+
+- [ ] **QDL-001**: QR token generation & validation backend
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: Time-limited QR tokens generated and validated correctly
+
+- [ ] **QDL-002**: Mobile camera & QR scanning infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: QDL-001
+  - Success: Real-time QR detection working on iOS and Android
+
+- [ ] **QDL-003**: QR login approval flow with biometrics
+  - Estimated: 2 weeks
+  - Dependencies: QDL-002, SEC-003 (Biometric 2FA)
+  - Success: Biometric-protected approval flow functional
+
+- [ ] **QDL-004**: Session management dashboard (Mobile)
+  - Estimated: 1 week
+  - Dependencies: QDL-003
+  - Success: Active sessions viewable and terminable from mobile
+
+- [ ] **QDL-005**: Desktop QR display & session establishment
+  - Estimated: 1 week
+  - Dependencies: QDL-001
+  - Success: Desktop shows valid QR and establishes session on approval
+
+- [ ] **QDL-006**: Security hardening & anti-fraud
+  - Estimated: 1 week
+  - Dependencies: QDL-005
+  - Success: Screenshot detection and anomaly alerts working
+
+### Mobile Message Reminders & Scheduled Messages (PRD-050)
+**Target**: Q2 2026 | **Owner**: Mobile Team & Messaging Platform Team | **Effort**: 8 weeks
+
+- [ ] **REM-001**: Reminder data model & storage
+  - Estimated: 1 week
+  - Dependencies: None
+  - Success: Reminders stored and queryable by due date
+
+- [ ] **REM-002**: Mobile reminder UI (set & manage)
+  - Estimated: 2 weeks
+  - Dependencies: REM-001, Mobile UI Framework
+  - Success: Long-press menu and swipe actions for setting reminders
+
+- [ ] **REM-003**: Reminder notification delivery
+  - Estimated: 2 weeks
+  - Dependencies: REM-002, PN-001 (Push Notifications)
+  - Success: Rich notifications with Reply/Snooze/Mark Done actions
+
+- [ ] **REM-004**: Message scheduling infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: REM-001
+  - Success: Scheduled messages queue with send processing
+
+- [ ] **REM-005**: Scheduled message UI
+  - Estimated: 1 week
+  - Dependencies: REM-004
+  - Success: "Send Later" flow and scheduled queue view
+
+- [ ] **REM-006**: @time parser & natural language scheduling
+  - Estimated: 1 week
+  - Dependencies: REM-005
+  - Success: @time mentions recognized and confirmed before scheduling
+
+- [ ] **REM-007**: Recurring reminders
+  - Estimated: 1 week
+  - Dependencies: REM-003
+  - Success: Daily/weekly recurring reminder support
+
 ## P1 Tasks (High Priority)
 
 ### Advanced Mobile Input & Interaction Patterns (PRD-049)
@@ -1098,6 +1169,39 @@
   - Estimated: 1 week
   - Dependencies: GAM-007
   - Success: Comprehensive testing and production deployment
+
+### Mobile Soundboard & Voice Channel Sound Effects (PRD-051)
+**Target**: Q3 2026 | **Owner**: Mobile Team & Audio Team | **Effort**: 12 weeks
+
+- [ ] **SB-001**: Sound storage & CDN infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Sounds uploadable and streamable via CDN
+
+- [ ] **SB-002**: Voice channel audio injection
+  - Estimated: 3 weeks
+  - Dependencies: SB-001, VP-001 (WebRTC core)
+  - Success: Sounds play to all voice channel participants
+
+- [ ] **SB-003**: Mobile soundboard UI & trigger system
+  - Estimated: 2 weeks
+  - Dependencies: SB-002
+  - Success: Soundboard interface functional with single-tap triggers
+
+- [ ] **SB-004**: Personal soundboard & import
+  - Estimated: 2 weeks
+  - Dependencies: SB-003
+  - Success: Personal sound library with import from device
+
+- [ ] **SB-005**: Server admin management panel
+  - Estimated: 2 weeks
+  - Dependencies: SB-001
+  - Success: Admin upload and permission controls working
+
+- [ ] **SB-006**: Haptics & mobile optimization
+  - Estimated: 1 week
+  - Dependencies: SB-004
+  - Success: Haptic feedback and battery optimization complete
 
 ### Adaptive Voice Encoding & Dynamic Codec Switching (PRD-038)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
