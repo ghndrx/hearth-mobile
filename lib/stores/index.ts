@@ -15,3 +15,4 @@ export {
   useMonitoringActions,
   useMonitoringStatus
 } from "./apiMonitoring";
+export { onboardingStore, OnboardingStore } from "./onboarding";

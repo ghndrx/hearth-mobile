@@ -232,3 +232,6 @@ export * from "./offline";
 
 // Re-export IoT types
 export * from "./iot";
+
+// Re-export onboarding types
+export * from "./onboarding";

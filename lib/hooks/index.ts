@@ -32,3 +32,6 @@ export {
   useImageLoadPerformance,
   measureNetworkRequest,
 } from "./usePerformance";
+
+// Onboarding hooks
+export { useOnboarding } from "./useOnboarding";
