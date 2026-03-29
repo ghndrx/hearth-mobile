@@ -11,6 +11,80 @@
 
 ## P0 Tasks (Critical Priority)
 
+### Mobile Network-Intelligent Voice Optimization (NET-001)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & Voice Infrastructure Team | **Effort**: 10 weeks
+
+- [ ] **NET-001**: Network Intelligence Engine
+  - Estimated: 3 weeks
+  - Dependencies: Network APIs, real-time analysis infrastructure
+  - Success: Dynamic network condition detection and quality scoring working
+
+- [ ] **NET-002**: Adaptive Voice Codec Engine
+  - Estimated: 3 weeks
+  - Dependencies: NET-001, Multiple codec support (Opus, AAC-ELD, SILK)
+  - Success: Real-time codec switching without audio interruption
+
+- [ ] **NET-003**: Mobile Audio Processing Pipeline
+  - Estimated: 2 weeks
+  - Dependencies: NET-002, Hardware acceleration APIs
+  - Success: Battery-efficient mobile audio processing with thermal management
+
+- [ ] **NET-004**: Network Transition Manager
+  - Estimated: 2 weeks
+  - Dependencies: NET-003, Connection handling infrastructure
+  - Success: Seamless Wi-Fi ↔ Cellular handoff with voice buffer management
+
+### Advanced Mobile Interaction Patterns & Context-Aware UI (UXI-001)
+**Target**: Q2 2026 | **Owner**: Mobile UX Team & Platform Team | **Effort**: 8 weeks
+
+- [ ] **UXI-001**: Intelligent Context Menu System
+  - Estimated: 2 weeks
+  - Dependencies: Context detection framework, adaptive UI foundation
+  - Success: Smart-positioned menus with thumb-reachable areas and gesture alternatives
+
+- [ ] **UXI-002**: Comprehensive Gesture Vocabulary
+  - Estimated: 3 weeks
+  - Dependencies: UXI-001, Gesture recognition engine, haptic feedback system
+  - Success: 20+ mobile gestures with learning system and progressive disclosure
+
+- [ ] **UXI-003**: Adaptive UI & Reachability System
+  - Estimated: 2 weeks
+  - Dependencies: UXI-002, Device capability detection
+  - Success: Dynamic layout adaptation based on device size and one-handed usage
+
+- [ ] **UXI-004**: Advanced Touch Input Processing
+  - Estimated: 1 week
+  - Dependencies: UXI-003, Native platform touch APIs
+  - Success: 3D Touch/Force Touch integration with pressure-sensitive interactions
+
+### Mobile-Native Viral Discovery & Social Mechanics (VIR-001)
+**Target**: Q3 2026 | **Owner**: Growth Team & Mobile Platform Team | **Effort**: 12 weeks
+
+- [ ] **VIR-001**: Intelligent Contact Integration & Discovery
+  - Estimated: 3 weeks
+  - Dependencies: Privacy framework, encrypted contact matching system
+  - Success: Privacy-first contact discovery with 40% user adoption
+
+- [ ] **VIR-002**: Native Mobile Sharing & Content Virality
+  - Estimated: 3 weeks
+  - Dependencies: VIR-001, Social platform APIs (Instagram, TikTok, Snapchat)
+  - Success: Multi-platform sharing with viral content templates
+
+- [ ] **VIR-003**: Location-Based Community Discovery
+  - Estimated: 2 weeks
+  - Dependencies: VIR-002, Location services, mapping APIs
+  - Success: Nearby server discovery with privacy controls
+
+- [ ] **VIR-004**: Viral Mechanics & Growth Loops
+  - Estimated: 2 weeks
+  - Dependencies: VIR-003, Analytics infrastructure
+  - Success: Built-in growth incentives achieving 0.6+ viral coefficient
+
+- [ ] **VIR-005**: Mobile-Optimized Server Discovery
+  - Estimated: 2 weeks
+  - Dependencies: VIR-004, Recommendation engine
+  - Success: Swipeable server browser with AI-powered recommendations
+
 ### Mobile-Native User Onboarding & First-Time Experience (PRD-047)
 **Target**: Q1 2026 | **Owner**: Mobile UX Team & Growth Team | **Effort**: 12 weeks
 
