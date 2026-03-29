@@ -235,3 +235,6 @@ export * from "./iot";
 
 // Re-export onboarding types
 export * from "./onboarding";
+
+// Re-export network intelligence types
+export * from "./network";

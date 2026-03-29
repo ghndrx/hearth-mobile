@@ -11,7 +11,7 @@ export * from "./useNotifications";
 export { usePushNotifications } from "./usePushNotifications";
 
 // Network status hooks
-export { useNetworkStatus, useIsOnline } from "./useNetworkStatus";
+export { useNetworkStatus, useIsOnline, useNetworkIntelligence } from "./useNetworkStatus";
 
 // WebSocket hooks
 export {
