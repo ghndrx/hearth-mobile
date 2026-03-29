@@ -157,6 +157,9 @@ class iOSNetworkMonitor implements PlatformNetworkMonitor {
         case 'cellular':
           return this.estimateCellularBandwidth(details);
 
+        case 'ethernet':
+          return { up: 100000, down: 100000 }; // 100/100 Mbps ethernet
+
         default:
           return { up: 1000, down: 2000 };
       }
@@ -362,6 +365,9 @@ class AndroidNetworkMonitor implements PlatformNetworkMonitor {
 
         case 'cellular':
           return this.estimateCellularBandwidth(details);
+
+        case 'ethernet':
+          return { up: 100000, down: 100000 }; // 100/100 Mbps ethernet
 
         default:
           return { up: 1000, down: 2000 };
