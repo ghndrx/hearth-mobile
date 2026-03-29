@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthStore } from "../lib/stores/auth";
+import { onboardingStore } from "../lib/stores/onboarding";
 import { NotificationProvider } from "../lib/contexts/NotificationContext";
 import { BiometricProvider } from "../lib/contexts/BiometricContext";
 import { NotificationBanner } from "../components/notifications";
@@ -33,6 +34,7 @@ function RootLayoutNav() {
   const { isAuthenticated, isLoading, loadStoredAuth, user } = useAuthStore();
   const [isReady, setIsReady] = useState(false);
   const [_servicesInitialized, setServicesInitialized] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   // Track app state changes for analytics
   useAppStatePerformance();
@@ -105,14 +107,30 @@ function RootLayoutNav() {
     loadStoredAuth();
   }, []);
 
+  // Initialize onboarding store when authenticated
+  useEffect(() => {
+    if (isAuthenticated && !onboardingChecked) {
+      onboardingStore.initialize().then(() => {
+        setOnboardingChecked(true);
+      });
+    }
+  }, [isAuthenticated, onboardingChecked]);
+
   useEffect(() => {
     if (!isLoading) {
       const inAuthGroup = segments[0] === "(auth)";
+      const inOnboarding = segments[0] === "onboarding";
 
       if (!isAuthenticated && !inAuthGroup) {
         router.replace("/(auth)/login");
       } else if (isAuthenticated && inAuthGroup) {
-        router.replace("/(tabs)/dashboard");
+        // Check if user needs onboarding before going to main app
+        const onboardingState = onboardingStore.getState();
+        if (!onboardingState.isOnboardingComplete && !onboardingState.hasSeenOnboarding) {
+          router.replace("/onboarding");
+        } else {
+          router.replace("/(tabs)/dashboard");
+        }
       }
 
       setIsReady(true);

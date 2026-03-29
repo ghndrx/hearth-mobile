@@ -23,6 +23,7 @@ export interface UseOnboardingReturn {
   isFirstStep: boolean;
   isLastStep: boolean;
   stepsRemaining: number;
+  hasPausedFlow: boolean;
 
   // Actions
   startFlow: (userType?: UserType) => Promise<void>;
@@ -32,6 +33,7 @@ export interface UseOnboardingReturn {
   completeCurrentStep: () => Promise<void>;
   skipCurrentStep: () => Promise<void>;
   pauseFlow: () => Promise<void>;
+  resumeFlow: () => Promise<void>;
   setInterests: (interests: string[]) => Promise<void>;
   setServerCategories: (categories: string[]) => Promise<void>;
   setProfileSetupComplete: (complete?: boolean) => Promise<void>;
@@ -105,6 +107,10 @@ export function useOnboarding(): UseOnboardingReturn {
     await onboardingStore.setNotificationSetupComplete(complete);
   }, []);
 
+  const resumeFlow = useCallback(async () => {
+    await onboardingStore.resumeFlow();
+  }, []);
+
   const resetFlow = useCallback(async () => {
     await onboardingStore.resetFlow();
   }, []);
@@ -115,6 +121,7 @@ export function useOnboarding(): UseOnboardingReturn {
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentFlow ? currentStepIndex === currentFlow.steps.length - 1 : false;
   const stepsRemaining = currentFlow ? currentFlow.steps.length - currentStepIndex - 1 : 0;
+  const hasPausedFlow = onboardingStore.hasPausedFlow();
 
   return {
     // State
@@ -131,6 +138,7 @@ export function useOnboarding(): UseOnboardingReturn {
     isFirstStep,
     isLastStep,
     stepsRemaining,
+    hasPausedFlow,
 
     // Actions
     startFlow,
@@ -140,6 +148,7 @@ export function useOnboarding(): UseOnboardingReturn {
     completeCurrentStep,
     skipCurrentStep,
     pauseFlow,
+    resumeFlow,
     setInterests,
     setServerCategories,
     setProfileSetupComplete,

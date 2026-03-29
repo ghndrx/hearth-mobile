@@ -64,6 +64,12 @@ export interface OnboardingAnalytics {
   flowAbandoned: string;
 }
 
+export interface OnboardingFlowConfig {
+  userType: UserType;
+  steps: OnboardingStep[];
+  description: string;
+}
+
 export const ONBOARDING_STORAGE_KEYS = {
   IS_COMPLETE: "@hearth/onboarding_complete",
   CURRENT_FLOW: "@hearth/onboarding_flow",

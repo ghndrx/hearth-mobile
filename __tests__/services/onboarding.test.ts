@@ -11,23 +11,31 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   removeItem: jest.fn(),
 }));
 
-jest.mock('../../lib/services/analytics', () => ({
-  analytics: {
-    logEvent: jest.fn(),
-    initialize: jest.fn(),
+jest.mock('../../lib/services/onboardingAnalytics', () => ({
+  onboardingAnalytics: {
+    trackFlowStarted: jest.fn(),
+    trackFlowCompleted: jest.fn(),
+    trackFlowAbandoned: jest.fn(),
+    trackStepViewed: jest.fn(),
+    trackStepCompleted: jest.fn(),
+    trackStepSkipped: jest.fn(),
+    trackInterestsSelected: jest.fn(),
+    trackServerCategoriesSelected: jest.fn(),
+    trackFlowResumed: jest.fn(),
   },
 }));
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { OnboardingStore, onboardingStore } from '../../lib/stores/onboarding';
+import { OnboardingStore, getFlowConfig, getAvailableUserTypes } from '../../lib/stores/onboarding';
 import { ONBOARDING_STORAGE_KEYS } from '../../lib/types/onboarding';
+import { onboardingAnalytics } from '../../lib/services/onboardingAnalytics';
 
 const mockAsyncStorage = jest.mocked(AsyncStorage);
+const mockAnalytics = jest.mocked(onboardingAnalytics);
 
 describe('OnboardingStore', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset store state
     mockAsyncStorage.getItem.mockResolvedValue(null);
     mockAsyncStorage.setItem.mockResolvedValue(undefined);
     mockAsyncStorage.removeItem.mockResolvedValue(undefined);
@@ -118,6 +126,66 @@ describe('OnboardingStore', () => {
       expect(startedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
       expect(startedAt.getTime()).toBeLessThanOrEqual(after.getTime());
     });
+
+    it('should track flow started analytics', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow('gamer');
+
+      expect(mockAnalytics.trackFlowStarted).toHaveBeenCalledWith(
+        expect.any(String),
+        'gamer',
+        expect.any(Number)
+      );
+    });
+
+    it('should track first step viewed on start', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow();
+
+      expect(mockAnalytics.trackStepViewed).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'welcome' }),
+        0,
+        expect.any(Number)
+      );
+    });
+  });
+
+  describe('user-type-specific flows', () => {
+    it('should use gamer-specific steps', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow('gamer');
+
+      const state = store.getState();
+      // Gamer flow has voice-video before chat
+      const stepIds = state.currentFlow?.steps.map(s => s.id) ?? [];
+      const voiceIndex = stepIds.indexOf('voice-video');
+      const chatIndex = stepIds.indexOf('real-time-chat');
+      expect(voiceIndex).toBeLessThan(chatIndex);
+    });
+
+    it('should use professional-specific steps', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow('professional');
+
+      const state = store.getState();
+      // Professional flow skips voice-video
+      const stepIds = state.currentFlow?.steps.map(s => s.id) ?? [];
+      expect(stepIds).not.toContain('voice-video');
+    });
+
+    it('should use creator-specific steps', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow('creator');
+
+      const state = store.getState();
+      expect(state.currentFlow?.userType).toBe('creator');
+      expect(state.currentFlow?.steps[0].id).toBe('welcome');
+    });
   });
 
   describe('goToStep', () => {
@@ -137,16 +205,29 @@ describe('OnboardingStore', () => {
       await store.initialize();
       await store.startFlow();
 
-      // Should not go below 0
       await store.goToStep(-1);
       let state = store.getState();
       expect(state.currentFlow?.currentStepIndex).toBe(0);
 
-      // Should not exceed max index
       await store.goToStep(999);
       state = store.getState();
       expect(state.currentFlow?.currentStepIndex).toBeLessThan(
         state.currentFlow!.steps.length
+      );
+    });
+
+    it('should track step viewed analytics', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow();
+      jest.clearAllMocks();
+
+      await store.goToStep(2);
+
+      expect(mockAnalytics.trackStepViewed).toHaveBeenCalledWith(
+        expect.any(Object),
+        2,
+        expect.any(Number)
       );
     });
   });
@@ -181,7 +262,6 @@ describe('OnboardingStore', () => {
       await store.initialize();
       await store.startFlow();
 
-      // Navigate to last step
       const lastIndex = store.getState().currentFlow!.steps.length - 1;
       await store.goToStep(lastIndex);
       await store.completeCurrentStep();
@@ -189,6 +269,17 @@ describe('OnboardingStore', () => {
       const state = store.getState();
       expect(state.isOnboardingComplete).toBe(true);
       expect(state.currentFlow?.completedAt).toBeDefined();
+    });
+
+    it('should track step completed and flow completed analytics', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow();
+      jest.clearAllMocks();
+
+      await store.completeCurrentStep();
+
+      expect(mockAnalytics.trackStepCompleted).toHaveBeenCalled();
     });
   });
 
@@ -222,13 +313,23 @@ describe('OnboardingStore', () => {
       await store.initialize();
       await store.startFlow();
 
-      // Navigate to last step
       const lastIndex = store.getState().currentFlow!.steps.length - 1;
       await store.goToStep(lastIndex);
       await store.skipCurrentStep();
 
       const state = store.getState();
       expect(state.isOnboardingComplete).toBe(true);
+    });
+
+    it('should track step skipped analytics', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow();
+      jest.clearAllMocks();
+
+      await store.skipCurrentStep();
+
+      expect(mockAnalytics.trackStepSkipped).toHaveBeenCalled();
     });
   });
 
@@ -252,6 +353,24 @@ describe('OnboardingStore', () => {
       const state = store.getState();
       expect(state.selectedServerCategories).toEqual(['gaming', 'music']);
     });
+
+    it('should track interests analytics', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+
+      await store.setInterests(['gaming', 'music']);
+
+      expect(mockAnalytics.trackInterestsSelected).toHaveBeenCalledWith(['gaming', 'music']);
+    });
+
+    it('should track server categories analytics', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+
+      await store.setServerCategories(['tech']);
+
+      expect(mockAnalytics.trackServerCategoriesSelected).toHaveBeenCalledWith(['tech']);
+    });
   });
 
   describe('profile and notification setup', () => {
@@ -273,6 +392,51 @@ describe('OnboardingStore', () => {
 
       const state = store.getState();
       expect(state.notificationSetupComplete).toBe(true);
+    });
+  });
+
+  describe('pause and resume flow', () => {
+    it('should pause the flow', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow();
+
+      await store.pauseFlow();
+
+      const state = store.getState();
+      expect(state.currentFlow?.pausedAt).toBeDefined();
+      expect(store.hasPausedFlow()).toBe(true);
+    });
+
+    it('should resume a paused flow', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow();
+      await store.pauseFlow();
+      jest.clearAllMocks();
+
+      await store.resumeFlow();
+
+      const state = store.getState();
+      expect(state.currentFlow?.pausedAt).toBeUndefined();
+      expect(store.hasPausedFlow()).toBe(false);
+      expect(mockAnalytics.trackFlowResumed).toHaveBeenCalled();
+    });
+
+    it('should not resume if no paused flow', async () => {
+      const store = new OnboardingStore();
+      await store.initialize();
+      await store.startFlow();
+
+      await store.resumeFlow();
+
+      // Should not track since flow wasn't paused
+      expect(mockAnalytics.trackFlowResumed).not.toHaveBeenCalled();
+    });
+
+    it('hasPausedFlow returns false when no flow exists', () => {
+      const store = new OnboardingStore();
+      expect(store.hasPausedFlow()).toBe(false);
     });
   });
 
@@ -320,7 +484,6 @@ describe('OnboardingStore', () => {
       await store.initialize();
       await store.startFlow();
 
-      // Complete first step
       await store.completeCurrentStep();
 
       const state = store.getState();
@@ -355,8 +518,34 @@ describe('OnboardingStore', () => {
       unsubscribe();
       await store.startFlow();
 
-      // Listener should not be called after unsubscribe
       expect(listener).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('getFlowConfig', () => {
+  it('should return config for each user type', () => {
+    const types = getAvailableUserTypes();
+    expect(types).toContain('casual');
+    expect(types).toContain('gamer');
+    expect(types).toContain('professional');
+    expect(types).toContain('creator');
+
+    for (const userType of types) {
+      const config = getFlowConfig(userType);
+      expect(config.userType).toBe(userType);
+      expect(config.steps.length).toBeGreaterThan(0);
+      expect(config.steps[0].id).toBe('welcome');
+      expect(config.description).toBeDefined();
+    }
+  });
+
+  it('should have welcome as first required step in all flows', () => {
+    const types = getAvailableUserTypes();
+    for (const userType of types) {
+      const config = getFlowConfig(userType);
+      expect(config.steps[0].required).toBe(true);
+      expect(config.steps[0].skippable).toBe(false);
+    }
   });
 });

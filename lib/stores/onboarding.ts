@@ -1,93 +1,160 @@
 /**
  * Onboarding Store
- * 
+ *
  * State management for onboarding flow and progress tracking.
+ * Supports user-type-specific flows, pause/resume, and analytics integration.
  */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { analytics } from "../services/analytics";
+import { onboardingAnalytics } from "../services/onboardingAnalytics";
 import {
   OnboardingState,
   OnboardingFlow,
   OnboardingProgress,
   OnboardingStep,
   OnboardingStepType,
+  OnboardingFlowConfig,
   UserType,
   ONBOARDING_STORAGE_KEYS,
 } from "../types/onboarding";
 
-// Default onboarding steps
-const DEFAULT_STEPS: OnboardingStep[] = [
-  {
-    id: "welcome",
-    type: "tutorial" as OnboardingStepType,
-    title: "Welcome to Hearth",
-    description: "Your community awaits",
-    icon: "heart",
-    iconColor: "#ed4245",
-    content: "Hearth brings together communities, real-time chat, voice, and video in one seamless experience. Let's show you around!",
-    skippable: false,
-    required: true,
+// Shared steps used across all flow types
+const WELCOME_STEP: OnboardingStep = {
+  id: "welcome",
+  type: "tutorial" as OnboardingStepType,
+  title: "Welcome to Hearth",
+  description: "Your community awaits",
+  icon: "heart",
+  iconColor: "#ed4245",
+  content: "Hearth brings together communities, real-time chat, voice, and video in one seamless experience. Let's show you around!",
+  skippable: false,
+  required: true,
+};
+
+const JOIN_COMMUNITIES_STEP: OnboardingStep = {
+  id: "join-communities",
+  type: "discovery" as OnboardingStepType,
+  title: "Join Communities",
+  description: "Find your people",
+  icon: "people",
+  iconColor: "#5865f2",
+  content: "Browse servers by interest, join communities that match your passions, or create your own space.",
+  actionLabel: "Explore Servers",
+  skippable: true,
+  required: false,
+};
+
+const REAL_TIME_CHAT_STEP: OnboardingStep = {
+  id: "real-time-chat",
+  type: "tutorial" as OnboardingStepType,
+  title: "Real-time Chat",
+  description: "Stay connected",
+  icon: "chatbubbles",
+  iconColor: "#3ba55c",
+  content: "Send messages instantly with text, images, and reactions. Express yourself with custom emojis and GIFs.",
+  skippable: true,
+  required: false,
+};
+
+const VOICE_VIDEO_STEP: OnboardingStep = {
+  id: "voice-video",
+  type: "interaction" as OnboardingStepType,
+  title: "Voice & Video",
+  description: "Talk face-to-face",
+  icon: "videocam",
+  iconColor: "#eb459e",
+  content: "Drop into voice channels to chat hands-free, or start a video call with friends and screen share.",
+  skippable: true,
+  required: false,
+};
+
+const NOTIFICATIONS_STEP: OnboardingStep = {
+  id: "notifications",
+  type: "setup" as OnboardingStepType,
+  title: "Stay Updated",
+  description: "Never miss out",
+  icon: "notifications",
+  iconColor: "#faa61a",
+  content: "Get notified about messages that matter. Customize notifications per server and channel.",
+  actionLabel: "Configure Notifications",
+  skippable: true,
+  required: false,
+};
+
+const PROFILE_SETUP_STEP: OnboardingStep = {
+  id: "profile-setup",
+  type: "setup" as OnboardingStepType,
+  title: "Set Up Profile",
+  description: "Make it yours",
+  icon: "person",
+  iconColor: "#5865f2",
+  content: "Add a photo, set your display name, and let others know a bit about you.",
+  actionLabel: "Edit Profile",
+  skippable: true,
+  required: false,
+};
+
+// User-type-specific flow configurations
+const FLOW_CONFIGS: Record<UserType, OnboardingFlowConfig> = {
+  casual: {
+    userType: "casual",
+    description: "Standard onboarding flow for casual users",
+    steps: [
+      WELCOME_STEP,
+      JOIN_COMMUNITIES_STEP,
+      REAL_TIME_CHAT_STEP,
+      VOICE_VIDEO_STEP,
+      NOTIFICATIONS_STEP,
+      PROFILE_SETUP_STEP,
+    ],
   },
-  {
-    id: "join-communities",
-    type: "discovery" as OnboardingStepType,
-    title: "Join Communities",
-    description: "Find your people",
-    icon: "people",
-    iconColor: "#5865f2",
-    content: "Browse servers by interest, join communities that match your passions, or create your own space.",
-    actionLabel: "Explore Servers",
-    skippable: true,
-    required: false,
+  gamer: {
+    userType: "gamer",
+    description: "Gaming-focused onboarding with voice chat emphasis",
+    steps: [
+      WELCOME_STEP,
+      { ...JOIN_COMMUNITIES_STEP, content: "Find gaming communities, esports teams, and LFG groups. Join servers for your favorite games." },
+      VOICE_VIDEO_STEP,
+      REAL_TIME_CHAT_STEP,
+      NOTIFICATIONS_STEP,
+      PROFILE_SETUP_STEP,
+    ],
   },
-  {
-    id: "real-time-chat",
-    type: "tutorial" as OnboardingStepType,
-    title: "Real-time Chat",
-    description: "Stay connected",
-    icon: "chatbubbles",
-    iconColor: "#3ba55c",
-    content: "Send messages instantly with text, images, and reactions. Express yourself with custom emojis and GIFs.",
-    skippable: true,
-    required: false,
+  professional: {
+    userType: "professional",
+    description: "Professional onboarding with workspace focus",
+    steps: [
+      WELCOME_STEP,
+      { ...JOIN_COMMUNITIES_STEP, title: "Join Workspaces", content: "Connect with professional communities, industry groups, and team workspaces." },
+      REAL_TIME_CHAT_STEP,
+      NOTIFICATIONS_STEP,
+      PROFILE_SETUP_STEP,
+    ],
   },
-  {
-    id: "voice-video",
-    type: "interaction" as OnboardingStepType,
-    title: "Voice & Video",
-    description: "Talk face-to-face",
-    icon: "videocam",
-    iconColor: "#eb459e",
-    content: "Drop into voice channels to chat hands-free, or start a video call with friends and screen share.",
-    skippable: true,
-    required: false,
+  creator: {
+    userType: "creator",
+    description: "Creator-focused onboarding with community building emphasis",
+    steps: [
+      WELCOME_STEP,
+      { ...JOIN_COMMUNITIES_STEP, content: "Discover creator communities, fan servers, and collaboration spaces. Share your content with the world." },
+      REAL_TIME_CHAT_STEP,
+      VOICE_VIDEO_STEP,
+      NOTIFICATIONS_STEP,
+      PROFILE_SETUP_STEP,
+    ],
   },
-  {
-    id: "notifications",
-    type: "setup" as OnboardingStepType,
-    title: "Stay Updated",
-    description: "Never miss out",
-    icon: "notifications",
-    iconColor: "#faa61a",
-    content: "Get notified about messages that matter. Customize notifications per server and channel.",
-    actionLabel: "Configure Notifications",
-    skippable: true,
-    required: false,
-  },
-  {
-    id: "profile-setup",
-    type: "setup" as OnboardingStepType,
-    title: "Set Up Profile",
-    description: "Make it yours",
-    icon: "person",
-    iconColor: "#5865f2",
-    content: "Add a photo, set your display name, and let others know a bit about you.",
-    actionLabel: "Edit Profile",
-    skippable: true,
-    required: false,
-  },
-];
+};
+
+// Default steps (casual flow) for backward compatibility
+const DEFAULT_STEPS: OnboardingStep[] = FLOW_CONFIGS.casual.steps;
+
+export function getFlowConfig(userType: UserType): OnboardingFlowConfig {
+  return FLOW_CONFIGS[userType] ?? FLOW_CONFIGS.casual;
+}
+
+export function getAvailableUserTypes(): UserType[] {
+  return Object.keys(FLOW_CONFIGS) as UserType[];
+}
 
 export class OnboardingStore {
   private state: OnboardingState;
@@ -151,12 +218,13 @@ export class OnboardingStore {
     }
   }
 
-  // Start onboarding flow
+  // Start onboarding flow with user-type-specific steps
   async startFlow(userType: UserType = "casual"): Promise<void> {
+    const config = getFlowConfig(userType);
     const flow: OnboardingFlow = {
       id: `flow_${Date.now()}`,
       userType,
-      steps: DEFAULT_STEPS,
+      steps: config.steps,
       currentStepIndex: 0,
       completedStepIds: [],
       skippedStepIds: [],
@@ -173,7 +241,8 @@ export class OnboardingStore {
     };
 
     await this.persistFlow();
-    analytics.logEvent("onboarding_flow_started", { userType });
+    onboardingAnalytics.trackFlowStarted(flow.id, userType, flow.steps.length);
+    onboardingAnalytics.trackStepViewed(flow.steps[0], 0, flow.steps.length);
   }
 
   // Navigate to specific step
@@ -187,10 +256,10 @@ export class OnboardingStore {
     this.state = { ...this.state, currentFlow: flow, progress };
     await this.persistFlow();
 
-    analytics.logEvent("onboarding_step_viewed", {
-      stepId: flow.steps[flow.currentStepIndex]?.id,
-      stepIndex,
-    });
+    const step = flow.steps[flow.currentStepIndex];
+    if (step) {
+      onboardingAnalytics.trackStepViewed(step, flow.currentStepIndex, flow.steps.length);
+    }
   }
 
   // Complete current step
@@ -202,21 +271,33 @@ export class OnboardingStore {
 
     if (currentStep && !flow.completedStepIds.includes(currentStep.id)) {
       flow.completedStepIds.push(currentStep.id);
+      onboardingAnalytics.trackStepCompleted(currentStep, flow.currentStepIndex);
     }
 
     // Auto-advance if not last step
     if (flow.currentStepIndex < flow.steps.length - 1) {
       flow.currentStepIndex++;
+      const nextStep = flow.steps[flow.currentStepIndex];
+      if (nextStep) {
+        onboardingAnalytics.trackStepViewed(nextStep, flow.currentStepIndex, flow.steps.length);
+      }
     } else {
       // Flow complete
       flow.completedAt = new Date();
       this.state.isOnboardingComplete = true;
       await AsyncStorage.setItem(ONBOARDING_STORAGE_KEYS.IS_COMPLETE, "true");
-      analytics.logEvent("onboarding_flow_completed", {
-        flowId: flow.id,
-        totalSteps: flow.steps.length,
-        completedSteps: flow.completedStepIds.length,
-      });
+
+      const durationMs = flow.startedAt
+        ? Date.now() - new Date(flow.startedAt).getTime()
+        : 0;
+      onboardingAnalytics.trackFlowCompleted(
+        flow.id,
+        flow.userType,
+        flow.completedStepIds.length,
+        flow.skippedStepIds.length,
+        flow.steps.length,
+        durationMs
+      );
     }
 
     const progress = this.calculateProgress(flow);
@@ -233,11 +314,16 @@ export class OnboardingStore {
 
     if (currentStep && !flow.skippedStepIds.includes(currentStep.id)) {
       flow.skippedStepIds.push(currentStep.id);
+      onboardingAnalytics.trackStepSkipped(currentStep, flow.currentStepIndex);
     }
 
     // Advance if not last step
     if (flow.currentStepIndex < flow.steps.length - 1) {
       flow.currentStepIndex++;
+      const nextStep = flow.steps[flow.currentStepIndex];
+      if (nextStep) {
+        onboardingAnalytics.trackStepViewed(nextStep, flow.currentStepIndex, flow.steps.length);
+      }
     } else {
       // Flow complete
       flow.completedAt = new Date();
@@ -248,20 +334,20 @@ export class OnboardingStore {
     const progress = this.calculateProgress(flow);
     this.state = { ...this.state, currentFlow: flow, progress };
     await this.persistFlow();
-
-    analytics.logEvent("onboarding_step_skipped", { stepId: currentStep?.id });
   }
 
   // Set user interests
   async setInterests(interests: string[]): Promise<void> {
     this.state = { ...this.state, interests };
     await AsyncStorage.setItem(ONBOARDING_STORAGE_KEYS.INTERESTS, JSON.stringify(interests));
+    onboardingAnalytics.trackInterestsSelected(interests);
   }
 
   // Set server categories
   async setServerCategories(categories: string[]): Promise<void> {
     this.state = { ...this.state, selectedServerCategories: categories };
     await AsyncStorage.setItem(ONBOARDING_STORAGE_KEYS.SERVER_CATEGORIES, JSON.stringify(categories));
+    onboardingAnalytics.trackServerCategoriesSelected(categories);
   }
 
   // Mark profile setup complete
@@ -284,6 +370,28 @@ export class OnboardingStore {
     flow.pausedAt = new Date();
     this.state = { ...this.state, currentFlow: flow };
     await this.persistFlow();
+  }
+
+  // Resume a previously paused flow
+  async resumeFlow(): Promise<void> {
+    if (!this.state.currentFlow) return;
+    if (!this.state.currentFlow.pausedAt) return;
+
+    const flow = { ...this.state.currentFlow };
+    flow.pausedAt = undefined;
+    this.state = { ...this.state, currentFlow: flow };
+    await this.persistFlow();
+
+    const currentStep = flow.steps[flow.currentStepIndex];
+    if (currentStep) {
+      onboardingAnalytics.trackFlowResumed(flow.id, currentStep.id, flow.currentStepIndex);
+      onboardingAnalytics.trackStepViewed(currentStep, flow.currentStepIndex, flow.steps.length);
+    }
+  }
+
+  // Check if there is a paused flow that can be resumed
+  hasPausedFlow(): boolean {
+    return this.state.currentFlow?.pausedAt !== undefined && !this.state.isOnboardingComplete;
   }
 
   // Reset onboarding (for testing or user request)
