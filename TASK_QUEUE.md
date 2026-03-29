@@ -1267,6 +1267,68 @@
   - Dependencies: AMNIE-009
   - Success: 40% improvement in engagement, 85% relevance rating
 
+---
+
+## 🚀 NEW P0 Tasks (Added March 29, 2026)
+
+### Mobile Session Management & Device Trust (PRD-052)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & Security Team | **Effort**: 8 weeks
+
+- [ ] **SMD-001**: Core session management infrastructure
+  - Estimated: 3 weeks
+  - Dependencies: Auth infrastructure, mobile UI framework
+  - Success: Session list UI showing all active sessions
+
+- [ ] **SMD-002**: Device trust system
+  - Estimated: 3 weeks
+  - Dependencies: SMD-001, Biometric auth
+  - Success: Trusted device designation and 2FA bypass
+
+- [ ] **SMD-003**: Security alerts and intruder detection
+  - Estimated: 2 weeks
+  - Dependencies: SMD-002, Push notifications
+  - Success: Failed attempt logging and photo capture
+
+## NEW P1 Tasks (Added March 29, 2026)
+
+### Biometric App Lock (PRD-055)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & Security Team | **Effort**: 5 weeks
+
+- [ ] **BAL-001**: Core biometric app lock implementation
+  - Estimated: 2 weeks
+  - Dependencies: Platform biometric APIs, Keychain/Keystore
+  - Success: Face ID/Touch ID/Fingerprint lock functional
+
+- [ ] **BAL-002**: Selective server/DM locking
+  - Estimated: 2 weeks
+  - Dependencies: BAL-001
+  - Success: Lock specific servers or DMs independently
+
+- [ ] **BAL-003**: Notification privacy and intruder detection
+  - Estimated: 1 week
+  - Dependencies: BAL-002, Push notification system
+  - Success: Hidden notification content when locked
+
+## NEW P2 Tasks (Added March 29, 2026)
+
+### Voice Effects & Audio Modulation (PRD-054)
+**Target**: Q4 2026 | **Owner**: Voice Engineering Team & Mobile UX Team | **Effort**: 10 weeks
+
+- [ ] **VEFF-001**: Audio processing foundation and core effects
+  - Estimated: 3 weeks
+  - Dependencies: WebRTC voice engine, mobile audio APIs
+  - Success: 10+ voice effects functional in real-time
+
+- [ ] **VEFF-002**: Custom controls and preset management
+  - Estimated: 4 weeks
+  - Dependencies: VEFF-001
+  - Success: Pitch/speed controls and custom presets
+
+- [ ] **VEFF-003**: Voice message effects and channel controls
+  - Estimated: 3 weeks
+  - Dependencies: VEFF-002
+  - Success: Effects on voice messages with channel permissions
+
 ## P1 Tasks (High Priority)
 
 ### Mobile-Native Content Creation Suite (PRD-053)
