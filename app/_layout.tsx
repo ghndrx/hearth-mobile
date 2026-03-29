@@ -16,6 +16,7 @@ import { ErrorBoundary } from "../components/ErrorBoundary";
 import { deepLinkManager, quickActionsService, spotlightService } from "../lib/services";
 import { offlineSyncService } from "../lib/services/offlineSync";
 import { analytics } from "../lib/services/analytics";
+import { getNetworkIntelligenceEngine } from "../lib/services/networkIntelligence";
 import { useAppStatePerformance } from "../lib/hooks";
 import "../global.css";
 
@@ -58,6 +59,10 @@ function RootLayoutNav() {
         // Start offline sync service
         offlineSyncService.start();
 
+        // Initialize and start Network Intelligence Engine for voice optimization
+        const networkEngine = getNetworkIntelligenceEngine();
+        await networkEngine.start();
+
         setServicesInitialized(true);
       } catch (error) {
         console.error("Failed to initialize platform services:", error);
@@ -72,6 +77,8 @@ function RootLayoutNav() {
     return () => {
       deepLinkManager.cleanup();
       offlineSyncService.stop();
+      const networkEngine = getNetworkIntelligenceEngine();
+      networkEngine.stop();
       analytics.cleanup();
     };
   }, []);
