@@ -13,6 +13,14 @@ export { usePushNotifications } from "./usePushNotifications";
 // Network status hooks
 export { useNetworkStatus, useIsOnline } from "./useNetworkStatus";
 
+// Network intelligence hooks (NET-001)
+export {
+  useNetworkIntelligence,
+  useNetworkQuality,
+  useVoiceOptimization,
+  useNetworkTransitions,
+} from "./useNetworkIntelligence";
+
 // WebSocket hooks
 export {
   useWebSocket,
