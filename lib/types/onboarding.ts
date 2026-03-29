@@ -4,8 +4,31 @@
  * Type definitions for the onboarding flow system.
  */
 
-export type OnboardingStepType = "tutorial" | "interaction" | "setup" | "discovery";
+export type OnboardingStepType = "tutorial" | "interaction" | "setup" | "discovery" | "gesture_training" | "interactive_tutorial";
 export type UserType = "gamer" | "professional" | "casual" | "creator";
+
+export type GestureType = "tap" | "swipe" | "long_press" | "pinch" | "double_tap" | "pull_to_refresh";
+export type SwipeDirection = "left" | "right" | "up" | "down";
+
+export interface GestureConfig {
+  type: GestureType;
+  direction?: SwipeDirection;
+  duration?: number;
+  distance?: number;
+  hapticFeedback?: boolean;
+}
+
+export interface InteractiveTutorialConfig {
+  targetGesture: GestureConfig;
+  successCriteria: {
+    attempts?: number;
+    accuracy?: number;
+    timeLimit?: number;
+  };
+  hints: string[];
+  demoVideo?: string;
+  hapticPattern?: string;
+}
 
 export interface OnboardingStep {
   id: string;
@@ -19,6 +42,18 @@ export interface OnboardingStep {
   actionPayload?: Record<string, unknown>;
   skippable: boolean;
   required: boolean;
+  // Interactive tutorial specific fields
+  interactiveConfig?: InteractiveTutorialConfig;
+  gestureTraining?: {
+    targetGestures: GestureConfig[];
+    practiceArea: {
+      width: number;
+      height: number;
+      backgroundColor?: string;
+    };
+    successMessage: string;
+    retryMessage: string;
+  };
 }
 
 export interface OnboardingFlow {
@@ -62,6 +97,12 @@ export interface OnboardingAnalytics {
   flowStarted: string;
   flowCompleted: string;
   flowAbandoned: string;
+  // Interactive tutorial analytics
+  gestureAttempted: string;
+  gestureCompleted: string;
+  gestureFailed: string;
+  tutorialRetried: string;
+  hintViewed: string;
 }
 
 export interface OnboardingFlowConfig {

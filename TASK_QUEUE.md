@@ -14,7 +14,7 @@
 ### Mobile-Native User Onboarding & First-Time Experience (PRD-047)
 **Target**: Q1 2026 | **Owner**: Mobile UX Team & Growth Team | **Effort**: 12 weeks
 
-- [ ] **ONB-001**: Core onboarding flow infrastructure and progress tracking
+- [x] **ONB-001**: Core onboarding flow infrastructure and progress tracking
   - Estimated: 3 weeks
   - Dependencies: Mobile analytics, user state management
   - Success: Basic onboarding flow with step progression working
