@@ -3,7 +3,7 @@ const { defaults } = require('jest-config');
 module.exports = {
   // preset: 'jest-expo', // Temporarily disabled due to React Native 0.76 compatibility issues
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   setupFiles: [], // Skip React Native setup files that are causing issues with RN 0.76
   transformIgnorePatterns: [
     // Don't transform node_modules except for React Native modules and our own code
