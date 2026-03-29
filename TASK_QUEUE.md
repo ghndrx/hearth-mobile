@@ -11,6 +11,52 @@
 
 ## P0 Tasks (Critical Priority)
 
+### Mobile-Native User Onboarding & First-Time Experience (PRD-047)
+**Target**: Q1 2026 | **Owner**: Mobile UX Team & Growth Team | **Effort**: 12 weeks
+
+- [ ] **ONB-001**: Core onboarding flow infrastructure and progress tracking
+  - Estimated: 3 weeks
+  - Dependencies: Mobile analytics, user state management
+  - Success: Basic onboarding flow with step progression working
+
+- [ ] **ONB-002**: Interactive tutorial system with gesture training
+  - Estimated: 4 weeks
+  - Dependencies: ONB-001, Haptic feedback system
+  - Success: Interactive tutorials with mobile gesture education
+
+- [ ] **ONB-003**: Smart personalization and server discovery
+  - Estimated: 3 weeks
+  - Dependencies: ONB-002, AI/ML infrastructure
+  - Success: Personalized onboarding with relevant server recommendations
+
+- [ ] **ONB-004**: Analytics and optimization framework
+  - Estimated: 2 weeks
+  - Dependencies: ONB-003
+  - Success: A/B testing and conversion optimization active
+
+### Contact Integration & Social Graph Discovery (PRD-048)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & Growth Team | **Effort**: 13 weeks
+
+- [ ] **CIG-001**: Privacy-first contact integration infrastructure
+  - Estimated: 3 weeks
+  - Dependencies: Privacy framework, encryption infrastructure
+  - Success: Encrypted contact import with privacy controls
+
+- [ ] **CIG-002**: Friend discovery and matching system
+  - Estimated: 4 weeks
+  - Dependencies: CIG-001, User graph infrastructure
+  - Success: Contact-based friend finding with 95% accuracy
+
+- [ ] **CIG-003**: Viral invitation system with messaging integration
+  - Estimated: 3 weeks
+  - Dependencies: CIG-002, Platform sharing APIs
+  - Success: Universal sharing for invitations working
+
+- [ ] **CIG-004**: Social graph building and recommendations
+  - Estimated: 3 weeks
+  - Dependencies: CIG-003, Recommendation engine
+  - Success: Automatic social connections and smart recommendations
+
 ### Mobile-Native Thread & Forum Channels (PRD-045)
 **Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 12 weeks
 
@@ -986,6 +1032,29 @@
   - Success: Secure cross-device clipboard and file sharing
 
 ## P1 Tasks (High Priority)
+
+### Advanced Mobile Input & Interaction Patterns (PRD-049)
+**Target**: Q3 2026 | **Owner**: Mobile UX Team & Platform Team | **Effort**: 17 weeks
+
+- [ ] **MIP-001**: Smart keyboard integration and autocomplete system
+  - Estimated: 4 weeks
+  - Dependencies: ML infrastructure, Mobile keyboard APIs
+  - Success: Context-aware autocomplete with 90% relevance
+
+- [ ] **MIP-002**: Advanced touch gestures and interaction patterns
+  - Estimated: 5 weeks
+  - Dependencies: MIP-001, Haptic feedback system
+  - Success: Pressure-sensitive touches and advanced gestures working
+
+- [ ] **MIP-003**: Contextual input features and device integration
+  - Estimated: 4 weeks
+  - Dependencies: MIP-002, Device sensor APIs
+  - Success: Location-aware input and camera text recognition functional
+
+- [ ] **MIP-004**: Enhanced voice input and accessibility features
+  - Estimated: 4 weeks
+  - Dependencies: MIP-003, Voice processing infrastructure
+  - Success: Voice commands and accessibility input methods working
 
 ### Advanced Gaming Integration & Rich Presence (PRD-042)
 **Target**: Q3 2026 | **Owner**: Gaming Experience Team | **Effort**: 14 weeks
