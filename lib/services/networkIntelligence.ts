@@ -462,6 +462,26 @@ export class NetworkIntelligenceEngine {
       category = 'poor';
     }
 
+    // Determine recommended profile directly from score to avoid circular call
+    let recommendedProfile: keyof typeof VoiceProfiles;
+    if (conditions.dataLimited || conditions.costPerMB) {
+      if (overallScore < 30) {
+        recommendedProfile = 'SURVIVAL';
+      } else if (overallScore < 60) {
+        recommendedProfile = 'EFFICIENT';
+      } else {
+        recommendedProfile = 'STANDARD';
+      }
+    } else if (overallScore >= 85) {
+      recommendedProfile = 'PREMIUM';
+    } else if (overallScore >= 65) {
+      recommendedProfile = 'STANDARD';
+    } else if (overallScore >= 35) {
+      recommendedProfile = 'EFFICIENT';
+    } else {
+      recommendedProfile = 'SURVIVAL';
+    }
+
     return {
       score: overallScore,
       category,
@@ -471,7 +491,7 @@ export class NetworkIntelligenceEngine {
         stability: stabilityScore,
         strength: strengthScore,
       },
-      recommendedProfile: this.selectOptimalProfile(conditions),
+      recommendedProfile,
     };
   }
 

@@ -9,15 +9,37 @@ import React, {
 } from "react";
 import * as Haptics from "expo-haptics";
 import type { Channel, VoiceParticipant, VoiceState, User } from "../types";
+import type {
+  NetworkConditions,
+  VoiceOptimizationProfile,
+  NetworkQuality,
+} from "../types/network";
+import { VoiceProfiles } from "../types/network";
+import { useNetworkIntelligence } from "../hooks/useNetworkStatus";
 
 // ============================================================================
-// Types
+// Enhanced Types for NET-001
 // ============================================================================
 
 interface VoiceChannel {
   channel: Channel;
   serverName: string;
   serverId: string;
+}
+
+interface VoiceQualityMetrics {
+  /** Current bitrate in kbps */
+  bitrate: number;
+  /** Current codec being used */
+  codec: string;
+  /** Packet loss percentage (0-100) */
+  packetLoss: number;
+  /** Audio quality score (0-100) */
+  audioQuality: number;
+  /** Whether adaptive optimization is active */
+  isAdaptiveOptimizationActive: boolean;
+  /** Data usage for current session in KB */
+  dataUsage: number;
 }
 
 interface VoiceContextValue {
@@ -41,15 +63,35 @@ interface VoiceContextValue {
   isMinimized: boolean;
   setMinimized: (minimized: boolean) => void;
 
-  // Connection quality
+  // Enhanced connection quality (NET-001)
   connectionQuality: "excellent" | "good" | "poor" | "disconnected";
   latency: number;
+  networkConditions: NetworkConditions | null;
+  networkQuality: NetworkQuality | null;
+  voiceProfile: VoiceOptimizationProfile | null;
+  voiceProfileKey: keyof typeof VoiceProfiles | null;
+  voiceQualityMetrics: VoiceQualityMetrics;
+
+  // Adaptive optimization controls
+  isAdaptiveOptimizationEnabled: boolean;
+  enableAdaptiveOptimization: () => void;
+  disableAdaptiveOptimization: () => void;
+  forceVoiceProfile: (profile: keyof typeof VoiceProfiles) => void;
 }
 
 const defaultVoiceState: VoiceState = {
   isMuted: false,
   isDeafened: false,
   isConnected: false,
+};
+
+const defaultVoiceQualityMetrics: VoiceQualityMetrics = {
+  bitrate: 64,
+  codec: 'opus',
+  packetLoss: 0,
+  audioQuality: 85,
+  isAdaptiveOptimizationActive: false,
+  dataUsage: 0,
 };
 
 // ============================================================================
@@ -59,7 +101,7 @@ const defaultVoiceState: VoiceState = {
 const VoiceContext = createContext<VoiceContextValue | null>(null);
 
 // ============================================================================
-// Provider
+// Enhanced Provider with Network Intelligence
 // ============================================================================
 
 interface VoiceProviderProps {
@@ -68,6 +110,7 @@ interface VoiceProviderProps {
 }
 
 export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
+  // Basic voice state
   const [currentChannel, setCurrentChannel] = useState<VoiceChannel | null>(null);
   const [participants, setParticipants] = useState<VoiceParticipant[]>([]);
   const [voiceState, setVoiceState] = useState<VoiceState>(defaultVoiceState);
@@ -77,13 +120,185 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
   >("disconnected");
   const [latency, setLatency] = useState(0);
 
-  // Local participant settings (volume, mute)
+  // Enhanced voice optimization state (NET-001)
+  const [isAdaptiveOptimizationEnabled, setIsAdaptiveOptimizationEnabled] = useState(true);
+  const [voiceQualityMetrics, setVoiceQualityMetrics] = useState<VoiceQualityMetrics>(
+    defaultVoiceQualityMetrics
+  );
+  const [forcedProfile, setForcedProfile] = useState<keyof typeof VoiceProfiles | null>(null);
+
+  // Network intelligence integration
+  const {
+    conditions: networkConditions,
+    quality: networkQuality,
+    voiceProfile,
+    voiceProfileKey,
+    isActive: isIntelligenceActive
+  } = useNetworkIntelligence({
+    voiceOptimization: {
+      autoSwitch: isAdaptiveOptimizationEnabled && !forcedProfile,
+      switchCooldown: 5000, // 5 seconds cooldown for voice calls
+      upgradeThreshold: 80,
+      downgradeThreshold: 50,
+    }
+  });
+
+  // Refs
   const participantSettings = useRef<Map<string, { volume: number; muted: boolean }>>(
     new Map()
   );
-
-  // Simulated connection (in production, this would be WebRTC)
   const connectionRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dataUsageTracker = useRef({ startTime: 0, totalBytes: 0 });
+  const profileChangeLogRef = useRef<Array<{
+    timestamp: number;
+    from: string;
+    to: string;
+    reason: string;
+  }>>([]);
+
+  // ============================================================================
+  // Voice Profile Management
+  // ============================================================================
+
+  const applyVoiceProfile = useCallback((profile: VoiceOptimizationProfile, profileKey: keyof typeof VoiceProfiles, reason: string = 'automatic') => {
+    if (!voiceState.isConnected) {
+      return;
+    }
+
+    console.log(`[VoiceContext] Applying voice profile: ${profileKey} (${reason})`);
+
+    // Update voice quality metrics
+    setVoiceQualityMetrics(prev => ({
+      ...prev,
+      bitrate: profile.bitrate,
+      codec: profile.codec,
+      isAdaptiveOptimizationActive: isAdaptiveOptimizationEnabled && !forcedProfile,
+    }));
+
+    // Log profile changes for analytics
+    profileChangeLogRef.current.push({
+      timestamp: Date.now(),
+      from: voiceQualityMetrics.codec,
+      to: profile.codec,
+      reason,
+    });
+
+    // Keep only last 10 changes
+    if (profileChangeLogRef.current.length > 10) {
+      profileChangeLogRef.current.shift();
+    }
+
+    // In a real implementation, this would configure the WebRTC connection
+    // For now, we simulate the effect on connection quality
+    updateConnectionQualityFromProfile(profile, networkConditions);
+  }, [voiceState.isConnected, isAdaptiveOptimizationEnabled, forcedProfile, voiceQualityMetrics.codec, networkConditions]);
+
+  const updateConnectionQualityFromProfile = useCallback((
+    profile: VoiceOptimizationProfile,
+    conditions: NetworkConditions | null
+  ) => {
+    if (!conditions) {
+      return;
+    }
+
+    // Simulate connection quality based on profile and network conditions
+    let qualityScore = 0;
+
+    if (profile.codec === 'opus' && conditions.bandwidth.down > 500) {
+      qualityScore = 90;
+    } else if (profile.codec === 'silk' && conditions.bandwidth.down > 200) {
+      qualityScore = 75;
+    } else if (conditions.bandwidth.down > 100) {
+      qualityScore = 60;
+    } else {
+      qualityScore = 30;
+    }
+
+    // Adjust for latency
+    if (conditions.latency > 200) {
+      qualityScore -= 20;
+    } else if (conditions.latency > 100) {
+      qualityScore -= 10;
+    }
+
+    // Update connection quality
+    if (qualityScore >= 85) {
+      setConnectionQuality("excellent");
+    } else if (qualityScore >= 65) {
+      setConnectionQuality("good");
+    } else {
+      setConnectionQuality("poor");
+    }
+
+    // Update latency from network conditions
+    setLatency(conditions.latency);
+
+    // Update audio quality metric
+    setVoiceQualityMetrics(prev => ({
+      ...prev,
+      audioQuality: qualityScore,
+      packetLoss: Math.max(0, (200 - conditions.stability) / 20), // Simulate packet loss from instability
+    }));
+  }, []);
+
+  // ============================================================================
+  // Network Intelligence Integration
+  // ============================================================================
+
+  // Auto-apply voice profiles based on network intelligence
+  useEffect(() => {
+    if (!voiceProfile || !voiceProfileKey || !voiceState.isConnected) {
+      return;
+    }
+
+    // Don't auto-apply if user has forced a profile
+    if (forcedProfile) {
+      return;
+    }
+
+    // Don't auto-apply if adaptive optimization is disabled
+    if (!isAdaptiveOptimizationEnabled) {
+      return;
+    }
+
+    applyVoiceProfile(voiceProfile, voiceProfileKey, 'network_adaptation');
+  }, [voiceProfile, voiceProfileKey, voiceState.isConnected, forcedProfile, isAdaptiveOptimizationEnabled, applyVoiceProfile]);
+
+  // ============================================================================
+  // Data Usage Tracking
+  // ============================================================================
+
+  useEffect(() => {
+    if (!voiceState.isConnected) {
+      return;
+    }
+
+    // Start tracking data usage
+    dataUsageTracker.current.startTime = Date.now();
+    dataUsageTracker.current.totalBytes = 0;
+
+    // Simulate data usage calculation based on current profile
+    const dataTrackingInterval = setInterval(() => {
+      const currentProfile = voiceProfile || VoiceProfiles.STANDARD;
+      const bitrateKbps = currentProfile.bitrate;
+      const bytesPerSecond = (bitrateKbps * 1024) / 8; // Convert kbps to bytes per second
+
+      dataUsageTracker.current.totalBytes += bytesPerSecond;
+
+      setVoiceQualityMetrics(prev => ({
+        ...prev,
+        dataUsage: Math.round(dataUsageTracker.current.totalBytes / 1024), // Convert to KB
+      }));
+    }, 1000);
+
+    return () => {
+      clearInterval(dataTrackingInterval);
+    };
+  }, [voiceState.isConnected, voiceProfile]);
+
+  // ============================================================================
+  // Core Voice Functions (Enhanced)
+  // ============================================================================
 
   const joinChannel = useCallback(
     async (channel: Channel, serverName: string, serverId: string) => {
@@ -104,8 +319,18 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
         isDeafened: false,
         isConnected: true,
       });
-      setConnectionQuality("excellent");
-      setLatency(45);
+
+      // Initialize with standard quality, network intelligence will optimize
+      setConnectionQuality("good");
+      setLatency(50);
+
+      // Reset data usage tracking
+      dataUsageTracker.current = { startTime: Date.now(), totalBytes: 0 };
+
+      // Apply initial voice profile based on current network conditions
+      const initialProfile = voiceProfile || VoiceProfiles.STANDARD;
+      const initialProfileKey = voiceProfileKey || 'STANDARD';
+      applyVoiceProfile(initialProfile, initialProfileKey, 'initial_connection');
 
       // Add self to participants
       const selfParticipant: VoiceParticipant = {
@@ -118,13 +343,11 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
       };
 
       setParticipants((prev) => {
-        // Remove self if already in list, then add
         const filtered = prev.filter((p) => p.user.id !== currentUser.id);
         return [...filtered, selfParticipant];
       });
 
       // Simulate other participants (demo data)
-      // In production, this would come from the voice server
       setTimeout(() => {
         setParticipants((prev) => {
           if (prev.length <= 1) {
@@ -173,8 +396,10 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
           }))
         );
       }, 2000);
+
+      console.log(`[VoiceContext] Joined channel: ${channel.name} with network intelligence ${isIntelligenceActive ? 'enabled' : 'disabled'}`);
     },
-    [currentChannel, currentUser]
+    [currentChannel, currentUser, voiceProfile, voiceProfileKey, applyVoiceProfile, isIntelligenceActive]
   );
 
   const leaveChannel = useCallback(() => {
@@ -185,13 +410,20 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
       connectionRef.current = null;
     }
 
+    // Log session summary
+    const sessionDuration = (Date.now() - dataUsageTracker.current.startTime) / 1000;
+    const totalDataKB = voiceQualityMetrics.dataUsage;
+    console.log(`[VoiceContext] Session ended. Duration: ${sessionDuration}s, Data usage: ${totalDataKB}KB`);
+
     setCurrentChannel(null);
     setParticipants([]);
     setVoiceState(defaultVoiceState);
     setConnectionQuality("disconnected");
     setLatency(0);
     setMinimized(false);
-  }, []);
+    setVoiceQualityMetrics(defaultVoiceQualityMetrics);
+    setForcedProfile(null); // Reset forced profile on disconnect
+  }, [voiceQualityMetrics.dataUsage]);
 
   const toggleMute = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -247,6 +479,28 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
     []
   );
 
+  // ============================================================================
+  // Adaptive Optimization Controls
+  // ============================================================================
+
+  const enableAdaptiveOptimization = useCallback(() => {
+    setIsAdaptiveOptimizationEnabled(true);
+    setForcedProfile(null); // Clear any forced profile
+    console.log('[VoiceContext] Adaptive optimization enabled');
+  }, []);
+
+  const disableAdaptiveOptimization = useCallback(() => {
+    setIsAdaptiveOptimizationEnabled(false);
+    console.log('[VoiceContext] Adaptive optimization disabled');
+  }, []);
+
+  const forceVoiceProfile = useCallback((profile: keyof typeof VoiceProfiles) => {
+    setForcedProfile(profile);
+    const profileConfig = VoiceProfiles[profile];
+    applyVoiceProfile(profileConfig, profile, 'user_forced');
+    console.log(`[VoiceContext] Voice profile forced to: ${profile}`);
+  }, [applyVoiceProfile]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -256,7 +510,12 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
     };
   }, []);
 
+  // ============================================================================
+  // Context Value
+  // ============================================================================
+
   const value: VoiceContextValue = {
+    // Basic voice state
     isConnected: voiceState.isConnected,
     currentChannel,
     participants,
@@ -269,8 +528,21 @@ export function VoiceProvider({ children, currentUser }: VoiceProviderProps) {
     setParticipantLocalMute,
     isMinimized,
     setMinimized,
+
+    // Enhanced connection quality (NET-001)
     connectionQuality,
     latency,
+    networkConditions,
+    networkQuality,
+    voiceProfile: forcedProfile ? VoiceProfiles[forcedProfile] : voiceProfile,
+    voiceProfileKey: forcedProfile || voiceProfileKey,
+    voiceQualityMetrics,
+
+    // Adaptive optimization controls
+    isAdaptiveOptimizationEnabled,
+    enableAdaptiveOptimization,
+    disableAdaptiveOptimization,
+    forceVoiceProfile,
   };
 
   return (
