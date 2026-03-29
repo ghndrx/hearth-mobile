@@ -6,7 +6,7 @@
  */
 
 import { analytics } from "./analytics";
-import { OnboardingStep, UserType } from "../types/onboarding";
+import { OnboardingStep, UserType, GestureType } from "../types/onboarding";
 
 interface StepTiming {
   stepId: string;
@@ -115,6 +115,108 @@ class OnboardingAnalyticsService {
       flow_id: flowId,
       resumed_step_id: stepId,
       resumed_step_index: stepIndex,
+    });
+  }
+
+  // Interactive tutorial and gesture training analytics
+  trackGestureAttempted(
+    stepId: string,
+    gestureType: string,
+    gestureIndex: number,
+    attemptCount: number
+  ): void {
+    analytics.logEvent("onboarding_gesture_attempted", {
+      step_id: stepId,
+      gesture_type: gestureType,
+      gesture_index: gestureIndex,
+      attempt_count: attemptCount,
+    });
+  }
+
+  trackGestureCompleted(
+    stepId: string,
+    gestureType: string,
+    gestureIndex: number,
+    attemptCount: number,
+    durationMs: number
+  ): void {
+    analytics.logEvent("onboarding_gesture_completed", {
+      step_id: stepId,
+      gesture_type: gestureType,
+      gesture_index: gestureIndex,
+      attempt_count: attemptCount,
+      duration_ms: durationMs,
+      success_on_first_try: attemptCount === 1,
+    });
+  }
+
+  trackGestureFailed(
+    stepId: string,
+    gestureType: string,
+    gestureIndex: number,
+    attemptCount: number,
+    failureReason?: string
+  ): void {
+    analytics.logEvent("onboarding_gesture_failed", {
+      step_id: stepId,
+      gesture_type: gestureType,
+      gesture_index: gestureIndex,
+      attempt_count: attemptCount,
+      failure_reason: failureReason,
+    });
+  }
+
+  trackTutorialRetried(stepId: string, gestureIndex: number, totalAttempts: number): void {
+    analytics.logEvent("onboarding_tutorial_retried", {
+      step_id: stepId,
+      gesture_index: gestureIndex,
+      total_attempts: totalAttempts,
+    });
+  }
+
+  trackHintViewed(
+    stepId: string,
+    gestureIndex: number,
+    hintIndex: number,
+    triggerReason: "manual" | "auto_after_attempts"
+  ): void {
+    analytics.logEvent("onboarding_hint_viewed", {
+      step_id: stepId,
+      gesture_index: gestureIndex,
+      hint_index: hintIndex,
+      trigger_reason: triggerReason,
+    });
+  }
+
+  trackInteractiveTutorialCompleted(
+    stepId: string,
+    totalGestures: number,
+    completedGestures: number,
+    totalAttempts: number,
+    durationMs: number
+  ): void {
+    analytics.logEvent("onboarding_interactive_tutorial_completed", {
+      step_id: stepId,
+      total_gestures: totalGestures,
+      completed_gestures: completedGestures,
+      total_attempts: totalAttempts,
+      duration_ms: durationMs,
+      completion_rate: Math.round((completedGestures / totalGestures) * 100),
+    });
+  }
+
+  trackInteractiveTutorialSkipped(
+    stepId: string,
+    gestureIndex: number,
+    totalGestures: number,
+    completedGestures: number
+  ): void {
+    analytics.logEvent("onboarding_interactive_tutorial_skipped", {
+      step_id: stepId,
+      skipped_at_gesture: gestureIndex,
+      total_gestures: totalGestures,
+      completed_gestures: completedGestures,
+      completion_rate: Math.round((completedGestures / totalGestures) * 100),
     });
   }
 

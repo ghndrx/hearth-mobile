@@ -17,6 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { OnboardingStep } from "../../lib/types/onboarding";
+import { InteractiveTutorial } from "./InteractiveTutorial";
 
 const { width } = Dimensions.get("window");
 
@@ -25,6 +26,9 @@ interface OnboardingStepContentProps {
   stepIndex: number;
   scrollX: Animated.SharedValue<number>;
   isActive?: boolean;
+  onInteractiveTutorialComplete?: () => void;
+  onInteractiveTutorialSkip?: () => void;
+  onInteractiveTutorialHintRequested?: (gestureIndex: number) => void;
 }
 
 export function OnboardingStepContent({
@@ -32,6 +36,9 @@ export function OnboardingStepContent({
   stepIndex,
   scrollX,
   isActive = true,
+  onInteractiveTutorialComplete,
+  onInteractiveTutorialSkip,
+  onInteractiveTutorialHintRequested,
 }: OnboardingStepContentProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -63,6 +70,24 @@ export function OnboardingStepContent({
     };
   });
 
+  // Render interactive tutorial for gesture training steps
+  if (step.type === "gesture_training" || step.type === "interactive_tutorial") {
+    return (
+      <Animated.View
+        style={[styles.container, animatedStyle]}
+        entering={FadeIn.duration(300)}
+      >
+        <InteractiveTutorial
+          step={step}
+          onComplete={onInteractiveTutorialComplete || (() => {})}
+          onSkip={onInteractiveTutorialSkip || (() => {})}
+          onHintRequested={onInteractiveTutorialHintRequested || (() => {})}
+        />
+      </Animated.View>
+    );
+  }
+
+  // Render regular step content
   return (
     <Animated.View
       style={[styles.container, animatedStyle]}
@@ -117,7 +142,7 @@ export function OnboardingStepContent({
         ]}
       >
         <Animated.Text style={[styles.badgeText, { color: step.iconColor }]}>
-          {step.type.charAt(0).toUpperCase() + step.type.slice(1)}
+          {step.type.charAt(0).toUpperCase() + step.type.slice(1).replace("_", " ")}
         </Animated.Text>
       </Animated.View>
     </Animated.View>

@@ -94,51 +94,231 @@ const PROFILE_SETUP_STEP: OnboardingStep = {
   required: false,
 };
 
+// Interactive tutorial steps for mobile gestures
+const MOBILE_GESTURES_STEP: OnboardingStep = {
+  id: "mobile-gestures",
+  type: "gesture_training" as OnboardingStepType,
+  title: "Master Mobile Gestures",
+  description: "Learn essential gestures",
+  icon: "hand-right",
+  iconColor: "#8b5cf6",
+  content: "Learn the essential mobile gestures that make navigating Hearth fast and intuitive. Practice each gesture and get instant feedback!",
+  skippable: true,
+  required: false,
+  gestureTraining: {
+    targetGestures: [
+      {
+        type: "tap",
+        hapticFeedback: true,
+      },
+      {
+        type: "swipe",
+        direction: "right",
+        distance: 100,
+        hapticFeedback: true,
+      },
+      {
+        type: "long_press",
+        duration: 2000,
+        hapticFeedback: true,
+      },
+    ],
+    practiceArea: {
+      width: 300,
+      height: 200,
+      backgroundColor: "#f8fafc",
+    },
+    successMessage: "Great job! You've mastered the basic gestures!",
+    retryMessage: "Try again! Remember to follow the instructions carefully.",
+  },
+  interactiveConfig: {
+    targetGesture: {
+      type: "tap",
+      hapticFeedback: true,
+    },
+    successCriteria: {
+      attempts: 3,
+      accuracy: 80,
+      timeLimit: 30000,
+    },
+    hints: [
+      "Tap gently with one finger",
+      "Make sure your tap is quick and precise",
+      "Try tapping in the center of the practice area",
+    ],
+  },
+};
+
+const CHAT_GESTURES_STEP: OnboardingStep = {
+  id: "chat-gestures",
+  type: "interactive_tutorial" as OnboardingStepType,
+  title: "Chat Interactions",
+  description: "Message gestures",
+  icon: "chatbubbles",
+  iconColor: "#10b981",
+  content: "Learn how to interact with messages using gestures. Swipe to reply, long-press for options, and double-tap to react!",
+  skippable: true,
+  required: false,
+  gestureTraining: {
+    targetGestures: [
+      {
+        type: "swipe",
+        direction: "left",
+        distance: 80,
+        hapticFeedback: true,
+      },
+      {
+        type: "long_press",
+        duration: 1500,
+        hapticFeedback: true,
+      },
+      {
+        type: "double_tap",
+        hapticFeedback: true,
+      },
+    ],
+    practiceArea: {
+      width: 320,
+      height: 180,
+      backgroundColor: "#ecfdf5",
+    },
+    successMessage: "Perfect! You can now interact with messages like a pro!",
+    retryMessage: "Keep practicing! These gestures will become second nature.",
+  },
+  interactiveConfig: {
+    targetGesture: {
+      type: "swipe",
+      direction: "left",
+      distance: 80,
+      hapticFeedback: true,
+    },
+    successCriteria: {
+      attempts: 5,
+      accuracy: 75,
+      timeLimit: 45000,
+    },
+    hints: [
+      "Swipe left on a message to quickly reply",
+      "Long-press a message to see all options",
+      "Double-tap to add a heart reaction",
+      "Swipe with consistent speed for best results",
+    ],
+  },
+};
+
+const NAVIGATION_GESTURES_STEP: OnboardingStep = {
+  id: "navigation-gestures",
+  type: "interactive_tutorial" as OnboardingStepType,
+  title: "Quick Navigation",
+  description: "Navigate like a pro",
+  icon: "navigate",
+  iconColor: "#f59e0b",
+  content: "Master navigation gestures to move around Hearth quickly. Swipe between channels, pull to refresh, and use pinch to zoom!",
+  skippable: true,
+  required: false,
+  gestureTraining: {
+    targetGestures: [
+      {
+        type: "swipe",
+        direction: "right",
+        distance: 120,
+        hapticFeedback: true,
+      },
+      {
+        type: "pull_to_refresh",
+        hapticFeedback: true,
+      },
+      {
+        type: "pinch",
+        hapticFeedback: true,
+      },
+    ],
+    practiceArea: {
+      width: 340,
+      height: 220,
+      backgroundColor: "#fef3c7",
+    },
+    successMessage: "Excellent! You're now a navigation expert!",
+    retryMessage: "Practice makes perfect! Try the gesture again.",
+  },
+  interactiveConfig: {
+    targetGesture: {
+      type: "swipe",
+      direction: "right",
+      distance: 120,
+      hapticFeedback: true,
+    },
+    successCriteria: {
+      attempts: 4,
+      accuracy: 85,
+      timeLimit: 60000,
+    },
+    hints: [
+      "Swipe right to go back to previous channel",
+      "Pull down from the top to refresh content",
+      "Use two fingers to pinch and zoom text",
+      "Navigation gestures work throughout the app",
+    ],
+  },
+};
+
 // User-type-specific flow configurations
 const FLOW_CONFIGS: Record<UserType, OnboardingFlowConfig> = {
   casual: {
     userType: "casual",
-    description: "Standard onboarding flow for casual users",
+    description: "Standard onboarding flow for casual users with interactive tutorials",
     steps: [
       WELCOME_STEP,
+      MOBILE_GESTURES_STEP,
       JOIN_COMMUNITIES_STEP,
       REAL_TIME_CHAT_STEP,
+      CHAT_GESTURES_STEP,
       VOICE_VIDEO_STEP,
+      NAVIGATION_GESTURES_STEP,
       NOTIFICATIONS_STEP,
       PROFILE_SETUP_STEP,
     ],
   },
   gamer: {
     userType: "gamer",
-    description: "Gaming-focused onboarding with voice chat emphasis",
+    description: "Gaming-focused onboarding with voice chat emphasis and gesture training",
     steps: [
       WELCOME_STEP,
+      MOBILE_GESTURES_STEP,
       { ...JOIN_COMMUNITIES_STEP, content: "Find gaming communities, esports teams, and LFG groups. Join servers for your favorite games." },
       VOICE_VIDEO_STEP,
       REAL_TIME_CHAT_STEP,
+      CHAT_GESTURES_STEP,
+      NAVIGATION_GESTURES_STEP,
       NOTIFICATIONS_STEP,
       PROFILE_SETUP_STEP,
     ],
   },
   professional: {
     userType: "professional",
-    description: "Professional onboarding with workspace focus",
+    description: "Professional onboarding with workspace focus and essential gestures",
     steps: [
       WELCOME_STEP,
+      MOBILE_GESTURES_STEP,
       { ...JOIN_COMMUNITIES_STEP, title: "Join Workspaces", content: "Connect with professional communities, industry groups, and team workspaces." },
       REAL_TIME_CHAT_STEP,
+      CHAT_GESTURES_STEP,
+      NAVIGATION_GESTURES_STEP,
       NOTIFICATIONS_STEP,
       PROFILE_SETUP_STEP,
     ],
   },
   creator: {
     userType: "creator",
-    description: "Creator-focused onboarding with community building emphasis",
+    description: "Creator-focused onboarding with community building emphasis and full gesture training",
     steps: [
       WELCOME_STEP,
+      MOBILE_GESTURES_STEP,
       { ...JOIN_COMMUNITIES_STEP, content: "Discover creator communities, fan servers, and collaboration spaces. Share your content with the world." },
       REAL_TIME_CHAT_STEP,
+      CHAT_GESTURES_STEP,
       VOICE_VIDEO_STEP,
+      NAVIGATION_GESTURES_STEP,
       NOTIFICATIONS_STEP,
       PROFILE_SETUP_STEP,
     ],

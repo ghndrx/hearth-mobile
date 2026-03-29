@@ -108,6 +108,19 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     router.replace("/welcome");
   };
 
+  const handleInteractiveTutorialComplete = useCallback(async () => {
+    await completeCurrentStep();
+  }, [completeCurrentStep]);
+
+  const handleInteractiveTutorialSkip = useCallback(async () => {
+    await skipCurrentStep();
+  }, [skipCurrentStep]);
+
+  const handleInteractiveTutorialHintRequested = useCallback((gestureIndex: number) => {
+    // Could track analytics or show additional guidance
+    console.log(`Hint requested for gesture index: ${gestureIndex}`);
+  }, []);
+
   const renderStep = useCallback(
     ({ item, index }: { item: OnboardingStep; index: number }) => (
       <OnboardingStepContent
@@ -115,9 +128,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         stepIndex={index}
         scrollX={scrollX}
         isActive={index === currentStepIndex}
+        onInteractiveTutorialComplete={handleInteractiveTutorialComplete}
+        onInteractiveTutorialSkip={handleInteractiveTutorialSkip}
+        onInteractiveTutorialHintRequested={handleInteractiveTutorialHintRequested}
       />
     ),
-    [currentStepIndex, scrollX]
+    [currentStepIndex, scrollX, handleInteractiveTutorialComplete, handleInteractiveTutorialSkip, handleInteractiveTutorialHintRequested]
   );
 
   const keyExtractor = useCallback((item: OnboardingStep) => item.id, []);
