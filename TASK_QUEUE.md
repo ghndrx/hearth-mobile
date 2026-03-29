@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 28, 2026
+**Last Updated**: March 29, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -10,6 +10,75 @@
 - **P3**: Low - Future considerations
 
 ## P0 Tasks (Critical Priority)
+
+### Mobile-Native Thread & Forum Channels (PRD-045)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 12 weeks
+
+- [ ] **TFC-001**: Core thread creation and reply infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: Database schema updates, mobile UI framework
+  - Success: Thread creation from mobile messages working
+
+- [ ] **TFC-002**: Forum channel implementation with post/reply structure
+  - Estimated: 3 weeks
+  - Dependencies: TFC-001
+  - Success: Forum channels functional with mobile-optimized UX
+
+- [ ] **TFC-003**: Mobile thread navigation and gesture support
+  - Estimated: 3 weeks
+  - Dependencies: TFC-002
+  - Success: Seamless thread navigation with mobile gestures
+
+- [ ] **TFC-004**: Thread following and notification system
+  - Estimated: 2 weeks
+  - Dependencies: TFC-003, Push notification system
+  - Success: Thread-specific notifications working
+
+### Mobile Intelligent Search & Discovery (PRD-046)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & AI Team | **Effort**: 15 weeks
+
+- [ ] **MIS-001**: Core search infrastructure and indexing
+  - Estimated: 5 weeks
+  - Dependencies: Search backend, mobile UI components
+  - Success: Basic text search functional on mobile
+
+- [ ] **MIS-002**: AI-powered query understanding and semantic search
+  - Estimated: 4 weeks
+  - Dependencies: MIS-001, AI/ML infrastructure
+  - Success: Natural language queries working with 85% accuracy
+
+- [ ] **MIS-003**: Advanced content search (files, media, threads)
+  - Estimated: 3 weeks
+  - Dependencies: MIS-002, Content processing pipeline
+  - Success: Comprehensive content discovery functional
+
+- [ ] **MIS-004**: Mobile search UX optimization and personalization
+  - Estimated: 3 weeks
+  - Dependencies: MIS-003
+  - Success: Mobile-optimized search with personalized results
+
+### Mobile App & Bot Ecosystem Platform (PRD-047)
+**Target**: Q3 2026 | **Owner**: Platform Team & Mobile Team | **Effort**: 18 weeks
+
+- [ ] **MAB-001**: App marketplace infrastructure and mobile frontend
+  - Estimated: 6 weeks
+  - Dependencies: Platform architecture, mobile app store integration
+  - Success: Mobile app marketplace functional with installation
+
+- [ ] **MAB-002**: Mobile bot interaction framework and SDK
+  - Estimated: 4 weeks
+  - Dependencies: MAB-001, Mobile SDK foundation
+  - Success: Mobile-optimized bot commands and interactions
+
+- [ ] **MAB-003**: Advanced mobile features (notifications, OS integration)
+  - Estimated: 4 weeks
+  - Dependencies: MAB-002, Push notification system
+  - Success: Bot mobile notifications and OS features working
+
+- [ ] **MAB-004**: Developer ecosystem and monetization platform
+  - Estimated: 4 weeks
+  - Dependencies: MAB-003
+  - Success: Developer tools launched with 100+ initial apps
 
 ### Push Notifications System (PRD-001)
 **Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
