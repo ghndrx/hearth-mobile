@@ -827,6 +827,95 @@
   - Dependencies: IMS-008
   - Success: <500ms cached queries, offline search for recent messages
 
+### Live Activities & Dynamic Island Integration (PRD-LAD-001)
+**Target**: Q2 2026 | **Owner**: iOS Team | **Effort**: 8 weeks
+
+- [ ] **LAD-001**: ActivityKit integration and Live Activities framework
+  - Estimated: 2 weeks
+  - Dependencies: PN-001 (Push notifications)
+  - Success: Basic Live Activities for voice channels working
+
+- [ ] **LAD-002**: Dynamic Island UI integration
+  - Estimated: 2 weeks
+  - Dependencies: LAD-001
+  - Success: Voice channel status in Dynamic Island
+
+- [ ] **LAD-003**: Lock Screen interactive widgets
+  - Estimated: 2 weeks
+  - Dependencies: LAD-002
+  - Success: Message preview and quick reply from Lock Screen
+
+- [ ] **LAD-004**: Real-time state management optimization
+  - Estimated: 1.5 weeks
+  - Dependencies: LAD-003
+  - Success: <5% battery impact, <200ms update latency
+
+- [ ] **LAD-005**: User customization and settings
+  - Estimated: 0.5 weeks
+  - Dependencies: LAD-004
+  - Success: Granular Live Activities preferences implemented
+
+### AI-Powered Communication Intelligence Engine (PRD-ACI-001)
+**Target**: Q3 2026 | **Owner**: AI/ML Team + Mobile Team | **Effort**: 12 weeks
+
+- [ ] **ACI-001**: Smart reply engine development
+  - Estimated: 3 weeks
+  - Dependencies: Real-time messaging infrastructure
+  - Success: 90%+ relevance rate for smart suggestions
+
+- [ ] **ACI-002**: Contextual typing intelligence
+  - Estimated: 2.5 weeks
+  - Dependencies: ACI-001
+  - Success: Context-aware autocomplete and emoji suggestions
+
+- [ ] **ACI-003**: Real-time conversation summarization
+  - Estimated: 3 weeks
+  - Dependencies: ACI-002
+  - Success: Automatic summaries for long conversations
+
+- [ ] **ACI-004**: Predictive user assistance
+  - Estimated: 2.5 weeks
+  - Dependencies: ACI-003
+  - Success: Smart notification management and recommendations
+
+- [ ] **ACI-005**: AI-powered accessibility engine
+  - Estimated: 2 weeks
+  - Dependencies: Voice channel infrastructure
+  - Success: 95%+ accuracy voice transcription, image descriptions
+
+### Advanced Cross-Device Continuity Ecosystem (PRD-CDC-001)
+**Target**: Q3 2026 | **Owner**: Platform Team + Mobile Team | **Effort**: 10 weeks
+
+- [ ] **CDC-001**: Intelligent device handoff system
+  - Estimated: 3 weeks
+  - Dependencies: User authentication system
+  - Success: <500ms handoff latency, seamless voice transitions
+
+- [ ] **CDC-002**: Universal state synchronization
+  - Estimated: 2.5 weeks
+  - Dependencies: CDC-001
+  - Success: 99.9% sync reliability across platforms
+
+- [ ] **CDC-003**: Smart watch companion apps
+  - Estimated: 2 weeks
+  - Dependencies: CDC-002
+  - Success: Voice controls and notifications on watchOS/Wear OS
+
+- [ ] **CDC-004**: Smart TV and large screen integration
+  - Estimated: 1.5 weeks
+  - Dependencies: CDC-003
+  - Success: Apple TV/Android TV apps with voice channels
+
+- [ ] **CDC-005**: Automotive integration (CarPlay/Android Auto)
+  - Estimated: 1.5 weeks
+  - Dependencies: CDC-004
+  - Success: Hands-free voice channel controls while driving
+
+- [ ] **CDC-006**: Universal clipboard and content sharing
+  - Estimated: 1 week
+  - Dependencies: CDC-005
+  - Success: Secure cross-device clipboard and file sharing
+
 ## P1 Tasks (High Priority)
 
 ### Advanced Gaming Integration & Rich Presence (PRD-042)
