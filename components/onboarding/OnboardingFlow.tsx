@@ -19,6 +19,7 @@ import Animated, {
   useSharedValue,
   FadeIn,
   FadeInDown,
+  FadeInUp,
   FadeOut,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
@@ -89,6 +90,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const handleSkip = async () => {
     await skipCurrentStep();
+    const nextIndex = currentStepIndex + 1;
+    if (nextIndex < steps.length) {
+      flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+    }
     // If after skipping we're at the last step and skip it, complete
     const flow = currentFlow;
     if (flow && flow.currentStepIndex >= flow.steps.length - 1) {
@@ -215,8 +220,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     </View>
   );
 }
-
-import { FadeInUp } from "react-native-reanimated";
 
 const styles = StyleSheet.create({
   container: {
