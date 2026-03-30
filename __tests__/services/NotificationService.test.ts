@@ -40,13 +40,10 @@ jest.mock('expo-device', () => ({
   osVersion: '17.0',
 }));
 jest.mock('expo-constants', () => ({
-  __esModule: true,
-  default: {
-    sessionId: 'test-session-id',
-    expoConfig: {
-      version: '0.1.0',
-      extra: { eas: { projectId: 'test-project-id' } },
-    },
+  sessionId: 'test-session-id',
+  expoConfig: {
+    version: '0.1.0',
+    extra: { eas: { projectId: 'test-project-id' } },
   },
 }));
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
@@ -65,6 +62,24 @@ jest.mock('../../lib/services/api', () => ({
     lastActiveAt: Date.now(),
   }),
   unregisterDevice: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock the notifications service to prevent setNotificationHandler from being called
+jest.mock('../../lib/services/notifications', () => ({
+  registerForPushNotifications: jest.fn().mockResolvedValue('test-token'),
+  getNotificationSettings: jest.fn().mockResolvedValue({
+    enabled: true,
+    sounds: true,
+    badgeCount: true,
+    quietHoursEnabled: false,
+  }),
+  saveNotificationSettings: jest.fn(),
+  getStoredPushToken: jest.fn(),
+  clearPushToken: jest.fn(),
+  getStoredDeviceRegistration: jest.fn(),
+  getPermissionStatus: jest.fn().mockResolvedValue('granted'),
+  setBadgeCount: jest.fn(),
+  clearBadgeCount: jest.fn(),
 }));
 
 import { NotificationService } from '../../src/services/NotificationService';

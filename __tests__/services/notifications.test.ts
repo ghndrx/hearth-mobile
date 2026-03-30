@@ -5,8 +5,8 @@
  * for PN-001 implementation.
  */
 
-// Mock expo modules
-const mockNotifications = {
+// Mock expo modules first - MUST be hoisted
+jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
   getPermissionsAsync: jest.fn(),
   requestPermissionsAsync: jest.fn(),
@@ -24,50 +24,48 @@ const mockNotifications = {
     DEFAULT: 'default',
     LOW: 'low',
   },
-};
+}));
 
-const mockDevice = {
+jest.mock('expo-device', () => ({
   isDevice: true,
   brand: 'Apple',
   modelName: 'iPhone 14',
   deviceName: 'John\'s iPhone',
   osVersion: '17.0',
-};
+}));
 
-const mockConstants = {
-  sessionId: 'test-session-id',
-  expoConfig: {
-    version: '1.0.0',
-    extra: {
-      eas: {
-        projectId: 'test-project-id',
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: {
+    sessionId: 'test-session-id',
+    expoConfig: {
+      version: '1.0.0',
+      extra: {
+        eas: {
+          projectId: 'test-project-id',
+        },
       },
     },
   },
-};
+}));
 
-const mockAsyncStorage = {
+jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
-};
+}));
 
-const mockApi = {
+jest.mock('../../lib/services/api', () => ({
   registerDevice: jest.fn(),
   unregisterDevice: jest.fn(),
-};
+}));
 
-const mockPlatform = {
-  OS: 'ios',
-  Version: '17.0',
-};
-
-jest.mock('expo-notifications', () => mockNotifications);
-jest.mock('expo-device', () => mockDevice);
-jest.mock('expo-constants', () => mockConstants);
-jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
-jest.mock('../../lib/services/api', () => mockApi);
-jest.mock('react-native', () => ({ Platform: mockPlatform }));
+jest.mock('react-native', () => ({
+  Platform: {
+    OS: 'ios',
+    Version: '17.0',
+  },
+}));
 
 // Import the service after mocking
 import {
@@ -85,6 +83,10 @@ import {
   dismissAllNotifications,
   DEFAULT_NOTIFICATION_SETTINGS,
 } from '../../lib/services/notifications';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { registerDevice, unregisterDevice } from '../../lib/services/api';
 
 type NotificationSettings = {
   enabled: boolean;
@@ -103,14 +105,22 @@ type NotificationSettings = {
   quietHoursEnd: string;
 };
 
+// Get references to mocked modules
+const mockNotifications = Notifications as jest.Mocked<typeof Notifications>;
+const mockDevice = Device as jest.Mocked<typeof Device>;
+const mockAsyncStorage = AsyncStorage as jest.Mocked<typeof AsyncStorage>;
+const mockApi = { registerDevice: registerDevice as jest.MockedFunction<typeof registerDevice>, unregisterDevice: unregisterDevice as jest.MockedFunction<typeof unregisterDevice> };
+
 describe('Notifications Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset device mock to default
+    (mockDevice.isDevice as any) = true;
   });
 
   describe('registerForPushNotifications', () => {
     it('should return null if not running on physical device', async () => {
-      mockDevice.isDevice = false;
+      (mockDevice.isDevice as any) = false;
 
       const token = await registerForPushNotifications();
 
@@ -118,7 +128,7 @@ describe('Notifications Service', () => {
     });
 
     it('should request permissions and get push token on physical device', async () => {
-      mockDevice.isDevice = true;
+      (mockDevice.isDevice as any) = true;
       mockNotifications.getPermissionsAsync.mockResolvedValue({ status: 'undetermined' } as any);
       mockNotifications.requestPermissionsAsync.mockResolvedValue({ status: 'granted' } as any);
       mockNotifications.getExpoPushTokenAsync.mockResolvedValue({ data: 'test-push-token' } as any);
@@ -151,7 +161,7 @@ describe('Notifications Service', () => {
     });
 
     it('should return null if permission denied', async () => {
-      mockDevice.isDevice = true;
+      (mockDevice.isDevice as any) = true;
       mockNotifications.getPermissionsAsync.mockResolvedValue({ status: 'denied' } as any);
       mockNotifications.requestPermissionsAsync.mockResolvedValue({ status: 'denied' } as any);
 
@@ -161,7 +171,7 @@ describe('Notifications Service', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      mockDevice.isDevice = true;
+      (mockDevice.isDevice as any) = true;
       mockNotifications.getPermissionsAsync.mockRejectedValue(new Error('Permission error'));
 
       const token = await registerForPushNotifications();
