@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthStore } from "../lib/stores/auth";
 import { NotificationProvider } from "../lib/contexts/NotificationContext";
 import { BiometricProvider } from "../lib/contexts/BiometricContext";
+import { TranslationProvider } from "../lib/contexts/TranslationContext";
 import { NotificationBanner } from "../components/notifications";
 import { BiometricLockScreen } from "../components/BiometricLockScreen";
 import { LoadingSpinner } from "../components/ui";
@@ -146,12 +147,14 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <NotificationProvider>
             <BiometricProvider>
-              <BiometricLockScreen>
-                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <NetworkStatusBar />
-                <RootLayoutNav />
-                <NotificationBanner />
-              </BiometricLockScreen>
+              <TranslationProvider>
+                <BiometricLockScreen>
+                  <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                  <NetworkStatusBar />
+                  <RootLayoutNav />
+                  <NotificationBanner />
+                </BiometricLockScreen>
+              </TranslationProvider>
             </BiometricProvider>
           </NotificationProvider>
         </QueryClientProvider>

@@ -232,3 +232,6 @@ export * from "./offline";
 
 // Re-export IoT types
 export * from "./iot";
+
+// Re-export translation types
+export * from "./translation";

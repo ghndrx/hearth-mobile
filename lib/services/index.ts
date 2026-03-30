@@ -32,3 +32,5 @@ export * from "./deepLinking";
 export * from "./quickActions";
 export * from "./spotlight";
 export * as deviceService from "./devices";
+export * from "./languageDetection";
+export * from "./translation";

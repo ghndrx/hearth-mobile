@@ -32,3 +32,6 @@ export {
   useImageLoadPerformance,
   measureNetworkRequest,
 } from "./usePerformance";
+
+// Translation hooks
+export * from "./useTranslation";
