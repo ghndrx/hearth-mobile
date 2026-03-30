@@ -170,6 +170,7 @@ class PushNotificationService {
 
   /**
    * Register device with backend API
+   * Uses the ApiClient from lib/services/api with retry logic
    */
   async registerDeviceWithBackend(token: string): Promise<boolean> {
     const maxRetries = 3;
@@ -186,18 +187,20 @@ class PushNotificationService {
           appVersion: Constants.expoConfig?.version || '1.0.0',
         };
 
-        // TODO: Replace with actual API endpoint
-        // const response = await fetch('/api/notifications/register', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(registration),
-        // });
-        //
-        // if (!response.ok) {
-        //   throw new Error(`Registration failed: ${response.status}`);
-        // }
+        const response = await fetch(
+          `${Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL || 'https://hearth.local/api/v1'}/devices/register`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(registration),
+          }
+        );
 
-        console.log('Device registration successful (simulated):', registration);
+        if (!response.ok) {
+          throw new Error(`Registration failed: ${response.status}`);
+        }
+
+        console.log('Device registration successful:', registration.deviceId);
         return true;
       } catch (error) {
         console.error(`Device registration attempt ${attempt} failed:`, error);
