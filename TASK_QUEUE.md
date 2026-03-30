@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 28, 2026
+**Last Updated**: March 30, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -10,6 +10,100 @@
 - **P3**: Low - Future considerations
 
 ## P0 Tasks (Critical Priority)
+
+### Real-Time Message Translation Engine (PRD-058)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & AI/ML Team | **Effort**: 10 weeks
+
+- [ ] **TRL-001**: Language detection and basic translation infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: Google Translate API, on-device ML models
+  - Success: Auto-detect languages and translate messages with 90%+ accuracy
+
+- [ ] **TRL-002**: Real-time translation UI with inline display
+  - Estimated: 2 weeks
+  - Dependencies: TRL-001, React Native UI components
+  - Success: Seamless inline translation with original text preservation
+
+- [ ] **TRL-003**: Smart auto-translation based on user preferences
+  - Estimated: 2 weeks
+  - Dependencies: TRL-002, User preference system
+  - Success: Automatic translation triggers with 95% user satisfaction
+
+- [ ] **TRL-004**: Gaming terminology and context-aware translation
+  - Estimated: 2 weeks
+  - Dependencies: TRL-003, Gaming terminology database
+  - Success: Accurate translation of gaming slang and community terms
+
+- [ ] **TRL-005**: Voice message translation with speech processing
+  - Estimated: 1 week
+  - Dependencies: TRL-004, Speech-to-text integration
+  - Success: Voice message to translated text functionality
+
+- [ ] **TRL-006**: Privacy-first on-device translation for sensitive content
+  - Estimated: 1 week
+  - Dependencies: TRL-005, On-device ML optimization
+  - Success: Offline translation for 10+ language pairs
+
+### AI-Powered Smart Reply Engine (PRD-059)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & AI/ML Team | **Effort**: 8 weeks
+
+- [ ] **SMR-001**: Conversation context analysis and reply generation
+  - Estimated: 2 weeks
+  - Dependencies: AI/ML infrastructure, conversation history APIs
+  - Success: Generate 3 contextually relevant suggestions with 85%+ accuracy
+
+- [ ] **SMR-002**: Personalization engine based on user communication patterns
+  - Estimated: 2 weeks
+  - Dependencies: SMR-001, User interaction tracking
+  - Success: Personalized suggestions matching user's communication style
+
+- [ ] **SMR-003**: Gaming-optimized smart replies and quick actions
+  - Estimated: 2 weeks
+  - Dependencies: SMR-002, Gaming context detection
+  - Success: Gaming-specific suggestions for competitive and casual gaming
+
+- [ ] **SMR-004**: Mobile-optimized suggestion UI with gesture support
+  - Estimated: 1 week
+  - Dependencies: SMR-003, Mobile UI framework
+  - Success: Swipe-to-send gestures with sub-500ms suggestion display
+
+- [ ] **SMR-005**: Privacy-preserving federated learning
+  - Estimated: 1 week
+  - Dependencies: SMR-004, Federated learning infrastructure
+  - Success: Model improvements without compromising user privacy
+
+### Continuous Voice Command Integration (PRD-060)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team & Voice Technology Team | **Effort**: 12 weeks
+
+- [ ] **VCM-001**: Always-on wake word detection system
+  - Estimated: 3 weeks
+  - Dependencies: Speech recognition APIs, edge computing models
+  - Success: "Hey Hearth" detection with <1% false positives
+
+- [ ] **VCM-002**: Comprehensive app navigation via voice commands
+  - Estimated: 3 weeks
+  - Dependencies: VCM-001, Natural language understanding
+  - Success: Navigate to any server/channel via voice with 95%+ accuracy
+
+- [ ] **VCM-003**: Intelligent message dictation with gaming context
+  - Estimated: 2 weeks
+  - Dependencies: VCM-002, Gaming terminology database
+  - Success: Accurate dictation including gaming slang and emoji conversion
+
+- [ ] **VCM-004**: Voice channel integration and control
+  - Estimated: 2 weeks
+  - Dependencies: VCM-003, Voice chat infrastructure
+  - Success: Full voice chat control via voice commands (mute, channel switching)
+
+- [ ] **VCM-005**: Accessibility features and custom command training
+  - Estimated: 1 week
+  - Dependencies: VCM-004, Accessibility framework
+  - Success: WCAG 2.1 AAA compliance with custom speech pattern support
+
+- [ ] **VCM-006**: Performance optimization and battery management
+  - Estimated: 1 week
+  - Dependencies: VCM-005, Power management APIs
+  - Success: <8% battery impact with continuous operation
 
 ### Push Notifications System (PRD-001)
 **Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
