@@ -18,6 +18,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.hearth.mobile",
+      "entitlements": {
+        "aps-environment": "development"
+      },
       "associatedDomains": [
         "applinks:hearth.app",
         "applinks:www.hearth.app",
@@ -30,6 +33,7 @@
         "NSPhotoLibraryUsageDescription": "Hearth needs photo library access to share images in chat.",
         "NSMicrophoneUsageDescription": "Hearth needs microphone access for voice messages and calls.",
         "NSFaceIDUsageDescription": "Hearth uses Face ID for secure authentication.",
+        "UIBackgroundModes": ["remote-notification"],
         "UIApplicationShortcutItems": [
           {
             "UIApplicationShortcutItemType": "io.hearth.mobile.new_message",
@@ -61,6 +65,7 @@
         "backgroundColor": "#1e1f22"
       },
       "package": "io.hearth.mobile",
+      "googleServicesFile": "./android/google-services.json",
       "intentFilters": [
         {
           "action": "VIEW",
@@ -110,7 +115,8 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#5865f2"
+          "color": "#5865f2",
+          "defaultChannel": "default"
         }
       ],
       [
