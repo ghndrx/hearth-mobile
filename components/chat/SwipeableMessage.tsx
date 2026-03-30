@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { View, Text, StyleSheet, useColorScheme } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
@@ -17,6 +17,7 @@ import { MessageBubble, Message } from "./MessageBubble";
 // Constants
 // ============================================================================
 
+// RIGHT swipe for reply, LEFT swipe for delete (own messages only)
 const SWIPE_THRESHOLD = 70;
 const MAX_SWIPE = 100;
 const SPRING_CONFIG = {
@@ -57,8 +58,6 @@ export function SwipeableMessage({
   onRetry,
   allowDelete = true,
 }: SwipeableMessageProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   const translateX = useSharedValue(0);
   const hasTriggeredHaptic = useRef({ left: false, right: false });
 
@@ -95,8 +94,8 @@ export function SwipeableMessage({
         Math.min(MAX_SWIPE, event.translationX)
       );
 
-      // Only allow right swipe for delete on current user's messages
-      if (clampedTranslation > 0 && (!message.isCurrentUser || !allowDelete)) {
+      // Only allow left swipe for delete on current user's messages
+      if (clampedTranslation < 0 && (!message.isCurrentUser || !allowDelete)) {
         translateX.value = 0;
         return;
       }
@@ -134,11 +133,11 @@ export function SwipeableMessage({
         Math.min(MAX_SWIPE, event.translationX)
       );
 
-      // Trigger action if past threshold
-      if (clampedTranslation < -SWIPE_THRESHOLD && onReply) {
+      // Trigger action if past threshold: RIGHT = reply, LEFT = delete
+      if (clampedTranslation > SWIPE_THRESHOLD && onReply) {
         runOnJS(handleReply)();
       } else if (
-        clampedTranslation > SWIPE_THRESHOLD &&
+        clampedTranslation < -SWIPE_THRESHOLD &&
         message.isCurrentUser &&
         allowDelete &&
         onDelete
@@ -151,34 +150,29 @@ export function SwipeableMessage({
       runOnJS(resetHapticTriggers)();
     });
 
-  // Animated style for message row
-  const animatedRowStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
-
-  // Animated style for left action (reply - revealed on left swipe)
-  const animatedLeftActionStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
+  // Animated style for message row with subtle scale/opacity on right swipe (reply)
+  const animatedRowStyle = useAnimatedStyle(() => {
+    const bubbleScale = interpolate(
       translateX.value,
-      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
-      [1, 0.5, 0],
+      [0, SWIPE_THRESHOLD / 2, SWIPE_THRESHOLD],
+      [1, 0.98, 0.96],
       Extrapolation.CLAMP
     );
 
-    const scale = interpolate(
+    const bubbleOpacity = interpolate(
       translateX.value,
-      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
-      [1, 0.8, 0.5],
+      [0, SWIPE_THRESHOLD],
+      [1, 0.85],
       Extrapolation.CLAMP
     );
 
     return {
-      opacity,
-      transform: [{ scale }],
+      transform: [{ translateX: translateX.value }, { scale: bubbleScale }],
+      opacity: bubbleOpacity,
     };
   });
 
-  // Animated style for right action (delete - revealed on right swipe)
+  // Animated style for right action (reply - revealed on right swipe)
   const animatedRightActionStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       translateX.value,
@@ -200,33 +194,55 @@ export function SwipeableMessage({
     };
   });
 
-  // Background colors based on swipe direction
-  const leftActionBg = isDark ? "#5865f2" : "#5865f2"; // Brand/reply
-  const rightActionBg = isDark ? "#ef4444" : "#ef4444"; // Red/delete
+  // Animated style for left action (delete - revealed on left swipe)
+  const animatedLeftActionStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
+      [1, 0.5, 0],
+      Extrapolation.CLAMP
+    );
+
+    const scale = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
+      [1, 0.8, 0.5],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      opacity,
+      transform: [{ scale }],
+    };
+  });
+
+  // Background colors based on action type
+  const replyActionBg = "#5865f2"; // Brand/reply
+  const deleteActionBg = "#ef4444"; // Red/delete
 
   return (
     <View style={styles.container}>
-      {/* Left action indicator (Reply) - appears on right side when swiping left */}
+      {/* Reply action indicator - appears on left side when swiping right */}
       <Animated.View
         style={[
           styles.actionIndicator,
-          styles.leftAction,
-          { backgroundColor: leftActionBg },
-          animatedLeftActionStyle,
+          styles.rightAction,
+          { backgroundColor: replyActionBg },
+          animatedRightActionStyle,
         ]}
       >
         <Ionicons name="arrow-undo" size={20} color="#ffffff" />
         <Text style={styles.actionText}>Reply</Text>
       </Animated.View>
 
-      {/* Right action indicator (Delete) - appears on left side when swiping right */}
+      {/* Delete action indicator - appears on right side when swiping left */}
       {message.isCurrentUser && allowDelete && (
         <Animated.View
           style={[
             styles.actionIndicator,
-            styles.rightAction,
-            { backgroundColor: rightActionBg },
-            animatedRightActionStyle,
+            styles.leftAction,
+            { backgroundColor: deleteActionBg },
+            animatedLeftActionStyle,
           ]}
         >
           <Ionicons name="trash-outline" size={20} color="#ffffff" />
