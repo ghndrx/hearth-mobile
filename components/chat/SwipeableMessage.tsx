@@ -86,6 +86,7 @@ export function SwipeableMessage({
   }, [message, onDelete]);
 
   // Pan gesture for swipe actions
+  // SWIPE RIGHT = Reply, SWIPE LEFT = Delete (for own messages)
   const panGesture = Gesture.Pan()
     .activeOffsetX([-15, 15])
     .failOffsetY([-10, 10])
@@ -95,8 +96,8 @@ export function SwipeableMessage({
         Math.min(MAX_SWIPE, event.translationX)
       );
 
-      // Only allow right swipe for delete on current user's messages
-      if (clampedTranslation > 0 && (!message.isCurrentUser || !allowDelete)) {
+      // Only allow left swipe for delete on current user's messages
+      if (clampedTranslation < 0 && (!message.isCurrentUser || !allowDelete)) {
         translateX.value = 0;
         return;
       }
@@ -104,18 +105,7 @@ export function SwipeableMessage({
       translateX.value = clampedTranslation;
 
       // Check for threshold crossing and trigger haptics
-      if (
-        clampedTranslation < -SWIPE_THRESHOLD &&
-        !hasTriggeredHaptic.current.left
-      ) {
-        runOnJS(triggerHaptic)("left");
-      } else if (
-        clampedTranslation >= -SWIPE_THRESHOLD &&
-        hasTriggeredHaptic.current.left
-      ) {
-        hasTriggeredHaptic.current.left = false;
-      }
-
+      // Swipe RIGHT (positive) triggers reply haptic, swipe LEFT (negative) triggers delete haptic
       if (
         clampedTranslation > SWIPE_THRESHOLD &&
         !hasTriggeredHaptic.current.right
@@ -127,6 +117,18 @@ export function SwipeableMessage({
       ) {
         hasTriggeredHaptic.current.right = false;
       }
+
+      if (
+        clampedTranslation < -SWIPE_THRESHOLD &&
+        !hasTriggeredHaptic.current.left
+      ) {
+        runOnJS(triggerHaptic)("left");
+      } else if (
+        clampedTranslation >= -SWIPE_THRESHOLD &&
+        hasTriggeredHaptic.current.left
+      ) {
+        hasTriggeredHaptic.current.left = false;
+      }
     })
     .onEnd((event) => {
       const clampedTranslation = Math.max(
@@ -135,10 +137,11 @@ export function SwipeableMessage({
       );
 
       // Trigger action if past threshold
-      if (clampedTranslation < -SWIPE_THRESHOLD && onReply) {
+      // Swipe RIGHT triggers reply, swipe LEFT triggers delete (own messages only)
+      if (clampedTranslation > SWIPE_THRESHOLD && onReply) {
         runOnJS(handleReply)();
       } else if (
-        clampedTranslation > SWIPE_THRESHOLD &&
+        clampedTranslation < -SWIPE_THRESHOLD &&
         message.isCurrentUser &&
         allowDelete &&
         onDelete
@@ -156,30 +159,9 @@ export function SwipeableMessage({
     transform: [{ translateX: translateX.value }],
   }));
 
-  // Animated style for left action (reply - revealed on left swipe)
+  // Animated style for reply action (revealed on RIGHT swipe)
   const animatedLeftActionStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      translateX.value,
-      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
-      [1, 0.5, 0],
-      Extrapolation.CLAMP
-    );
-
-    const scale = interpolate(
-      translateX.value,
-      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
-      [1, 0.8, 0.5],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      opacity,
-      transform: [{ scale }],
-    };
-  });
-
-  // Animated style for right action (delete - revealed on right swipe)
-  const animatedRightActionStyle = useAnimatedStyle(() => {
+    // Reply is revealed when swiping RIGHT (positive translateX)
     const opacity = interpolate(
       translateX.value,
       [0, SWIPE_THRESHOLD / 2, SWIPE_THRESHOLD],
@@ -200,13 +182,36 @@ export function SwipeableMessage({
     };
   });
 
+  // Animated style for delete action (revealed on LEFT swipe)
+  const animatedRightActionStyle = useAnimatedStyle(() => {
+    // Delete is revealed when swiping LEFT (negative translateX)
+    const opacity = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
+      [1, 0.5, 0],
+      Extrapolation.CLAMP
+    );
+
+    const scale = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD / 2, 0],
+      [1, 0.8, 0.5],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      opacity,
+      transform: [{ scale }],
+    };
+  });
+
   // Background colors based on swipe direction
   const leftActionBg = isDark ? "#5865f2" : "#5865f2"; // Brand/reply
   const rightActionBg = isDark ? "#ef4444" : "#ef4444"; // Red/delete
 
   return (
     <View style={styles.container}>
-      {/* Left action indicator (Reply) - appears on right side when swiping left */}
+      {/* Left action indicator (Reply) - appears on right side when swiping RIGHT */}
       <Animated.View
         style={[
           styles.actionIndicator,
@@ -219,7 +224,7 @@ export function SwipeableMessage({
         <Text style={styles.actionText}>Reply</Text>
       </Animated.View>
 
-      {/* Right action indicator (Delete) - appears on left side when swiping right */}
+      {/* Right action indicator (Delete) - appears on left side when swiping LEFT */}
       {message.isCurrentUser && allowDelete && (
         <Animated.View
           style={[
