@@ -42,6 +42,19 @@
   - **Dependencies**: HM-004
   - **Acceptance**: Mark as read button in notifications updates channel state
 
+### Rich Presence & Activity System
+- [ ] **HM-035**: Implement basic rich presence API and activity detection
+  - **Owner**: Backend Engineer + Mobile Team Lead
+  - **Est**: 8 days
+  - **Dependencies**: Activity detection service design
+  - **Acceptance**: Users can set custom activities and see basic game/music presence
+
+- [ ] **HM-036**: Add Spotify/Apple Music integration for now playing status
+  - **Owner**: Mobile Team Lead + API Integration Engineer
+  - **Est**: 6 days
+  - **Dependencies**: Music service API partnerships
+  - **Acceptance**: Users see friends' music activity with playback controls
+
 ---
 
 ## P1 Tasks (High Priority - Complete within 4 weeks)
@@ -96,6 +109,44 @@
   - **Est**: 5 days
   - **Dependencies**: HM-004, HM-005
   - **Acceptance**: 6 quick emoji reactions available in notification actions
+
+### Advanced Search & Discovery Platform
+- [ ] **HM-037**: Implement advanced search operators (from:, in:, has:, during:)
+  - **Owner**: Search Engineer + Backend Engineer
+  - **Est**: 12 days
+  - **Dependencies**: Search engine infrastructure (Elasticsearch)
+  - **Acceptance**: Users can use advanced operators to filter search results effectively
+
+- [ ] **HM-038**: Build cross-server global search functionality
+  - **Owner**: Search Engineer + Mobile Engineer
+  - **Est**: 10 days
+  - **Dependencies**: HM-037, permission system integration
+  - **Acceptance**: Users can search across all accessible servers simultaneously
+
+- [ ] **HM-039**: Add saved searches and search history management
+  - **Owner**: Mobile Engineer + UI/UX Engineer
+  - **Est**: 6 days
+  - **Dependencies**: HM-037
+  - **Acceptance**: Users can save frequent searches and access search history
+
+### Enhanced Biometric Security Framework
+- [ ] **HM-040**: Implement per-action biometric gates for sensitive operations
+  - **Owner**: Security Engineer + Mobile Team Lead
+  - **Est**: 8 days
+  - **Dependencies**: Platform biometric API upgrades
+  - **Acceptance**: Destructive actions (delete, ban, leave server) require biometric confirmation
+
+- [ ] **HM-041**: Add secure notification content viewing with biometric unlock
+  - **Owner**: Security Engineer + Notifications Engineer
+  - **Est**: 5 days
+  - **Dependencies**: HM-040
+  - **Acceptance**: Users can require biometric authentication to view notification content
+
+- [ ] **HM-042**: Build advanced session management with device monitoring
+  - **Owner**: Security Engineer + Backend Engineer
+  - **Est**: 7 days
+  - **Dependencies**: Device fingerprinting system
+  - **Acceptance**: Users can view and manage all active sessions with security insights
 
 ### Voice & Media Enhancements
 - [ ] **HM-014**: Implement voice message recording with waveform display
