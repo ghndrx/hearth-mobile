@@ -779,6 +779,80 @@
   - Dependencies: CMI-005
   - Success: Pattern recognition for routine tasks with automation
 
+### Mobile-Native Navigation & UX Patterns Excellence (PRD-043)
+**Target**: Q2 2026 | **Owner**: Mobile UX Team | **Effort**: 8 weeks
+
+- [ ] **MUX-001**: Core navigation infrastructure and gesture framework
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: 60fps animations, 95% gesture recognition accuracy
+
+- [ ] **MUX-002**: Advanced mobile gestures and swipe navigation
+  - Estimated: 2 weeks
+  - Dependencies: MUX-001
+  - Success: Channel/server switching via gestures functional
+
+- [ ] **MUX-003**: Platform optimization and native patterns
+  - Estimated: 2 weeks
+  - Dependencies: MUX-002
+  - Success: iOS Taptic Engine, Android Material You integration
+
+- [ ] **MUX-004**: Intelligence and predictive navigation
+  - Estimated: 2 weeks
+  - Dependencies: MUX-003
+  - Success: 40% reduction in navigation time, predictive pre-loading
+
+### Persistent Notification Intelligence & History System (PRD-044)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 6 weeks
+
+- [ ] **NIH-001**: Notification storage and encrypted history foundation
+  - Estimated: 1.5 weeks
+  - Dependencies: Enhanced notification system (PN-003)
+  - Success: 7-day encrypted notification history with cross-device sync
+
+- [ ] **NIH-002**: Full-text search and intelligent filtering
+  - Estimated: 1.5 weeks
+  - Dependencies: NIH-001
+  - Success: Sub-second search results across notification history
+
+- [ ] **NIH-003**: AI-powered importance scoring and smart grouping
+  - Estimated: 2 weeks
+  - Dependencies: NIH-002
+  - Success: 95% user satisfaction with notification prioritization
+
+- [ ] **NIH-004**: Advanced management and export capabilities
+  - Estimated: 1 week
+  - Dependencies: NIH-003
+  - Success: Bulk actions, snooze system, and export functionality
+
+### Advanced Mobile-First Communication Patterns (PRD-045)
+**Target**: Q3 2026 | **Owner**: Mobile Experience Team | **Effort**: 10 weeks
+
+- [ ] **AMC-001**: Quick voice messages with hold-to-record
+  - Estimated: 2.5 weeks
+  - Dependencies: Audio infrastructure
+  - Success: <200ms processing latency, auto noise reduction
+
+- [ ] **AMC-002**: Advanced haptic reaction system
+  - Estimated: 2 weeks
+  - Dependencies: HF-001 to HF-003 (haptic infrastructure)
+  - Success: Unique haptic patterns per reaction, 3x engagement increase
+
+- [ ] **AMC-003**: Mobile-optimized sticker creation and management
+  - Estimated: 2.5 weeks
+  - Dependencies: Rich media system (MS-001)
+  - Success: Touch-based sticker creation, photo-to-sticker AI processing
+
+- [ ] **AMC-004**: Context-aware quick actions and smart features
+  - Estimated: 2 weeks
+  - Dependencies: AMC-001, AMC-002
+  - Success: AI-powered quick replies, proximity-based voice switching
+
+- [ ] **AMC-005**: Advanced mobile chat patterns and formatting
+  - Estimated: 1 week
+  - Dependencies: AMC-004
+  - Success: Mobile-native threading, gesture-based formatting
+
 ## P1 Tasks (High Priority)
 
 ### Cross-Device Continuity & Seamless Handoff (PRD-028)
