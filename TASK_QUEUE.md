@@ -18,7 +18,7 @@
   - **Acceptance**: Swipe right on message triggers reply modal with smooth animation
   - **Status**: COMPLETED - SwipeableMessage component implemented with gesture handling, haptic feedback, and tests
 
-- [ ] **HM-002**: Add long-press context menus for messages
+- [x] **HM-002**: Add long-press context menus for messages ✅
   - **Owner**: UI/UX Engineer
   - **Est**: 3 days
   - **Dependencies**: HM-001
