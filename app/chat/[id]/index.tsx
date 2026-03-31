@@ -29,7 +29,7 @@ import { MessageBubble, Message } from "../../../components/chat/MessageBubble";
 import { SwipeableMessage } from "../../../components/chat/SwipeableMessage";
 import { TypingIndicator, TypingUser } from "../../../components/chat/TypingIndicator";
 import { MessageReactions } from "../../../components/chat/MessageReactions";
-import { ReactionPicker } from "../../../components/chat/ReactionPicker";
+import { MessageContextMenu } from "../../../components/chat/MessageContextMenu";
 import {
   AttachmentPicker,
   AttachmentPreviewStrip,
@@ -208,7 +208,7 @@ export default function ChatScreen() {
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
-  const [showReactionPicker, setShowReactionPicker] = useState(false);
+  const [showContextMenu, setShowContextMenu] = useState(false);
   const [showAttachmentPicker, setShowAttachmentPicker] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
 
@@ -347,14 +347,32 @@ export default function ChatScreen() {
         };
       }),
     );
-    setShowReactionPicker(false);
+    setShowContextMenu(false);
     setSelectedMessage(null);
   }, []);
 
   const handleLongPress = useCallback((message: Message) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedMessage(message);
-    setShowReactionPicker(true);
+    setShowContextMenu(true);
+  }, []);
+
+  const handleEdit = useCallback((message: Message) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Set the message content in the input for editing
+    setInputText(message.content);
+    setShowContextMenu(false);
+    setSelectedMessage(null);
+    // In a real app, you'd handle message editing differently
+    console.log('Edit message:', message.id);
+  }, []);
+
+  const handlePin = useCallback((message: Message) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // In a real app, you'd send pin/unpin request to server
+    console.log('Pin message:', message.id);
+    setShowContextMenu(false);
+    setSelectedMessage(null);
   }, []);
 
   const handleAttachmentsSelected = useCallback((attachments: Attachment[]) => {
@@ -578,18 +596,19 @@ export default function ChatScreen() {
         </Animated.View>
       </KeyboardAvoidingView>
 
-      {/* Reaction Picker */}
-      <ReactionPicker
-        visible={showReactionPicker}
+      {/* Message Context Menu */}
+      <MessageContextMenu
+        visible={showContextMenu}
+        message={selectedMessage}
         onClose={() => {
-          setShowReactionPicker(false);
+          setShowContextMenu(false);
           setSelectedMessage(null);
         }}
-        onSelectReaction={(emoji) => {
-          if (selectedMessage) {
-            handleReaction(selectedMessage.id, emoji);
-          }
-        }}
+        onReaction={handleReaction}
+        onReply={handleReply}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onPin={handlePin}
       />
 
       {/* Attachment Picker */}
