@@ -452,3 +452,90 @@ export async function unregisterDevice(deviceId: string): Promise<void> {
     throw new Error(error.message);
   }
 }
+
+/**
+ * User Notification Settings Management
+ */
+
+export interface UserNotificationSettings {
+  enabled: boolean;
+  messages: boolean;
+  dms: boolean;
+  mentions: boolean;
+  serverActivity: boolean;
+  friendRequests: boolean;
+  calls: boolean;
+  sounds: boolean;
+  vibration: boolean;
+  badgeCount: boolean;
+  showPreviews: boolean;
+  quietHoursEnabled: boolean;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+}
+
+export interface NotificationSettingsResponse {
+  settings: UserNotificationSettings;
+  lastUpdated: string;
+}
+
+/**
+ * Get user notification settings from backend
+ */
+export async function getUserNotificationSettings(): Promise<UserNotificationSettings> {
+  const { data, error } = await api.get<NotificationSettingsResponse>(
+    "/users/me/notification-settings",
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("No notification settings data from server");
+  }
+
+  return data.settings;
+}
+
+/**
+ * Update user notification settings on backend
+ */
+export async function updateUserNotificationSettings(
+  settings: Partial<UserNotificationSettings>
+): Promise<UserNotificationSettings> {
+  const { data, error } = await api.patch<NotificationSettingsResponse>(
+    "/users/me/notification-settings",
+    settings,
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("No response data from server");
+  }
+
+  return data.settings;
+}
+
+/**
+ * Enable/disable push notifications for device
+ */
+export async function updateDeviceNotificationStatus(
+  deviceId: string,
+  enabled: boolean
+): Promise<void> {
+  const { error } = await api.patch<void>(
+    `/devices/${deviceId}/notifications`,
+    { enabled },
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

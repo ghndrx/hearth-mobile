@@ -4,7 +4,9 @@ import { router } from "expo-router";
 import {
   registerForPushNotifications,
   getNotificationSettings,
-  saveNotificationSettings,
+  saveNotificationSettingsWithSync,
+  syncSettingsFromBackend,
+  updateDeviceNotificationStatusOnBackend,
   getPermissionStatus,
   clearBadgeCount,
   NotificationSettings,
@@ -109,8 +111,8 @@ export function useNotifications(): UseNotificationsResult {
         setIsLoading(true);
         setError(null);
 
-        // Load saved settings
-        const savedSettings = await getNotificationSettings();
+        // Load saved settings and sync from backend
+        const savedSettings = await syncSettingsFromBackend();
         setSettings(savedSettings);
 
         // Check permission status
@@ -172,8 +174,8 @@ export function useNotifications(): UseNotificationsResult {
 
       if (token) {
         setExpoPushToken(token);
-        // TODO: Send token to your backend server
-        // await api.registerPushToken(token);
+        // Token is already registered with backend via registerForPushNotifications()
+        console.log("Push token registered successfully");
       }
     } catch (err) {
       setError(
@@ -188,17 +190,12 @@ export function useNotifications(): UseNotificationsResult {
     async (updates: Partial<NotificationSettings>) => {
       try {
         setError(null);
-        const newSettings = await saveNotificationSettings(updates);
+        const newSettings = await saveNotificationSettingsWithSync(updates);
         setSettings(newSettings);
 
-        // If disabling all notifications, you might want to unregister
-        // from the server but keep the token locally for re-enabling
-        if (updates.enabled === false) {
-          // TODO: Notify backend that notifications are disabled
-          // await api.disablePushNotifications();
-        } else if (updates.enabled === true && expoPushToken) {
-          // TODO: Re-enable on backend
-          // await api.enablePushNotifications(expoPushToken);
+        // Update device notification status on backend if master toggle changed
+        if (typeof updates.enabled === 'boolean') {
+          await updateDeviceNotificationStatusOnBackend(updates.enabled);
         }
       } catch (err) {
         setError(

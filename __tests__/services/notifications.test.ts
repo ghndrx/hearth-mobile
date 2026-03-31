@@ -55,6 +55,9 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 jest.mock('../../lib/services/api', () => ({
   registerDevice: jest.fn(),
   unregisterDevice: jest.fn(),
+  getUserNotificationSettings: jest.fn(),
+  updateUserNotificationSettings: jest.fn(),
+  updateDeviceNotificationStatus: jest.fn(),
 }));
 
 jest.mock('react-native', () => ({
@@ -69,9 +72,15 @@ import {
   registerForPushNotifications,
   getNotificationSettings,
   saveNotificationSettings,
+  saveNotificationSettingsWithSync,
   getStoredPushToken,
   clearPushToken,
   getPermissionStatus,
+  requestPermissionsWithRationale,
+  shouldAllowNotification,
+  getDetailedPermissionState,
+  syncSettingsFromBackend,
+  syncSettingsToBackend,
   setBadgeCount,
   clearBadgeCount,
   scheduleLocalNotification,
@@ -382,6 +391,259 @@ describe('Notifications Service', () => {
       // Test that notification settings are managed
       const result = await getNotificationSettings();
       expect(result.quietHoursEnabled).toBe(true);
+    });
+  });
+
+  describe('Enhanced Permission Handling (PN-003)', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    describe('requestPermissionsWithRationale', () => {
+      it('should return granted status if already granted', async () => {
+        mockNotifications.getPermissionsAsync.mockResolvedValue({
+          status: 'granted',
+          canAskAgain: true,
+          ios: {
+            allowsProvisional: true,
+            allowsCriticalAlerts: false,
+            providesAppNotificationSettings: true,
+          }
+        } as any);
+
+        const result = await requestPermissionsWithRationale();
+
+        expect(result.granted).toBe(true);
+        expect(result.status).toBe('granted');
+        expect(result.canAskAgain).toBe(true);
+        expect(result.ios?.allowsProvisional).toBe(false); // Disabled in current expo-notifications version
+        expect(mockNotifications.requestPermissionsAsync).not.toHaveBeenCalled();
+      });
+
+      it('should request permissions with enhanced iOS options', async () => {
+        mockPlatform.OS = 'ios';
+        mockNotifications.getPermissionsAsync.mockResolvedValue({
+          status: 'undetermined',
+          canAskAgain: true
+        } as any);
+        mockNotifications.requestPermissionsAsync.mockResolvedValue({
+          status: 'granted',
+          canAskAgain: true,
+          ios: {
+            allowsProvisional: true,
+            allowsCriticalAlerts: false,
+            providesAppNotificationSettings: true,
+          }
+        } as any);
+
+        const result = await requestPermissionsWithRationale();
+
+        expect(mockNotifications.requestPermissionsAsync).toHaveBeenCalledWith({
+          ios: {
+            allowAlert: true,
+            allowBadge: true,
+            allowSound: true,
+            allowDisplayInCarPlay: true,
+            allowCriticalAlerts: false,
+            allowProvisional: true,
+            providesAppNotificationSettings: true,
+          },
+        });
+        expect(result.granted).toBe(true);
+        expect(result.ios?.allowsProvisional).toBe(false); // Disabled in current expo-notifications version
+      });
+    });
+
+    describe('shouldAllowNotification', () => {
+      beforeEach(() => {
+        mockNotifications.getPermissionsAsync.mockResolvedValue({ status: 'granted' } as any);
+      });
+
+      it('should deny if permission is denied', async () => {
+        mockNotifications.getPermissionsAsync.mockResolvedValue({ status: 'denied' } as any);
+
+        const result = await shouldAllowNotification('message');
+
+        expect(result.allowed).toBe(false);
+        expect(result.reason).toBe('permission_denied');
+      });
+
+      it('should deny if notifications are globally disabled', async () => {
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+          enabled: false,
+        }));
+
+        const result = await shouldAllowNotification('message');
+
+        expect(result.allowed).toBe(false);
+        expect(result.reason).toBe('disabled_globally');
+      });
+
+      it('should deny if specific notification type is disabled', async () => {
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+          messages: false,
+        }));
+
+        const result = await shouldAllowNotification('message');
+
+        expect(result.allowed).toBe(false);
+        expect(result.reason).toBe('disabled_type');
+      });
+
+      it('should deny during quiet hours for non-critical notifications', async () => {
+        // Mock current time to be 23:00 (11 PM)
+        const mockDate = new Date();
+        mockDate.setHours(23, 0, 0, 0);
+        jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
+
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+          quietHoursEnabled: true,
+          quietHoursStart: '22:00',
+          quietHoursEnd: '07:00',
+        }));
+
+        const result = await shouldAllowNotification('message', 'medium');
+
+        expect(result.allowed).toBe(false);
+        expect(result.reason).toBe('quiet_hours');
+
+        jest.restoreAllMocks();
+      });
+
+      it('should allow critical notifications during quiet hours', async () => {
+        // Mock current time to be 23:00 (11 PM)
+        const mockDate = new Date();
+        mockDate.setHours(23, 0, 0, 0);
+        jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
+
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+          quietHoursEnabled: true,
+          quietHoursStart: '22:00',
+          quietHoursEnd: '07:00',
+        }));
+
+        const result = await shouldAllowNotification('call', 'critical');
+
+        expect(result.allowed).toBe(true);
+
+        jest.restoreAllMocks();
+      });
+
+      it('should allow notifications when all conditions are met', async () => {
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+          enabled: true,
+          dms: true,
+        }));
+
+        const result = await shouldAllowNotification('dm');
+
+        expect(result.allowed).toBe(true);
+        expect(result.reason).toBeUndefined();
+      });
+    });
+
+    describe('getDetailedPermissionState', () => {
+      it('should return comprehensive permission state', async () => {
+        mockNotifications.getPermissionsAsync.mockResolvedValue({
+          status: 'granted',
+          canAskAgain: true,
+          ios: {
+            allowsProvisional: true,
+            allowsCriticalAlerts: false,
+            providesAppNotificationSettings: true,
+          }
+        } as any);
+
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+          enabled: true,
+          quietHoursEnabled: false,
+        }));
+
+        const result = await getDetailedPermissionState();
+
+        expect(result.systemStatus).toBe('granted');
+        expect(result.isSystemGranted).toBe(true);
+        expect(result.canRequest).toBe(true);
+        expect(result.settingsEnabled).toBe(true);
+        expect(result.typePermissions.messages).toBe(true);
+        expect(result.typePermissions.dms).toBe(true);
+        expect(result.quietHoursActive).toBe(false);
+        expect(result.ios?.provisionalEnabled).toBe(false); // Disabled in current expo-notifications version
+        expect(result.ios?.criticalAlertsEnabled).toBe(false); // Disabled in current expo-notifications version
+        expect(result.ios?.canOpenSettings).toBe(false); // Disabled in current expo-notifications version
+      });
+    });
+  });
+
+  describe('Backend Settings Synchronization (PN-003)', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    describe('syncSettingsFromBackend', () => {
+      it('should merge backend settings with defaults and save locally', async () => {
+        const backendSettings = {
+          enabled: true,
+          messages: false, // Different from default
+          dms: true,
+          mentions: true,
+          // Missing some fields that should be filled by defaults
+        };
+
+        // Mock the API call
+        mockApi.getUserNotificationSettings.mockResolvedValue(backendSettings);
+
+        const result = await syncSettingsFromBackend();
+
+        expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
+          '@hearth/notification_settings',
+          JSON.stringify({
+            ...DEFAULT_NOTIFICATION_SETTINGS,
+            ...backendSettings,
+          })
+        );
+        expect(result.messages).toBe(false); // Backend override
+        expect(result.calls).toBe(true); // Default value
+      });
+
+      it('should fallback to local settings if backend sync fails', async () => {
+        // Mock API failure
+        mockApi.getUserNotificationSettings.mockRejectedValue(new Error('Network error'));
+
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(DEFAULT_NOTIFICATION_SETTINGS));
+
+        const result = await syncSettingsFromBackend();
+
+        expect(result).toEqual(DEFAULT_NOTIFICATION_SETTINGS);
+      });
+    });
+
+    describe('saveNotificationSettingsWithSync', () => {
+      it('should save locally and sync to backend', async () => {
+        const updates = { sounds: false, vibration: false };
+        mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(DEFAULT_NOTIFICATION_SETTINGS));
+
+        // Mock the API call
+        mockApi.updateUserNotificationSettings.mockResolvedValue({});
+
+        const result = await saveNotificationSettingsWithSync(updates);
+
+        expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
+          '@hearth/notification_settings',
+          JSON.stringify({
+            ...DEFAULT_NOTIFICATION_SETTINGS,
+            ...updates,
+          })
+        );
+        expect(result.sounds).toBe(false);
+        expect(result.vibration).toBe(false);
+      });
     });
   });
 });

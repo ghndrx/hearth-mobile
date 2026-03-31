@@ -53,14 +53,14 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     clearNotifications,
   } = usePushNotifications({ authToken: authToken || undefined });
 
-  const { isGranted } = useNotificationPermission();
+  const { status: permissionStatus, isGranted } = useNotificationPermission();
 
   const value: NotificationContextValue = {
     expoPushToken,
     notification,
     settings: settings || DEFAULT_NOTIFICATION_SETTINGS,
     updateSettings,
-    permissionStatus: null, // usePushNotifications doesn't provide this directly
+    permissionStatus,
     isPermissionGranted: isGranted,
     requestPermission: register,
     isLoading,

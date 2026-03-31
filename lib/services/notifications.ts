@@ -3,7 +3,13 @@ import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { registerDevice, unregisterDevice } from "./api";
+import {
+  registerDevice,
+  unregisterDevice,
+  getUserNotificationSettings,
+  updateUserNotificationSettings,
+  updateDeviceNotificationStatus
+} from "./api";
 
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
@@ -382,6 +388,262 @@ export async function getStoredDeviceRegistration(): Promise<{
 export async function getPermissionStatus(): Promise<Notifications.PermissionStatus> {
   const { status } = await Notifications.getPermissionsAsync();
   return status;
+}
+
+/**
+ * Enhanced permission request with rationale handling
+ * Returns detailed permission information for better UX
+ */
+export interface PermissionRequestResult {
+  granted: boolean;
+  status: Notifications.PermissionStatus;
+  canAskAgain: boolean;
+  ios?: {
+    allowsProvisional: boolean;
+    allowsCriticalAlerts: boolean;
+    providesAppNotificationSettings: boolean;
+  };
+}
+
+export async function requestPermissionsWithRationale(): Promise<PermissionRequestResult> {
+  const currentPermissions = await Notifications.getPermissionsAsync();
+
+  // If already granted, return immediately
+  if (currentPermissions.status === 'granted') {
+    return {
+      granted: true,
+      status: currentPermissions.status,
+      canAskAgain: currentPermissions.canAskAgain,
+      ios: Platform.OS === 'ios' ? {
+        allowsProvisional: false, // Not available in current expo-notifications
+        allowsCriticalAlerts: false, // Not available in current expo-notifications
+        providesAppNotificationSettings: false, // Not available in current expo-notifications
+      } : undefined,
+    };
+  }
+
+  // Request permissions with enhanced handling
+  const result = await Notifications.requestPermissionsAsync({
+    ios: {
+      allowAlert: true,
+      allowBadge: true,
+      allowSound: true,
+      allowDisplayInCarPlay: true,
+      allowCriticalAlerts: false,
+      allowProvisional: true,
+      provideAppNotificationSettings: true,
+    },
+  });
+
+  return {
+    granted: result.status === 'granted',
+    status: result.status,
+    canAskAgain: result.canAskAgain,
+    ios: Platform.OS === 'ios' ? {
+      allowsProvisional: false, // Not available in current expo-notifications
+      allowsCriticalAlerts: false, // Not available in current expo-notifications
+      providesAppNotificationSettings: false, // Not available in current expo-notifications
+    } : undefined,
+  };
+}
+
+/**
+ * Check if a specific notification type should be allowed based on
+ * system permissions, user settings, and quiet hours
+ */
+export async function shouldAllowNotification(
+  type: NotificationType,
+  priority: 'low' | 'medium' | 'high' | 'critical' = 'medium'
+): Promise<{
+  allowed: boolean;
+  reason?: 'permission_denied' | 'disabled_globally' | 'disabled_type' | 'quiet_hours' | 'unknown';
+}> {
+  // Check system-level permissions first
+  const permissionStatus = await getPermissionStatus();
+  if (permissionStatus === 'denied' || permissionStatus === 'undetermined') {
+    return { allowed: false, reason: 'permission_denied' };
+  }
+
+  // Check user settings
+  const settings = await getNotificationSettings();
+
+  // Master switch
+  if (!settings.enabled) {
+    return { allowed: false, reason: 'disabled_globally' };
+  }
+
+  // Check type-specific settings
+  const typeAllowed = getNotificationTypeAllowed(type, settings);
+  if (!typeAllowed) {
+    return { allowed: false, reason: 'disabled_type' };
+  }
+
+  // Check quiet hours (unless critical priority)
+  if (priority !== 'critical' && settings.quietHoursEnabled && isQuietHours(settings)) {
+    return { allowed: false, reason: 'quiet_hours' };
+  }
+
+  return { allowed: true };
+}
+
+/**
+ * Helper to check if a notification type is enabled in user settings
+ */
+function getNotificationTypeAllowed(type: NotificationType, settings: NotificationSettings): boolean {
+  switch (type) {
+    case 'message':
+      return settings.messages;
+    case 'dm':
+      return settings.dms;
+    case 'mention':
+    case 'reply':
+      return settings.mentions;
+    case 'friend_request':
+      return settings.friendRequests;
+    case 'server_invite':
+      return settings.serverActivity;
+    case 'call':
+      return settings.calls;
+    case 'system':
+      return true; // System notifications are always allowed if globally enabled
+    default:
+      return settings.enabled;
+  }
+}
+
+/**
+ * Get detailed permission state for UI display
+ */
+export interface DetailedPermissionState {
+  systemStatus: Notifications.PermissionStatus;
+  isSystemGranted: boolean;
+  canRequest: boolean;
+  settingsEnabled: boolean;
+  typePermissions: {
+    [K in keyof Pick<NotificationSettings, 'messages' | 'dms' | 'mentions' | 'calls' | 'serverActivity' | 'friendRequests'>]: boolean;
+  };
+  quietHoursActive: boolean;
+  ios?: {
+    provisionalEnabled: boolean;
+    criticalAlertsEnabled: boolean;
+    canOpenSettings: boolean;
+  };
+}
+
+export async function getDetailedPermissionState(): Promise<DetailedPermissionState> {
+  const permissions = await Notifications.getPermissionsAsync();
+  const settings = await getNotificationSettings();
+
+  return {
+    systemStatus: permissions.status,
+    isSystemGranted: permissions.status === 'granted',
+    canRequest: permissions.canAskAgain,
+    settingsEnabled: settings.enabled,
+    typePermissions: {
+      messages: settings.messages,
+      dms: settings.dms,
+      mentions: settings.mentions,
+      calls: settings.calls,
+      serverActivity: settings.serverActivity,
+      friendRequests: settings.friendRequests,
+    },
+    quietHoursActive: settings.quietHoursEnabled && isQuietHours(settings),
+    ios: Platform.OS === 'ios' ? {
+      provisionalEnabled: false, // Not available in current expo-notifications
+      criticalAlertsEnabled: false, // Not available in current expo-notifications
+      canOpenSettings: false, // Not available in current expo-notifications
+    } : undefined,
+  };
+}
+
+/**
+ * Backend Settings Synchronization
+ * Implements the TODO items for server sync of notification preferences
+ */
+
+/**
+ * Sync notification settings from backend (e.g., on app launch or account login)
+ */
+export async function syncSettingsFromBackend(): Promise<NotificationSettings> {
+  try {
+    const backendSettings = await getUserNotificationSettings();
+
+    // Merge backend settings with local defaults to handle any new fields
+    const mergedSettings = {
+      ...DEFAULT_NOTIFICATION_SETTINGS,
+      ...backendSettings,
+    };
+
+    // Save to local storage
+    await AsyncStorage.setItem(
+      NOTIFICATION_SETTINGS_KEY,
+      JSON.stringify(mergedSettings)
+    );
+
+    console.log("Notification settings synced from backend");
+    return mergedSettings;
+  } catch (error) {
+    console.warn("Failed to sync settings from backend, using local settings:", error);
+    // Fallback to local settings if backend sync fails
+    return await getNotificationSettings();
+  }
+}
+
+/**
+ * Sync notification settings to backend
+ */
+export async function syncSettingsToBackend(settings: NotificationSettings): Promise<void> {
+  try {
+    await updateUserNotificationSettings(settings);
+    console.log("Notification settings synced to backend");
+  } catch (error) {
+    console.warn("Failed to sync settings to backend:", error);
+    // Don't throw - local settings should still work
+  }
+}
+
+/**
+ * Enhanced save function that syncs to backend
+ */
+export async function saveNotificationSettingsWithSync(
+  updates: Partial<NotificationSettings>
+): Promise<NotificationSettings> {
+  // Get current settings and apply updates
+  const currentSettings = await getNotificationSettings();
+  const newSettings = { ...currentSettings, ...updates };
+
+  // Save locally first
+  await AsyncStorage.setItem(
+    NOTIFICATION_SETTINGS_KEY,
+    JSON.stringify(newSettings)
+  );
+
+  // Sync to backend in background
+  syncSettingsToBackend(newSettings).catch((error) => {
+    console.warn("Background settings sync failed:", error);
+  });
+
+  return newSettings;
+}
+
+/**
+ * Enable/disable push notifications for the current device on backend
+ */
+export async function updateDeviceNotificationStatusOnBackend(enabled: boolean): Promise<void> {
+  try {
+    // Get device registration info
+    const registrationData = await AsyncStorage.getItem(DEVICE_REGISTRATION_KEY);
+    if (!registrationData) {
+      console.warn("No device registration found, cannot update backend notification status");
+      return;
+    }
+
+    const registration = JSON.parse(registrationData);
+    await updateDeviceNotificationStatus(registration.deviceId, enabled);
+    console.log(`Device notification status updated to ${enabled} on backend`);
+  } catch (error) {
+    console.warn("Failed to update device notification status on backend:", error);
+  }
 }
 
 export async function setBadgeCount(count: number): Promise<void> {

@@ -18,7 +18,17 @@ import {
   Card,
   Button,
 } from "../../components/ui";
+import {
+  PermissionRequestDialog,
+  PermissionStatusIndicator,
+} from "../../components/notifications";
 import { useNotificationContext } from "../../lib/contexts/NotificationContext";
+import {
+  requestPermissionsWithRationale,
+  getDetailedPermissionState,
+  type PermissionRequestResult,
+  type DetailedPermissionState,
+} from "../../lib/services/notifications";
 
 declare const __DEV__: boolean;
 
@@ -38,10 +48,17 @@ export default function NotificationSettingsScreen() {
   } = useNotificationContext();
 
   const [localSettings, setLocalSettings] = useState(settings);
+  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+  const [detailedPermissionState, setDetailedPermissionState] = useState<DetailedPermissionState | null>(null);
 
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
+
+  useEffect(() => {
+    // Load detailed permission state
+    getDetailedPermissionState().then(setDetailedPermissionState);
+  }, [permissionStatus, settings]);
 
   const handleToggle = async (
     key: keyof typeof settings,
@@ -59,9 +76,13 @@ export default function NotificationSettingsScreen() {
     }
   };
 
-  const handleRequestPermission = async () => {
+  const handleRequestPermission = async (): Promise<PermissionRequestResult> => {
+    return await requestPermissionsWithRationale();
+  };
+
+  const handleShowPermissionDialog = () => {
     if (permissionStatus === "denied") {
-      // Permission was denied, need to go to settings
+      // Permission was denied, show alert to go to settings
       Alert.alert(
         "Notifications Disabled",
         "To enable notifications, please go to Settings and allow notifications for Hearth.",
@@ -73,8 +94,9 @@ export default function NotificationSettingsScreen() {
           },
         ]
       );
-    } else {
-      await requestPermission();
+    } else if (!isPermissionGranted) {
+      // Show permission rationale dialog
+      setShowPermissionDialog(true);
     }
   };
 
@@ -109,48 +131,94 @@ export default function NotificationSettingsScreen() {
       />
 
       <ScrollView className="flex-1">
-        {/* Permission Banner */}
+        {/* Permission Status */}
+        <View className="mx-4 mt-4">
+          <Text
+            className={`
+              text-xs
+              font-semibold
+              uppercase
+              mb-2
+              ${isDark ? "text-dark-400" : "text-gray-500"}
+            `}
+          >
+            Permission Status
+          </Text>
+          <PermissionStatusIndicator
+            permissionStatus={permissionStatus}
+            isEnabled={localSettings.enabled}
+            quietHoursActive={detailedPermissionState?.quietHoursActive}
+            showDetailed={true}
+            onPress={!isPermissionGranted ? handleShowPermissionDialog : undefined}
+          />
+        </View>
+
+        {/* Enhanced Permission Banner for denied state */}
         {!isPermissionGranted && (
           <View className="mx-4 mt-4">
             <Card className="p-4">
-              <View className="flex-row items-center">
-                <View
-                  className={`
-                    w-12 h-12 rounded-full items-center justify-center mr-4
-                    ${isDark ? "bg-amber-500/20" : "bg-amber-100"}
-                  `}
-                >
+              <Text
+                className={`font-medium mb-2 ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Why Enable Notifications?
+              </Text>
+              <View className="space-y-2">
+                <View className="flex-row items-center">
                   <Ionicons
-                    name="notifications-off-outline"
-                    size={24}
-                    color="#f59e0b"
+                    name="checkmark-circle-outline"
+                    size={16}
+                    color="#10b981"
+                    className="mr-2"
                   />
-                </View>
-                <View className="flex-1">
                   <Text
-                    className={`font-semibold ${
-                      isDark ? "text-white" : "text-gray-900"
+                    className={`flex-1 text-sm ${
+                      isDark ? "text-dark-300" : "text-gray-600"
                     }`}
                   >
-                    Notifications Disabled
+                    Never miss important messages from friends
                   </Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={16}
+                    color="#10b981"
+                    className="mr-2"
+                  />
                   <Text
-                    className={`text-sm mt-0.5 ${
-                      isDark ? "text-dark-400" : "text-gray-500"
+                    className={`flex-1 text-sm ${
+                      isDark ? "text-dark-300" : "text-gray-600"
                     }`}
                   >
-                    Enable notifications to stay updated
+                    Get notified when someone mentions you
+                  </Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={16}
+                    color="#10b981"
+                    className="mr-2"
+                  />
+                  <Text
+                    className={`flex-1 text-sm ${
+                      isDark ? "text-dark-300" : "text-gray-600"
+                    }`}
+                  >
+                    Receive calls even when the app is closed
                   </Text>
                 </View>
               </View>
               <Button
-                title="Enable Notifications"
+                title="Learn More & Enable"
                 variant="primary"
                 size="sm"
                 className="mt-4"
-                onPress={handleRequestPermission}
+                onPress={handleShowPermissionDialog}
                 leftIcon={
-                  <Ionicons name="notifications" size={16} color="white" />
+                  <Ionicons name="information-circle" size={16} color="white" />
                 }
               />
             </Card>
@@ -462,6 +530,15 @@ export default function NotificationSettingsScreen() {
 
         {!__DEV__ && <View className="h-8" />}
       </ScrollView>
+
+      {/* Permission Request Dialog */}
+      <PermissionRequestDialog
+        visible={showPermissionDialog}
+        onClose={() => setShowPermissionDialog(false)}
+        onRequestPermission={handleRequestPermission}
+        onOpenSettings={() => Linking.openSettings()}
+        permissionStatus={permissionStatus || undefined}
+      />
     </SafeAreaView>
   );
 }
