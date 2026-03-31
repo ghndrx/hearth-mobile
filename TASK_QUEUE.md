@@ -24,12 +24,12 @@
   - Dependencies: PN-001
   - Success: Can send/receive notifications
 
-- [ ] **PN-003**: Permission handling and notification settings
+- [x] **PN-003**: Permission handling and notification settings ✅ (PR #50 open, merged commits dbd4aef, 19b9015, 4b85ddf)
   - Estimated: 1 week
   - Dependencies: PN-002
   - Success: Granular permission controls
 
-- [ ] **PN-004**: Smart notification batching and grouping
+- [x] **PN-004**: Smart notification batching and grouping ✅ (commits e43b046, 84df909)
   - Estimated: 1 week
   - Dependencies: PN-003
   - Success: Intelligent message grouping
