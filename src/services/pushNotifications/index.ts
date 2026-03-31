@@ -9,6 +9,7 @@ export { default as PushNotificationService } from './PushNotificationService';
 import PushNotificationService from './PushNotificationService';
 export { default as fcmService } from './fcmService';
 export { default as notificationSettingsService } from './NotificationSettingsService';
+export { default as notificationBatchingService } from './NotificationBatchingService';
 
 // Re-export types
 export type {
@@ -20,6 +21,18 @@ export type {
 export type {
   FCMConfig,
 } from './fcmService';
+
+// Re-export batching service types
+export {
+  NotificationType,
+} from './NotificationBatchingService';
+
+export type {
+  IncomingNotification,
+  NotificationBatch,
+  NotificationDeepLink,
+  BatchingConfig,
+} from './NotificationBatchingService';
 
 // Re-export permission service types and functions
 export {
