@@ -177,7 +177,6 @@ describe('Permission Service', () => {
           allowCriticalAlerts: false,
           provideAppNotificationSettings: true,
           allowProvisional: false,
-          allowAnnouncements: false,
         },
         android: {
           allowAlert: true,
