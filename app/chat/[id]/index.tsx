@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
+  RefreshControl,
 } from "react-native";
 import Animated, {
   FadeIn,
@@ -143,6 +144,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
@@ -283,6 +285,18 @@ export default function ChatScreen() {
     setPendingAttachments((prev) => prev.filter((att) => att.id !== id));
   }, []);
 
+  // Pull-to-refresh handler
+  const onRefresh = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setRefreshing(true);
+
+    // Simulate fetching messages with haptic feedback
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    setRefreshing(false);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, []);
+
   // ---------------------------------------------------------------------------
   // Render message with swipe-to-reply
   // ---------------------------------------------------------------------------
@@ -384,6 +398,15 @@ export default function ChatScreen() {
               flatListRef.current?.scrollToEnd({ animated: true })
             }
             onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={isDark ? "#8b5cf6" : "#7c3aed"}
+                colors={["#8b5cf6", "#a78bfa", "#c4b5fd"]}
+                progressBackgroundColor={isDark ? "#1e1f22" : "#ffffff"}
+              />
+            }
           />
         </SkeletonLoader>
 
