@@ -55,6 +55,25 @@
   - **Dependencies**: Music service API partnerships
   - **Acceptance**: Users see friends' music activity with playback controls
 
+### Critical Competitive Gap Features
+- [ ] **HM-046**: Replace mock voice system with real WebRTC implementation
+  - **Owner**: Voice Engineer + Backend Engineer
+  - **Est**: 12 days
+  - **Dependencies**: WebRTC infrastructure, STUN/TURN servers
+  - **Acceptance**: Actual voice connections with OPUS codec, <100ms latency
+
+- [ ] **HM-047**: Implement noise suppression and echo cancellation
+  - **Owner**: Voice Engineer + Audio Processing Engineer
+  - **Est**: 8 days
+  - **Dependencies**: HM-046, audio processing libraries
+  - **Acceptance**: 90% background noise reduction, eliminate audio feedback
+
+- [ ] **HM-043**: Implement iOS Live Activities framework and voice call status
+  - **Owner**: iOS Engineer + Mobile Team Lead
+  - **Est**: 10 days
+  - **Dependencies**: iOS 16.1+ ActivityKit native module
+  - **Acceptance**: Voice calls display in Dynamic Island with real-time participant updates
+
 ---
 
 ## P1 Tasks (High Priority - Complete within 4 weeks)
@@ -147,6 +166,69 @@
   - **Est**: 7 days
   - **Dependencies**: Device fingerprinting system
   - **Acceptance**: Users can view and manage all active sessions with security insights
+
+### Live Activities & Dynamic Island Integration
+- [ ] **HM-043**: Implement iOS Live Activities framework and voice call status
+  - **Owner**: iOS Engineer + Mobile Team Lead
+  - **Est**: 10 days
+  - **Dependencies**: iOS 16.1+ ActivityKit native module
+  - **Acceptance**: Voice calls display in Dynamic Island with real-time participant updates
+
+- [ ] **HM-044**: Add Live Activity controls for voice channel management
+  - **Owner**: iOS Engineer + Voice Engineer
+  - **Est**: 5 days
+  - **Dependencies**: HM-043, voice WebRTC integration
+  - **Acceptance**: Users can mute/unmute and leave calls from Dynamic Island
+
+- [ ] **HM-045**: Implement notification Live Activities for important DMs and server events
+  - **Owner**: iOS Engineer + Notifications Engineer
+  - **Est**: 6 days
+  - **Dependencies**: HM-043
+  - **Acceptance**: Critical notifications show in Lock Screen with quick action controls
+
+### Advanced Voice Processing & Spatial Audio
+- [ ] **HM-046**: Replace mock voice system with real WebRTC implementation
+  - **Owner**: Voice Engineer + Backend Engineer
+  - **Est**: 12 days
+  - **Dependencies**: WebRTC infrastructure, STUN/TURN servers
+  - **Acceptance**: Actual voice connections with OPUS codec, <100ms latency
+
+- [ ] **HM-047**: Implement noise suppression and echo cancellation
+  - **Owner**: Voice Engineer + Audio Processing Engineer
+  - **Est**: 8 days
+  - **Dependencies**: HM-046, audio processing libraries
+  - **Acceptance**: 90% background noise reduction, eliminate audio feedback
+
+- [ ] **HM-048**: Add voice activity detection and automatic gain control
+  - **Owner**: Audio Processing Engineer
+  - **Est**: 6 days
+  - **Dependencies**: HM-046
+  - **Acceptance**: VAD works without push-to-talk, consistent volume levels
+
+- [ ] **HM-049**: Implement spatial audio positioning and 3D voice
+  - **Owner**: Audio Processing Engineer + Mobile Team Lead
+  - **Est**: 10 days
+  - **Dependencies**: HM-046, 3D audio libraries
+  - **Acceptance**: Voices positioned in 3D space with HRTF support
+
+### Mobile Game Streaming & Gaming Integration
+- [ ] **HM-050**: Build mobile screen capture and game streaming engine
+  - **Owner**: Streaming Engineer + Mobile Team Lead
+  - **Est**: 12 days
+  - **Dependencies**: Platform screen capture APIs (ReplayKit/MediaProjection)
+  - **Acceptance**: Stream mobile games with <500ms latency, 720p quality
+
+- [ ] **HM-051**: Implement automatic game detection and rich presence
+  - **Owner**: Gaming Integration Engineer + Mobile Engineer
+  - **Est**: 8 days
+  - **Dependencies**: Game database, mobile app detection
+  - **Acceptance**: Auto-detect 50+ popular mobile games, display in user status
+
+- [ ] **HM-052**: Add tournament bracket system and competition management
+  - **Owner**: Gaming Integration Engineer + Backend Engineer
+  - **Est**: 10 days
+  - **Dependencies**: Tournament data models, match tracking system
+  - **Acceptance**: Create tournaments, generate brackets, track match results
 
 ### Voice & Media Enhancements
 - [ ] **HM-014**: Implement voice message recording with waveform display
