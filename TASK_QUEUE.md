@@ -110,6 +110,75 @@
   - Dependencies: HF-005
   - Success: WCAG 2.1 AA compliance achieved
 
+### Video Calling & Screen Sharing (VCS-001)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
+
+- [ ] **VCS-001**: WebRTC infrastructure setup and basic 1:1 calling
+  - Estimated: 4 weeks
+  - Dependencies: Push notifications (PN-001)
+  - Success: Stable 1:1 video calls with <200ms latency
+
+- [ ] **VCS-002**: Multi-participant video calls (up to 25 people)
+  - Estimated: 3 weeks
+  - Dependencies: VCS-001
+  - Success: Group video calls with adaptive grid layout
+
+- [ ] **VCS-003**: Screen sharing and collaboration tools
+  - Estimated: 3 weeks
+  - Dependencies: VCS-002
+  - Success: Full screen/app sharing with basic annotation
+
+- [ ] **VCS-004**: Picture-in-picture and advanced controls
+  - Estimated: 2 weeks
+  - Dependencies: VCS-003
+  - Success: PiP mode with floating voice controls
+
+### AI-Powered Audio Intelligence (APAI-001)
+**Target**: Q2 2026 | **Owner**: Audio Team | **Effort**: 10 weeks
+
+- [ ] **APAI-001**: AI audio processing pipeline and noise suppression
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: 90%+ background noise reduction in real-time
+
+- [ ] **APAI-002**: Spatial audio and 3D positioning engine
+  - Estimated: 3 weeks
+  - Dependencies: APAI-001
+  - Success: Virtual 3D voice positioning for group calls
+
+- [ ] **APAI-003**: Voice effects and enhancement system
+  - Estimated: 2 weeks
+  - Dependencies: APAI-002
+  - Success: Real-time voice modulation and quality enhancement
+
+- [ ] **APAI-004**: Performance optimization and mobile integration
+  - Estimated: 2 weeks
+  - Dependencies: APAI-003
+  - Success: <15% CPU overhead, <5% battery impact
+
+### Live Activities & Native Platform Integration (LANPI-001)
+**Target**: Q2 2026 | **Owner**: Platform Team | **Effort**: 8 weeks
+
+- [ ] **LANPI-001**: iOS Live Activities and Dynamic Island integration
+  - Estimated: 3 weeks
+  - Dependencies: Voice channels infrastructure
+  - Success: Voice channel status in Dynamic Island and Lock Screen
+
+- [ ] **LANPI-002**: Home Screen widgets and quick actions
+  - Estimated: 2 weeks
+  - Dependencies: LANPI-001
+  - Success: Interactive widgets for server activity and voice joining
+
+- [ ] **LANPI-003**: Android persistent notifications and Quick Settings
+  - Estimated: 2 weeks
+  - Dependencies: LANPI-002
+  - Success: Rich notifications with voice controls and QS tiles
+
+- [ ] **LANPI-004**: Siri Shortcuts and voice command integration
+  - Estimated: 1 week
+  - Dependencies: LANPI-003
+  - Success: "Hey Siri, join my voice channel" working
+
 ### Advanced Offline Mode & Smart Caching (PRD-005)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
 
