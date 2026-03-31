@@ -183,8 +183,8 @@ class BackgroundProcessingService {
       throw new Error('Task must have id and action');
     }
 
-    task.retryCount = task.retryCount || 0;
-    task.maxRetries = task.maxRetries || this.config.maxRetries;
+    task.retryCount = task.retryCount ?? 0;
+    task.maxRetries = task.maxRetries ?? this.config.maxRetries;
     task.canDefer = task.canDefer ?? true;
     task.createdAt = task.createdAt || Date.now();
 
