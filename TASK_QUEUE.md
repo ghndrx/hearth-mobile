@@ -11,11 +11,12 @@
 ## P0 Tasks (Critical - Complete within 2 weeks)
 
 ### Enhanced Mobile Gesture System
-- [ ] **HM-001**: Implement swipe-to-reply gesture with haptic feedback
+- [x] **HM-001**: Implement swipe-to-reply gesture with haptic feedback ✅
   - **Owner**: Mobile Team Lead
   - **Est**: 5 days
   - **Dependencies**: React Native Gesture Handler v2.x upgrade
   - **Acceptance**: Swipe right on message triggers reply modal with smooth animation
+  - **Status**: COMPLETED - SwipeableMessage component implemented with gesture handling, haptic feedback, and tests
 
 - [ ] **HM-002**: Add long-press context menus for messages
   - **Owner**: UI/UX Engineer
