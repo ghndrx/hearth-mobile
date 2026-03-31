@@ -853,6 +853,110 @@
   - Dependencies: AMC-004
   - Success: Mobile-native threading, gesture-based formatting
 
+### Enhanced Server Templates & Community Discovery System (PRD-050)
+**Target**: Q2 2026 | **Owner**: Community & Growth Team | **Effort**: 20 weeks
+
+- [ ] **STCD-001**: Core template system and storage infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Template library with 50+ curated templates operational
+
+- [ ] **STCD-002**: Template deployment and customization engine
+  - Estimated: 2 weeks
+  - Dependencies: STCD-001
+  - Success: One-tap template deployment with 90% structure preservation
+
+- [ ] **STCD-003**: Advanced search infrastructure with ML recommendations
+  - Estimated: 3 weeks
+  - Dependencies: STCD-002
+  - Success: Sub-500ms search with 40%+ recommendation CTR
+
+- [ ] **STCD-004**: Server previews and enhanced discovery UI
+  - Estimated: 2 weeks
+  - Dependencies: STCD-003
+  - Success: Rich server previews with activity indicators
+
+- [ ] **STCD-005**: Community verification and trust system
+  - Estimated: 2 weeks
+  - Dependencies: STCD-004
+  - Success: 24-hour verification process with safety scoring
+
+- [ ] **STCD-006**: Geographic discovery and template marketplace
+  - Estimated: 2 weeks
+  - Dependencies: STCD-005
+  - Success: Location-based discovery within 50km accuracy
+
+### Advanced Message Search & History Indexing System (PRD-051)
+**Target**: Q3 2026 | **Owner**: Search & Data Team | **Effort**: 24 weeks
+
+- [ ] **MSIH-001**: Elasticsearch infrastructure and basic indexing pipeline
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: Real-time indexing with sub-5-second message availability
+
+- [ ] **MSIH-002**: Full-text search API with cross-server capability
+  - Estimated: 2 weeks
+  - Dependencies: MSIH-001
+  - Success: Universal search across 2+ years of message history
+
+- [ ] **MSIH-003**: Advanced filtering and search operators
+  - Estimated: 3 weeks
+  - Dependencies: MSIH-002
+  - Success: Boolean logic, date ranges, and user-specific filters
+
+- [ ] **MSIH-004**: Rich media content indexing (OCR, PDF extraction)
+  - Estimated: 3 weeks
+  - Dependencies: MSIH-003
+  - Success: 80% of file content searchable with OCR integration
+
+- [ ] **MSIH-005**: Mobile search UI and offline capabilities
+  - Estimated: 2 weeks
+  - Dependencies: MSIH-004
+  - Success: Mobile-optimized results with offline search for cached content
+
+- [ ] **MSIH-006**: ML relevance scoring and natural language queries
+  - Estimated: 3 weeks
+  - Dependencies: MSIH-005
+  - Success: 75% search success rate with AI-powered result ranking
+
+### Event Management & Calendar Integration System (PRD-052)
+**Target**: Q2 2026 | **Owner**: Community & Events Team | **Effort**: 24 weeks
+
+- [ ] **EMCI-001**: Event data model and core CRUD operations
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Event creation, editing, and deletion with proper data structure
+
+- [ ] **EMCI-002**: RSVP system with real-time tracking
+  - Estimated: 2 weeks
+  - Dependencies: EMCI-001
+  - Success: Real-time RSVP updates with 70% engagement rate
+
+- [ ] **EMCI-003**: iOS/Android native calendar integration
+  - Estimated: 3 weeks
+  - Dependencies: EMCI-002
+  - Success: Bi-directional sync with device calendars in <5 minutes
+
+- [ ] **EMCI-004**: Event notifications and smart reminder system
+  - Estimated: 2 weeks
+  - Dependencies: EMCI-003
+  - Success: Customizable reminders with 85% open rate
+
+- [ ] **EMCI-005**: Recurring events and template system
+  - Estimated: 3 weeks
+  - Dependencies: EMCI-004
+  - Success: Automated recurring event generation with template support
+
+- [ ] **EMCI-006**: Event discovery and recommendation engine
+  - Estimated: 3 weeks
+  - Dependencies: EMCI-005
+  - Success: Cross-server event discovery with 30%+ CTR
+
+- [ ] **EMCI-007**: Voice channel integration and attendance tracking
+  - Estimated: 2 weeks
+  - Dependencies: EMCI-006
+  - Success: Auto-created voice channels for events with 80% attendance accuracy
+
 ## P1 Tasks (High Priority)
 
 ### Cross-Device Continuity & Seamless Handoff (PRD-028)
