@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 28, 2026
+**Last Updated**: March 31, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -847,6 +847,90 @@
   - Estimated: 1 week
   - Dependencies: CMI-005
   - Success: Pattern recognition for routine tasks with automation
+
+### Mobile Digital Wellness & Screen Time Intelligence (MDW-001)
+**Target**: Q2 2026 | **Owner**: Mobile UX Team + Health Tech Team | **Effort**: 12 weeks
+
+- [ ] **MDW-001**: Core usage tracking and analytics infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: Privacy framework design
+  - Success: Local-first usage analytics operational
+
+- [ ] **MDW-002**: Basic focus mode and Do Not Disturb system
+  - Estimated: 2 weeks
+  - Dependencies: MDW-001
+  - Success: Customizable focus periods with channel whitelist
+
+- [ ] **MDW-003**: AI-powered usage pattern recognition engine
+  - Estimated: 3 weeks
+  - Dependencies: MDW-002
+  - Success: Unhealthy usage pattern detection with 85%+ accuracy
+
+- [ ] **MDW-004**: Smart break system and wellness insights
+  - Estimated: 2 weeks
+  - Dependencies: MDW-003
+  - Success: Personalized break suggestions and wellness scoring
+
+- [ ] **MDW-005**: Family controls and parental dashboard
+  - Estimated: 3 weeks
+  - Dependencies: MDW-004
+  - Success: Parent dashboard with teen usage insights and controls
+
+### Mobile-Native AI Personal Assistant & Automation (MAPA-001)
+**Target**: Q3 2026 | **Owner**: AI Team + Mobile Product Team | **Effort**: 16 weeks
+
+- [ ] **MAPA-001**: Smart reply engine and contextual response generation
+  - Estimated: 4 weeks
+  - Dependencies: Mobile AI infrastructure
+  - Success: 85%+ user acceptance rate for AI reply suggestions
+
+- [ ] **MAPA-002**: Intelligent message management and prioritization
+  - Estimated: 3 weeks
+  - Dependencies: MAPA-001
+  - Success: AI-powered message filtering and priority routing
+
+- [ ] **MAPA-003**: AI scheduling and calendar integration system
+  - Estimated: 4 weeks
+  - Dependencies: MAPA-002
+  - Success: Natural language scheduling with conflict resolution
+
+- [ ] **MAPA-004**: Personal productivity assistant and task management
+  - Estimated: 3 weeks
+  - Dependencies: MAPA-003
+  - Success: AI task extraction and deadline management from conversations
+
+- [ ] **MAPA-005**: Workflow automation engine and custom triggers
+  - Estimated: 2 weeks
+  - Dependencies: MAPA-004
+  - Success: User-defined automation workflows with external integrations
+
+### Location-Based Social Features & Proximity Services (LBS-001)
+**Target**: Q3 2026 | **Owner**: Social Features Team + Location Services Team | **Effort**: 14 weeks
+
+- [ ] **LBS-001**: Privacy-first location infrastructure and proximity detection
+  - Estimated: 3 weeks
+  - Dependencies: Privacy framework, location permissions
+  - Success: <10m accuracy proximity detection with <5% battery impact
+
+- [ ] **LBS-002**: Basic proximity features and nearby user discovery
+  - Estimated: 2 weeks
+  - Dependencies: LBS-001
+  - Success: Mutual proximity discovery with granular privacy controls
+
+- [ ] **LBS-003**: Local community discovery and regional servers
+  - Estimated: 3 weeks
+  - Dependencies: LBS-002
+  - Success: Interest-based local server discovery operational
+
+- [ ] **LBS-004**: Location-based events and meetup coordination
+  - Estimated: 3 weeks
+  - Dependencies: LBS-003
+  - Success: Event creation, discovery, and check-in system functional
+
+- [ ] **LBS-005**: Proximity voice channels and advanced location intelligence
+  - Estimated: 3 weeks
+  - Dependencies: LBS-004
+  - Success: Automatic proximity voice channels with spatial audio
 
 ## P1 Tasks (High Priority)
 
