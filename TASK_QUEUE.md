@@ -34,7 +34,7 @@
   - Dependencies: PN-003
   - Success: Intelligent message grouping
 
-- [ ] **PN-005**: Rich notifications with inline actions
+- [x] **PN-005**: Rich notifications with inline actions ✅ (PR #54 open)
   - Estimated: 1 week
   - Dependencies: PN-004
   - Success: Reply from notification works
