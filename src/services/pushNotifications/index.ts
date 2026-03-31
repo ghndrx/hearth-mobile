@@ -8,6 +8,7 @@
 export { default as PushNotificationService } from './PushNotificationService';
 import PushNotificationService from './PushNotificationService';
 export { default as fcmService } from './fcmService';
+export { default as notificationSettingsService } from './NotificationSettingsService';
 
 // Re-export types
 export type {
@@ -19,6 +20,23 @@ export type {
 export type {
   FCMConfig,
 } from './fcmService';
+
+// Re-export permission service types and functions
+export {
+  NotificationPermissionStatus,
+  getPermissionStatus,
+  requestPermission,
+  openSettings,
+  areNotificationsEnabled,
+  getPermissionDescription,
+} from './permissionService';
+
+// Re-export notification settings service types
+export {
+  AndroidChannelId,
+  IOSCategoryId,
+  NotificationPriority,
+} from './NotificationSettingsService';
 
 // Platform detection helpers
 export const isAndroid = (): boolean => {
