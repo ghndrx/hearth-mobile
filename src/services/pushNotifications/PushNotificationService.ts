@@ -6,6 +6,8 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import * as Device from 'expo-device';
+import { registerDevice } from '../../../lib/services/api';
 
 // Configure notification handler for foreground notifications
 Notifications.setNotificationHandler({
@@ -179,25 +181,26 @@ class PushNotificationService {
       try {
         console.log(`Device registration attempt ${attempt}/${maxRetries}`);
 
-        const registration: DeviceRegistration = {
+        // Gather device information
+        const deviceId = Constants.sessionId || this.generateDeviceId();
+        const platform = Platform.OS as 'ios' | 'android';
+        const deviceName = Device.deviceName || `${Device.brand} ${Device.modelName}`;
+        const osVersion = Device.osVersion || Platform.Version.toString();
+        const appVersion = Constants.expoConfig?.version || '1.0.0';
+
+        const registration = {
           token,
-          platform: Platform.OS as 'ios' | 'android',
-          deviceId: this.generateDeviceId(),
-          appVersion: Constants.expoConfig?.version || '1.0.0',
+          platform,
+          deviceId,
+          deviceName,
+          osVersion,
+          appVersion,
         };
 
-        // TODO: Replace with actual API endpoint
-        // const response = await fetch('/api/notifications/register', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(registration),
-        // });
-        //
-        // if (!response.ok) {
-        //   throw new Error(`Registration failed: ${response.status}`);
-        // }
+        // Register with backend API
+        const response = await registerDevice(registration);
 
-        console.log('Device registration successful (simulated):', registration);
+        console.log('Device registration successful:', response);
         return true;
       } catch (error) {
         console.error(`Device registration attempt ${attempt} failed:`, error);

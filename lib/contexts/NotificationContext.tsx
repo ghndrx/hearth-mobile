@@ -7,6 +7,7 @@ import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "../hooks/usePushNotifications";
 import { useNotificationPermission } from "../hooks/useNotifications";
 import { NotificationSettings, Notification, DEFAULT_NOTIFICATION_SETTINGS } from "../services/notifications";
+import { useAuthStore } from "../stores/auth";
 
 interface NotificationContextValue {
   // Push token
@@ -39,6 +40,8 @@ interface NotificationProviderProps {
 }
 
 export function NotificationProvider({ children }: NotificationProviderProps) {
+  const { token: authToken } = useAuthStore();
+
   const {
     expoPushToken,
     notification,
@@ -48,7 +51,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     register,
     updateSettings,
     clearNotifications,
-  } = usePushNotifications();
+  } = usePushNotifications({ authToken: authToken || undefined });
 
   const { isGranted } = useNotificationPermission();
 

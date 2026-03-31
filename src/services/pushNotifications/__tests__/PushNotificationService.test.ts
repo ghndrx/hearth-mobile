@@ -45,10 +45,25 @@ jest.mock('expo-constants', () => ({
         projectId: 'test-project-id',
       },
     },
-  },
-  manifest: {
     version: '1.0.0',
   },
+  sessionId: 'test-session-123',
+}));
+
+// Mock expo-device
+jest.mock('expo-device', () => ({
+  deviceName: 'Test Device',
+  brand: 'TestBrand',
+  modelName: 'TestModel',
+  osVersion: '14.0',
+}));
+
+// Mock API service
+jest.mock('../../../../lib/services/api', () => ({
+  registerDevice: jest.fn().mockResolvedValue({
+    id: 'device-registration-123',
+    registeredAt: Date.now(),
+  }),
 }));
 
 // Mock React Native Platform
