@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 31, 2026
+**Last Updated**: April 1, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -201,6 +201,52 @@
   - Estimated: 2 weeks
   - Dependencies: AO-003
   - Success: Predictive content loading based on patterns
+
+### Voice Messages & Audio Recording System (PRD-050)
+**Target**: Q2 2026 | **Owner**: Mobile Team + Audio Team | **Effort**: 10 weeks
+
+- [ ] **VM-001**: Core voice recording infrastructure and quality optimization
+  - Estimated: 3 weeks
+  - Dependencies: Audio framework setup
+  - Success: High-quality voice recording with noise suppression
+
+- [ ] **VM-002**: Voice message playback system and waveform visualization
+  - Estimated: 3 weeks
+  - Dependencies: VM-001
+  - Success: Full playback controls with visual feedback
+
+- [ ] **VM-003**: Advanced features and transcription integration
+  - Estimated: 2 weeks
+  - Dependencies: VM-002
+  - Success: Speech-to-text transcription and voice message management
+
+- [ ] **VM-004**: Platform optimization and accessibility features
+  - Estimated: 2 weeks
+  - Dependencies: VM-003
+  - Success: iOS/Android optimizations and accessibility compliance
+
+### Smart Mobile Notification Intelligence (PRD-051)
+**Target**: Q3 2026 | **Owner**: Mobile Team + AI Team | **Effort**: 8 weeks
+
+- [ ] **SMN-001**: Context detection infrastructure and user behavior analysis
+  - Estimated: 2 weeks
+  - Dependencies: AI framework setup
+  - Success: 95% accurate context prediction (driving, sleep, work)
+
+- [ ] **SMN-002**: Social graph intelligence and relationship scoring
+  - Estimated: 2 weeks
+  - Dependencies: SMN-001
+  - Success: Smart priority ranking based on social relationships
+
+- [ ] **SMN-003**: AI notification processing and predictive delivery
+  - Estimated: 2 weeks
+  - Dependencies: SMN-002
+  - Success: Intelligent notification timing and bundling
+
+- [ ] **SMN-004**: Cross-device coordination and user experience integration
+  - Estimated: 2 weeks
+  - Dependencies: SMN-003
+  - Success: Seamless notification handoff across devices
 
 - [ ] **AO-005**: Network-adaptive strategies
   - Estimated: 1 week
@@ -932,7 +978,99 @@
   - Dependencies: LBS-004
   - Success: Automatic proximity voice channels with spatial audio
 
+### Mobile Edge Computing & 5G-First Architecture (MEC5G-001)
+**Target**: Q2 2026 | **Owner**: Infrastructure Team + Mobile Performance Team | **Effort**: 12 weeks
+
+- [ ] **MEC5G-001**: Edge infrastructure and 5G network partnerships
+  - Estimated: 4 weeks
+  - Dependencies: Carrier negotiations, edge node deployment
+  - Success: 50 edge nodes operational with <10ms latency
+
+- [ ] **MEC5G-002**: Real-time voice and video edge processing
+  - Estimated: 3 weeks
+  - Dependencies: MEC5G-001
+  - Success: Sub-10ms voice latency in mobile edge regions
+
+- [ ] **MEC5G-003**: Intelligent routing and network optimization
+  - Estimated: 3 weeks
+  - Dependencies: MEC5G-002
+  - Success: ML-powered traffic routing with 40% efficiency gains
+
+- [ ] **MEC5G-004**: Advanced mobile gaming and collaborative features
+  - Estimated: 2 weeks
+  - Dependencies: MEC5G-003
+  - Success: Ultra-low latency mobile gaming voice chat
+
+### Mobile Web3 & Decentralized Social Infrastructure (MW3DSI-001)
+**Target**: Q3 2026 | **Owner**: Web3 Platform Team + Mobile Identity Team | **Effort**: 16 weeks
+
+- [ ] **MW3DSI-001**: Mobile-native decentralized identity system
+  - Estimated: 4 weeks
+  - Dependencies: DID protocol implementation, biometric security
+  - Success: <2 min DID creation with Face/Touch ID protection
+
+- [ ] **MW3DSI-002**: Multi-chain wallet and blockchain integration
+  - Estimated: 4 weeks
+  - Dependencies: MW3DSI-001
+  - Success: Seamless mobile transactions on 8+ blockchains
+
+- [ ] **MW3DSI-003**: Cross-platform social graph portability
+  - Estimated: 4 weeks
+  - Dependencies: MW3DSI-002
+  - Success: Import/export social connections from 5+ platforms
+
+- [ ] **MW3DSI-004**: NFT communities and creator token features
+  - Estimated: 4 weeks
+  - Dependencies: MW3DSI-003
+  - Success: Mobile-friendly NFT trading and community governance
+
+### Mobile Carbon Intelligence & Sustainable Computing (MCISC-001)
+**Target**: Q2 2026 | **Owner**: Sustainability Team + Mobile Performance Team | **Effort**: 10 weeks
+
+- [ ] **MCISC-001**: Real-time carbon tracking infrastructure
+  - Estimated: 3 weeks
+  - Dependencies: Energy monitoring systems, carbon calculation engine
+  - Success: Real-time carbon footprint display with 95% accuracy
+
+- [ ] **MCISC-002**: Sustainable usage modes and optimization
+  - Estimated: 3 weeks
+  - Dependencies: MCISC-001
+  - Success: Eco-mode delivering 50% energy savings
+
+- [ ] **MCISC-003**: Carbon-intelligent features and community tools
+  - Estimated: 2 weeks
+  - Dependencies: MCISC-002
+  - Success: Community carbon scoring and offset integration
+
+- [ ] **MCISC-004**: Renewable energy infrastructure integration
+  - Estimated: 2 weeks
+  - Dependencies: MCISC-003
+  - Success: 100% renewable energy routing for mobile edge computing
+
 ## P1 Tasks (High Priority)
+
+### Mobile-First File Management & Deep Device Integration (PRD-052)
+**Target**: Q3 2026 | **Owner**: Mobile Team + Platform Team | **Effort**: 12 weeks
+
+- [ ] **MFM-001**: Core file organization and smart categorization system
+  - Estimated: 3 weeks
+  - Dependencies: File upload infrastructure (MS-001)
+  - Success: AI-powered file organization and advanced search
+
+- [ ] **MFM-002**: Enhanced file previews and mobile-optimized workflows
+  - Estimated: 3 weeks
+  - Dependencies: MFM-001
+  - Success: Rich previews for 50+ file types and gesture-based actions
+
+- [ ] **MFM-003**: Cloud service integration and two-way sync
+  - Estimated: 3 weeks
+  - Dependencies: MFM-002
+  - Success: Seamless iCloud, Google Drive, Dropbox integration
+
+- [ ] **MFM-004**: Mobile optimization and performance features
+  - Estimated: 3 weeks
+  - Dependencies: MFM-003
+  - Success: Offline file management and intelligent caching
 
 ### Cross-Device Continuity & Seamless Handoff (PRD-028)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
