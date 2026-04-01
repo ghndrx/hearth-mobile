@@ -1047,6 +1047,75 @@
   - Dependencies: MCISC-003
   - Success: 100% renewable energy routing for mobile edge computing
 
+### Mobile Message Editing & Rich Formatting Toolbar (PRD-060)
+**Target**: Q2 2026 | **Owner**: Mobile Team + UX Design Team | **Effort**: 6 weeks
+
+- [ ] **MMERF-001**: Rich text input component and formatting parser
+  - Estimated: 2 weeks
+  - Dependencies: Message API v2.1 enhancements
+  - Success: Basic message editing with live preview functional
+
+- [ ] **MMERF-002**: Full formatting toolbar implementation
+  - Estimated: 2 weeks
+  - Dependencies: MMERF-001
+  - Success: Bold, italic, code blocks, quotes working on mobile
+
+- [ ] **MMERF-003**: Edit history and conflict resolution
+  - Estimated: 1 week
+  - Dependencies: MMERF-002
+  - Success: Multiple edit handling and "edited" indicators
+
+- [ ] **MMERF-004**: Cross-platform UI consistency and accessibility
+  - Estimated: 1 week
+  - Dependencies: MMERF-003
+  - Success: iOS/Android parity with screen reader support
+
+### Smart Connection Handling & Adaptive Content Delivery (PRD-061)
+**Target**: Q3 2026 | **Owner**: Mobile Team + Infrastructure Team | **Effort**: 8 weeks
+
+- [ ] **SCHAC-001**: Real-time network monitoring and state detection
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: Accurate WiFi/Cellular/Edge connection awareness
+
+- [ ] **SCHAC-002**: Adaptive media quality and compression engine
+  - Estimated: 2 weeks
+  - Dependencies: SCHAC-001
+  - Success: 40% data usage reduction with quality preservation
+
+- [ ] **SCHAC-003**: Smart message batching and predictive sync
+  - Estimated: 2 weeks
+  - Dependencies: SCHAC-002
+  - Success: 98% message delivery rate across connection types
+
+- [ ] **SCHAC-004**: Graceful UI states and connection recovery
+  - Estimated: 1 week
+  - Dependencies: SCHAC-003
+  - Success: Clear user feedback and <2s recovery time
+
+### Mobile Input Intelligence & Quick Reply Gestures (PRD-062)
+**Target**: Q3 2026 | **Owner**: Mobile Team + AI/ML Team | **Effort**: 10 weeks
+
+- [ ] **MIIQR-001**: Core gesture recognition and quick-reply system
+  - Estimated: 3 weeks
+  - Dependencies: Haptic feedback infrastructure (HF-001)
+  - Success: Swipe-to-reply and long-press actions functional
+
+- [ ] **MIIQR-002**: Context-aware text prediction and smart suggestions
+  - Estimated: 3 weeks
+  - Dependencies: MIIQR-001
+  - Success: 70% suggestion accuracy with conversation context
+
+- [ ] **MIIQR-003**: Voice-to-text integration with real-time transcription
+  - Estimated: 2 weeks
+  - Dependencies: MIIQR-002
+  - Success: Voice input with live transcription display
+
+- [ ] **MIIQR-004**: Smart mention autocomplete and customization
+  - Estimated: 2 weeks
+  - Dependencies: MIIQR-003
+  - Success: Relationship-ranked mentions and configurable gestures
+
 ## P1 Tasks (High Priority)
 
 ### Mobile-First File Management & Deep Device Integration (PRD-052)
