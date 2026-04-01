@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthStore } from "../lib/stores/auth";
-import { NotificationProvider } from "../lib/contexts/NotificationContext";
+import { PushNotificationProvider } from "../src/services/pushNotifications/PushNotificationProvider";
 import { BiometricProvider } from "../lib/contexts/BiometricContext";
 import { NotificationBanner } from "../components/notifications";
 import { BiometricLockScreen } from "../components/BiometricLockScreen";
@@ -144,7 +144,7 @@ export default function RootLayout() {
     >
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <NotificationProvider>
+          <PushNotificationProvider>
             <BiometricProvider>
               <BiometricLockScreen>
                 <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
@@ -153,7 +153,7 @@ export default function RootLayout() {
                 <NotificationBanner />
               </BiometricLockScreen>
             </BiometricProvider>
-          </NotificationProvider>
+          </PushNotificationProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </ErrorBoundary>

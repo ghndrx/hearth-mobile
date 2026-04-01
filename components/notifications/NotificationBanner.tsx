@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Avatar } from "../ui/Avatar";
-import { useNotificationContext } from "../../lib/contexts/NotificationContext";
+import { usePushNotificationContext } from "../../src/services/pushNotifications/PushNotificationProvider";
 
 const BANNER_HEIGHT = 80;
 const AUTO_DISMISS_MS = 5000;
@@ -29,7 +29,7 @@ export function NotificationBanner() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const insets = useSafeAreaInsets();
-  const { notification } = useNotificationContext();
+  const { notification } = usePushNotificationContext();
 
   const translateY = useRef(new Animated.Value(-BANNER_HEIGHT - insets.top)).current;
   const opacity = useRef(new Animated.Value(0)).current;

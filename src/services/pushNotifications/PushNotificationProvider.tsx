@@ -48,6 +48,9 @@ export interface PushNotificationContextValue {
   expoPushToken: string | null;
   tokenError: string | null;
 
+  // Current notification (for foreground display)
+  notification: Notifications.Notification | null;
+
   // Permission
   permissionStatus: Notifications.PermissionStatus | null;
   isPermissionGranted: boolean;
@@ -103,6 +106,7 @@ export function PushNotificationProvider({
   const [isRegistered, setIsRegistered] = useState(false);
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<string | null>(null);
+  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const [permissionStatus, setPermissionStatus] =
     useState<Notifications.PermissionStatus | null>(null);
 
@@ -147,8 +151,9 @@ export function PushNotificationProvider({
             registerDeviceWithBackend(token, authToken).catch(console.error);
           }
         },
-        onNotificationReceived: (notification) => {
-          console.log('[PushNotificationProvider] Notification received:', notification.request.content.title);
+        onNotificationReceived: (receivedNotification) => {
+          console.log('[PushNotificationProvider] Notification received:', receivedNotification.request.content.title);
+          setNotification(receivedNotification);
         },
         onNotificationOpened: (notification) => {
           console.log('[PushNotificationProvider] Notification opened:', notification.request.content.title);
@@ -339,6 +344,7 @@ export function PushNotificationProvider({
     isRegistered,
     expoPushToken,
     tokenError,
+    notification,
     permissionStatus,
     isPermissionGranted,
     initialize,
