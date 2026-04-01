@@ -23,8 +23,11 @@ Notifications.setNotificationHandler({
 export interface PushNotificationConfig {
   onTokenReceived?: (token: string) => void;
   onTokenRefresh?: (token: string) => void;
+  onNativeTokenReceived?: (token: string) => void;
   onNotificationReceived?: (notification: Notifications.Notification) => void;
   onNotificationOpened?: (notification: Notifications.Notification) => void;
+  /** Automatically re-register with backend when token refreshes */
+  autoReregisterOnRefresh?: boolean;
 }
 
 export interface DeviceRegistration {
@@ -132,12 +135,25 @@ class PushNotificationService {
 
   /**
    * Set up token refresh listener
+   * Automatically re-registers with backend when token changes
    */
   private setupTokenRefreshListener(): void {
     this.tokenRefreshSubscription = Notifications.addPushTokenListener(
-      (tokenData) => {
-        console.log('Push token refreshed:', tokenData.data.substring(0, 20) + '...');
-        this.config.onTokenRefresh?.(tokenData.data);
+      async (tokenData) => {
+        const token = tokenData.data;
+        console.log('Push token refreshed:', String(token).substring(0, 20) + '...');
+        this.config.onTokenRefresh?.(String(token));
+
+        // Auto re-register with backend if configured
+        if (this.config.autoReregisterOnRefresh !== false) {
+          console.log('Auto re-registering device with backend after token refresh...');
+          const success = await this.registerDeviceWithBackend(String(token));
+          if (success) {
+            console.log('Device re-registration after token refresh successful');
+          } else {
+            console.warn('Device re-registration after token refresh failed');
+          }
+        }
       }
     );
   }
@@ -166,6 +182,28 @@ class PushNotificationService {
       return null;
     } catch (error) {
       console.error('Failed to get device push token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get native device push token (FCM token on Android, APNs token on iOS)
+   * Use this when the backend communicates directly with FCM/APNs
+   * rather than through the Expo push notification service.
+   */
+  async getNativeDeviceToken(): Promise<string | null> {
+    if (!this.isInitialized) {
+      console.error('Push notification service not initialized');
+      return null;
+    }
+
+    try {
+      const { data: token } = await Notifications.getDevicePushTokenAsync();
+      console.log(`Native ${Platform.OS} token obtained:`, String(token).substring(0, 20) + '...');
+      this.config.onNativeTokenReceived?.(String(token));
+      return String(token);
+    } catch (error) {
+      console.error('Failed to get native device push token:', error);
       return null;
     }
   }

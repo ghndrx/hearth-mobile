@@ -12,6 +12,7 @@ jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(),
   requestPermissionsAsync: jest.fn(),
   getExpoPushTokenAsync: jest.fn(),
+  getDevicePushTokenAsync: jest.fn(),
   addNotificationReceivedListener: jest.fn(),
   addNotificationResponseReceivedListener: jest.fn(),
   addPushTokenListener: jest.fn(),
@@ -197,6 +198,65 @@ describe('PushNotificationService', () => {
       await PushNotificationService.getDeviceToken();
 
       expect(onTokenReceived).toHaveBeenCalledWith('ExpoPushToken-test-token-12345');
+    });
+  });
+
+  describe('Native Device Token', () => {
+    test('should get native device token successfully', async () => {
+      const Notifications = require('expo-notifications');
+      Notifications.getPermissionsAsync.mockResolvedValue({ status: 'granted' });
+      Notifications.addNotificationReceivedListener.mockReturnValue({ remove: jest.fn() });
+      Notifications.addNotificationResponseReceivedListener.mockReturnValue({ remove: jest.fn() });
+      Notifications.addPushTokenListener.mockReturnValue({ remove: jest.fn() });
+      Notifications.getDevicePushTokenAsync.mockResolvedValue({ data: 'native-fcm-token-12345' });
+
+      await PushNotificationService.initialize();
+      const token = await PushNotificationService.getNativeDeviceToken();
+
+      expect(token).toBe('native-fcm-token-12345');
+    });
+
+    test('should return null for native token when not initialized', async () => {
+      const token = await PushNotificationService.getNativeDeviceToken();
+      expect(token).toBeNull();
+    });
+
+    test('should call native token callback when token obtained', async () => {
+      const Notifications = require('expo-notifications');
+      Notifications.getPermissionsAsync.mockResolvedValue({ status: 'granted' });
+      Notifications.addNotificationReceivedListener.mockReturnValue({ remove: jest.fn() });
+      Notifications.addNotificationResponseReceivedListener.mockReturnValue({ remove: jest.fn() });
+      Notifications.addPushTokenListener.mockReturnValue({ remove: jest.fn() });
+      Notifications.getDevicePushTokenAsync.mockResolvedValue({ data: 'native-apns-token-67890' });
+
+      const onNativeTokenReceived = jest.fn();
+      await PushNotificationService.initialize({ onNativeTokenReceived });
+      await PushNotificationService.getNativeDeviceToken();
+
+      expect(onNativeTokenReceived).toHaveBeenCalledWith('native-apns-token-67890');
+    });
+  });
+
+  describe('Token Refresh Re-registration', () => {
+    test('should auto re-register with backend on token refresh', async () => {
+      const Notifications = require('expo-notifications');
+      const api = require('../../../../lib/services/api');
+      Notifications.getPermissionsAsync.mockResolvedValue({ status: 'granted' });
+      Notifications.addNotificationReceivedListener.mockReturnValue({ remove: jest.fn() });
+      Notifications.addNotificationResponseReceivedListener.mockReturnValue({ remove: jest.fn() });
+
+      let capturedHandler: any;
+      Notifications.addPushTokenListener.mockImplementation((handler: any) => {
+        capturedHandler = handler;
+        return { remove: jest.fn() };
+      });
+
+      await PushNotificationService.initialize({ autoReregisterOnRefresh: true });
+
+      // Simulate token refresh
+      await capturedHandler({ data: 'refreshed-token-12345' });
+
+      expect(api.registerDevice).toHaveBeenCalled();
     });
   });
 

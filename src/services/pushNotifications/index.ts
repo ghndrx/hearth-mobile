@@ -8,6 +8,7 @@
 export { default as PushNotificationService } from './PushNotificationService';
 import PushNotificationService from './PushNotificationService';
 export { default as fcmService } from './fcmService';
+export { default as apnsService } from './apnsService';
 
 // Re-export types
 export type {
@@ -19,6 +20,10 @@ export type {
 export type {
   FCMConfig,
 } from './fcmService';
+
+export type {
+  APNsConfig,
+} from './apnsService';
 
 // Platform detection helpers
 export const isAndroid = (): boolean => {
