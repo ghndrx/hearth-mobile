@@ -8,6 +8,8 @@
 export { default as PushNotificationService } from './PushNotificationService';
 import PushNotificationService from './PushNotificationService';
 export { default as fcmService } from './fcmService';
+export { default as fcmServiceAndroid } from './fcmServiceAndroid';
+export { FCM_CHANNELS } from './fcmServiceAndroid';
 
 // Re-export types
 export type {
