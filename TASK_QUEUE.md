@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: April 1, 2026
+**Last Updated**: April 2, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -1120,6 +1120,120 @@
   - Estimated: 2 weeks
   - Dependencies: AGIMOS-004
   - Success: LFG system, game lobbies, achievement sharing
+
+### Offline-First Architecture & Smart Sync (PRD-053)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 14 weeks
+
+- [ ] **OFFLINE-001**: Local SQLite database with encryption and offline storage
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Encrypted local database with full-text search operational
+
+- [ ] **OFFLINE-002**: Persistent message queue with retry logic
+  - Estimated: 2 weeks
+  - Dependencies: OFFLINE-001
+  - Success: Messages queue offline and sync when connectivity restored
+
+- [ ] **OFFLINE-003**: Intelligent caching engine with predictive pre-loading
+  - Estimated: 2 weeks
+  - Dependencies: OFFLINE-002
+  - Success: User behavior-based content caching working
+
+- [ ] **OFFLINE-004**: Smart conflict resolution and three-way merge
+  - Estimated: 2 weeks
+  - Dependencies: OFFLINE-003
+  - Success: Automatic conflict resolution with <1% manual intervention
+
+- [ ] **OFFLINE-005**: Network condition adaptation and bandwidth optimization
+  - Estimated: 2 weeks
+  - Dependencies: OFFLINE-004
+  - Success: Adaptive sync based on connection quality
+
+- [ ] **OFFLINE-006**: Voice message offline recording and playback
+  - Estimated: 2 weeks
+  - Dependencies: OFFLINE-005
+  - Success: Voice messages work fully offline with auto-sync
+
+- [ ] **OFFLINE-007**: Platform integration and background sync optimization
+  - Estimated: 2 weeks
+  - Dependencies: OFFLINE-006
+  - Success: iOS Background App Refresh and Android WorkManager integration
+
+### Mobile Security Framework & Zero-Trust Architecture (PRD-054)
+**Target**: Q2 2026 | **Owner**: Security & Mobile Teams | **Effort**: 16 weeks
+
+- [ ] **SECURITY-001**: Biometric authentication with secure enclave integration
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: TouchID/FaceID/Android Biometric API working
+
+- [ ] **SECURITY-002**: Advanced threat detection with device integrity validation
+  - Estimated: 3 weeks
+  - Dependencies: SECURITY-001
+  - Success: Jailbreak/root detection, anomaly detection operational
+
+- [ ] **SECURITY-003**: End-to-end encryption with Signal Protocol mobile optimization
+  - Estimated: 3 weeks
+  - Dependencies: SECURITY-002
+  - Success: E2E encryption for all messages with perfect forward secrecy
+
+- [ ] **SECURITY-004**: Zero-trust network architecture with continuous verification
+  - Estimated: 3 weeks
+  - Dependencies: SECURITY-003
+  - Success: Device trust scoring and policy enforcement
+
+- [ ] **SECURITY-005**: Privacy-preserving analytics with on-device ML
+  - Estimated: 2 weeks
+  - Dependencies: SECURITY-004
+  - Success: Local behavior analysis with differential privacy
+
+- [ ] **SECURITY-006**: Enterprise MDM/MAM integration and compliance
+  - Estimated: 2 weeks
+  - Dependencies: SECURITY-005
+  - Success: Intune/Workspace ONE support, SOC 2 compliance
+
+- [ ] **SECURITY-007**: Security audit, penetration testing, and certification
+  - Estimated: 1 week
+  - Dependencies: SECURITY-006
+  - Success: Third-party security audit passed, certifications achieved
+
+### Cross-Platform Continuity & Seamless Device Handoff (PRD-055)
+**Target**: Q2 2026 | **Owner**: Mobile & Platform Teams | **Effort**: 18 weeks
+
+- [ ] **CONTINUITY-001**: Device discovery and secure pairing system
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: BLE and mDNS device discovery with E2E encryption
+
+- [ ] **CONTINUITY-002**: Real-time state synchronization engine
+  - Estimated: 3 weeks
+  - Dependencies: CONTINUITY-001
+  - Success: Message read states and drafts sync across devices
+
+- [ ] **CONTINUITY-003**: Call handoff and seamless voice/video transfer
+  - Estimated: 4 weeks
+  - Dependencies: CONTINUITY-002, Voice calling infrastructure
+  - Success: <3 second call transfers between mobile and desktop
+
+- [ ] **CONTINUITY-004**: Universal clipboard with rich content support
+  - Estimated: 2 weeks
+  - Dependencies: CONTINUITY-003
+  - Success: Text, images, files sync securely across devices
+
+- [ ] **CONTINUITY-005**: Intelligent notification routing and device prioritization
+  - Estimated: 2 weeks
+  - Dependencies: CONTINUITY-004
+  - Success: Smart notification delivery to active device
+
+- [ ] **CONTINUITY-006**: Platform-specific integration (iOS Handoff, Android Nearby)
+  - Estimated: 2 weeks
+  - Dependencies: CONTINUITY-005
+  - Success: Native platform continuity APIs integrated
+
+- [ ] **CONTINUITY-007**: Activity state preservation and deep link generation
+  - Estimated: 2 weeks
+  - Dependencies: CONTINUITY-006
+  - Success: Seamless activity handoffs with full context preservation
 
 ## P1 Tasks (High Priority)
 
