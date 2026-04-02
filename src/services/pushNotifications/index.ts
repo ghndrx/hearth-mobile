@@ -3,11 +3,22 @@
  * Cross-platform unified API using expo-notifications
  * 
  * Handles both FCM (Android) and APNs (iOS) through Expo's infrastructure.
+ * PN-002: Includes notification delivery pipeline for processing and routing
  */
 
 export { default as PushNotificationService } from './PushNotificationService';
 import PushNotificationService from './PushNotificationService';
 export { default as fcmService } from './fcmService';
+export {
+  default as NotificationDeliveryService,
+  processIncomingNotification,
+  handleNotificationTap,
+  getDisplayOptions,
+  formatNotificationTitle,
+  formatNotificationBody,
+  shouldDisplayNotification,
+  registerDeliveryListeners,
+} from './NotificationDeliveryService';
 
 // Re-export types
 export type {
@@ -19,6 +30,11 @@ export type {
 export type {
   FCMConfig,
 } from './fcmService';
+
+export type {
+  IncomingNotification,
+  NotificationData,
+} from './NotificationDeliveryService';
 
 // Platform detection helpers
 export const isAndroid = (): boolean => {
