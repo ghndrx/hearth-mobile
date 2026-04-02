@@ -1958,9 +1958,89 @@
 - **Media Upload**: <3s average upload time
 - **Stream Quality**: 95% maintain stable quality
 
+### Mobile-First Rich Text & Markdown Composer (MRTMC-001)
+**Target**: Q3 2026 | **Owner**: Mobile UX Team + Text Input Team | **Effort**: 8 weeks
+
+- [ ] **MRTMC-001**: Rich Text Engine Setup
+  - Estimated: 2 weeks
+  - Dependencies: Platform-native text editing frameworks
+  - Success: Core text editing framework with basic formatting support
+
+- [ ] **MRTMC-002**: Touch Gesture System
+  - Estimated: 1 week
+  - Dependencies: MRTMC-001
+  - Success: Basic text selection and cursor positioning with gestures
+
+- [ ] **MRTMC-003**: Markdown Parser and Live Preview
+  - Estimated: 1 week
+  - Dependencies: MRTMC-002
+  - Success: Real-time markdown rendering and formatting display
+
+- [ ] **MRTMC-004**: Formatting Toolbar and Auto-Completion
+  - Estimated: 2 weeks
+  - Dependencies: MRTMC-003
+  - Success: Touch-optimized toolbar with @mention and #channel completion
+
+- [ ] **MRTMC-005**: Smart Text Manipulation and Draft Persistence
+  - Estimated: 1 week
+  - Dependencies: MRTMC-004
+  - Success: Advanced selection, drag-and-drop, and automatic draft saving
+
+- [ ] **MRTMC-006**: Performance Optimization and Accessibility
+  - Estimated: 1 week
+  - Dependencies: MRTMC-005
+  - Success: <50ms input latency and full screen reader support
+
+### Mobile-Optimized Admin Dashboard (MADSM-001)
+**Target**: Q3 2026 | **Owner**: Mobile Team + Community Tools Team | **Effort**: 10 weeks
+
+- [ ] **MADSM-001**: Admin Dashboard Framework
+  - Estimated: 3 weeks
+  - Dependencies: Real-time infrastructure, authentication system
+  - Success: Core mobile dashboard with server overview and health metrics
+
+- [ ] **MADSM-002**: Quick Action Moderation System
+  - Estimated: 3 weeks
+  - Dependencies: MADSM-001, audit log infrastructure
+  - Success: One-touch moderation actions with content review interface
+
+- [ ] **MADSM-003**: Member Management and Bulk Operations
+  - Estimated: 2 weeks
+  - Dependencies: MADSM-002
+  - Success: Multi-select and bulk actions for member management
+
+- [ ] **MADSM-004**: Analytics Dashboard and Team Collaboration
+  - Estimated: 2 weeks
+  - Dependencies: MADSM-003, analytics backend
+  - Success: Server growth metrics and team collaboration features
+
+### Mobile Social Discovery (MSDFN-001)
+**Target**: Q3 2026 | **Owner**: Mobile Growth Team + Social Features Team | **Effort**: 9 weeks
+
+- [ ] **MSDFN-001**: Social Graph Infrastructure
+  - Estimated: 3 weeks
+  - Dependencies: Graph database, ML infrastructure
+  - Success: Core social graph with basic friend suggestions
+
+- [ ] **MSDFN-002**: ML Recommendation Engine
+  - Estimated: 3 weeks
+  - Dependencies: MSDFN-001, social context algorithms
+  - Success: Intelligent friend and community suggestions with social proof
+
+- [ ] **MSDFN-003**: Viral Growth and Invitation System
+  - Estimated: 2 weeks
+  - Dependencies: MSDFN-002
+  - Success: Personalized invitations and social milestone gamification
+
+- [ ] **MSDFN-004**: Privacy Controls and Performance Optimization
+  - Estimated: 1 week
+  - Dependencies: MSDFN-003, privacy compliance framework
+  - Success: Granular privacy controls and <2s recommendation generation
+
 ---
 
 **Next Actions**:
 1. Start PN-001 (FCM/APNs integration) - Week of March 25
 2. Resource planning meeting for Q2 priorities - March 28
 3. Technical architecture review for media pipeline - April 1
+4. **NEW**: Competitive analysis implementation - Start MRTMC-001, MADSM-001, MSDFN-001 - Week of April 7
