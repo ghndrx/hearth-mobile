@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerDevice, unregisterDevice } from "./api";
+import { notificationPermissions } from "./notificationPermissions";
 
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
@@ -69,27 +70,94 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
 
 // Configure default notification behavior
 Notifications.setNotificationHandler({
-  handleNotification: async (_notification) => {
-    const settings = await getNotificationSettings();
-    
-    // Check quiet hours
-    if (settings.quietHoursEnabled && isQuietHours(settings)) {
+  handleNotification: async (notification) => {
+    try {
+      const settings = await getNotificationSettings();
+
+      // Extract notification data for permission checking
+      const data = notification.request.content.data as Record<string, any>;
+      const notificationType = data?.type as NotificationType;
+      const rawSenderId = data?.senderId || data?.userId;
+      const senderId: string | undefined = rawSenderId ? String(rawSenderId) : undefined;
+      const serverId = data?.serverId;
+      const channelId = data?.channelId;
+      const content = notification.request.content.body || undefined;
+
+      // Check advanced permissions first
+      if (notificationType) {
+        const permissionResult = await notificationPermissions.shouldDeliverNotification(
+          notificationType,
+          senderId,
+          serverId,
+          channelId,
+          content
+        );
+
+        if (!permissionResult.shouldDeliver) {
+          console.log(`Notification blocked: ${permissionResult.reason}`);
+          return {
+            shouldShowAlert: false,
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+            shouldShowBanner: false,
+            shouldShowList: false, // Don't even add to notification center
+          };
+        }
+
+        // Apply custom sound/vibration if specified
+        if (permissionResult.customizations) {
+          // Store customizations in notification data for later use
+          data._customizations = permissionResult.customizations;
+        }
+      }
+
+      // Check quiet hours (unless overridden by priority contact)
+      const isPriorityContact = senderId ? await notificationPermissions.isPriorityContact(senderId) : null;
+      const shouldBypassQuietHours = isPriorityContact?.notificationOverrides.bypassQuietHours;
+
+      if (settings.quietHoursEnabled && isQuietHours(settings) && !shouldBypassQuietHours) {
+        // Check server-specific quiet hours override
+        if (serverId) {
+          const serverSettings = await notificationPermissions.getServerSetting(serverId);
+          if (!serverSettings?.quietHoursOverride) {
+            return {
+              shouldShowAlert: false,
+              shouldPlaySound: false,
+              shouldSetBadge: false,
+              shouldShowBanner: false,
+              shouldShowList: true, // Still add to notification center during quiet hours
+            };
+          }
+        } else {
+          return {
+            shouldShowAlert: false,
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+            shouldShowBanner: false,
+            shouldShowList: true,
+          };
+        }
+      }
+
       return {
-        shouldShowAlert: false,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-        shouldShowBanner: false,
-        shouldShowList: true, // Still add to notification center
+        shouldShowAlert: settings.enabled,
+        shouldPlaySound: settings.enabled && settings.sounds,
+        shouldSetBadge: settings.enabled && settings.badgeCount,
+        shouldShowBanner: settings.enabled,
+        shouldShowList: true,
+      };
+    } catch (error) {
+      console.error("Error in notification handler:", error);
+      // Fall back to basic settings on error
+      const settings = await getNotificationSettings();
+      return {
+        shouldShowAlert: settings.enabled,
+        shouldPlaySound: settings.enabled && settings.sounds,
+        shouldSetBadge: settings.enabled && settings.badgeCount,
+        shouldShowBanner: settings.enabled,
+        shouldShowList: true,
       };
     }
-
-    return {
-      shouldShowAlert: settings.enabled,
-      shouldPlaySound: settings.enabled && settings.sounds,
-      shouldSetBadge: settings.enabled && settings.badgeCount,
-      shouldShowBanner: settings.enabled,
-      shouldShowList: true,
-    };
   },
 });
 
@@ -410,6 +478,203 @@ export async function scheduleLocalNotification(
     },
     trigger: trigger ?? null,
   });
+}
+
+/**
+ * Process and deliver a notification with enhanced permission checking
+ */
+export async function processAndDeliverNotification(payload: {
+  type: NotificationType;
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+  senderId?: string;
+  serverId?: string;
+  channelId?: string;
+  trigger?: Notifications.NotificationTriggerInput;
+}): Promise<{ delivered: boolean; notificationId?: string; reason?: string }> {
+  try {
+    // Check if we should deliver this notification
+    const permissionResult = await notificationPermissions.shouldDeliverNotification(
+      payload.type,
+      payload.senderId,
+      payload.serverId,
+      payload.channelId,
+      payload.body
+    );
+
+    if (!permissionResult.shouldDeliver) {
+      return {
+        delivered: false,
+        reason: permissionResult.reason || "Permission denied",
+      };
+    }
+
+    // Get permission settings for content customization
+    const permissions = await notificationPermissions.getPermissionSettings();
+
+    // Customize notification content based on permissions
+    let customizedTitle = payload.title;
+    let customizedBody = payload.body;
+
+    if (!permissions.showSenderNames && payload.senderId) {
+      customizedTitle = customizedTitle.replace(/^[^:]+:/, "New message:");
+    }
+
+    if (!permissions.showMessagePreviews) {
+      customizedBody = "New message";
+    } else if (permissions.maxPreviewLength > 0 && customizedBody.length > permissions.maxPreviewLength) {
+      customizedBody = customizedBody.substring(0, permissions.maxPreviewLength) + "...";
+    }
+
+    if (!permissions.showServerNames && payload.serverId) {
+      customizedTitle = customizedTitle.replace(/#[^:\s]+/, "#channel");
+    }
+
+    // Prepare notification data
+    const notificationData = {
+      ...payload.data,
+      type: payload.type,
+      senderId: payload.senderId,
+      serverId: payload.serverId,
+      channelId: payload.channelId,
+      originalTitle: payload.title,
+      originalBody: payload.body,
+      _customizations: permissionResult.customizations,
+    };
+
+    // Determine the appropriate channel for Android
+    let androidChannelId: string = NOTIFICATION_CHANNELS.DEFAULT;
+    switch (payload.type) {
+      case "dm":
+        androidChannelId = NOTIFICATION_CHANNELS.DIRECT_MESSAGES;
+        break;
+      case "mention":
+        androidChannelId = NOTIFICATION_CHANNELS.MENTIONS;
+        break;
+      case "message":
+        androidChannelId = NOTIFICATION_CHANNELS.MESSAGES;
+        break;
+      case "call":
+        androidChannelId = NOTIFICATION_CHANNELS.CALLS;
+        break;
+      case "friend_request":
+        androidChannelId = NOTIFICATION_CHANNELS.SOCIAL;
+        break;
+      case "system":
+        androidChannelId = NOTIFICATION_CHANNELS.SYSTEM;
+        break;
+    }
+
+    // Schedule the notification
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: customizedTitle,
+        body: customizedBody,
+        data: notificationData,
+        sound: true, // Will be handled by the notification handler based on permissions
+        badge: permissions.allowNotificationActions ? undefined : 1,
+        categoryIdentifier: permissions.allowNotificationActions ? "message_actions" : undefined,
+      },
+      trigger: payload.trigger ?? null,
+    });
+
+    console.log(`Notification delivered: ${notificationId}, type: ${payload.type}, customizations:`, permissionResult.customizations);
+
+    return {
+      delivered: true,
+      notificationId,
+    };
+
+  } catch (error) {
+    console.error("Failed to process and deliver notification:", error);
+    return {
+      delivered: false,
+      reason: `Processing error: ${error}`,
+    };
+  }
+}
+
+/**
+ * Bulk process notifications with intelligent batching
+ */
+export async function processBulkNotifications(
+  notifications: Array<Parameters<typeof processAndDeliverNotification>[0]>
+): Promise<{
+  delivered: number;
+  blocked: number;
+  batched: number;
+}> {
+  try {
+    const permissions = await notificationPermissions.getPermissionSettings();
+    let delivered = 0;
+    let blocked = 0;
+    let batched = 0;
+
+    if (permissions.smartBatching && notifications.length > 1) {
+      // Group notifications by sender/server for batching
+      const grouped = new Map<string, typeof notifications>();
+
+      notifications.forEach(notification => {
+        const key = notification.senderId || notification.serverId || 'general';
+        if (!grouped.has(key)) {
+          grouped.set(key, []);
+        }
+        grouped.get(key)!.push(notification);
+      });
+
+      // Process each group
+      for (const [groupKey, groupNotifications] of grouped) {
+        if (groupNotifications.length === 1) {
+          // Single notification, process normally
+          const result = await processAndDeliverNotification(groupNotifications[0]);
+          if (result.delivered) delivered++;
+          else blocked++;
+        } else {
+          // Multiple notifications, create a batched notification
+          const firstNotification = groupNotifications[0];
+          const count = groupNotifications.length;
+
+          const batchedNotification = {
+            ...firstNotification,
+            title: `${count} new messages`,
+            body: groupNotifications.map(n => n.body).join(', '),
+            data: {
+              ...firstNotification.data,
+              batch: true,
+              count,
+              notifications: groupNotifications.map(n => ({
+                type: n.type,
+                title: n.title,
+                body: n.body,
+                data: n.data,
+              })),
+            },
+          };
+
+          const result = await processAndDeliverNotification(batchedNotification);
+          if (result.delivered) {
+            delivered++;
+            batched += count - 1; // All but one were batched
+          } else {
+            blocked += count;
+          }
+        }
+      }
+    } else {
+      // Process individually
+      for (const notification of notifications) {
+        const result = await processAndDeliverNotification(notification);
+        if (result.delivered) delivered++;
+        else blocked++;
+      }
+    }
+
+    return { delivered, blocked, batched };
+  } catch (error) {
+    console.error("Failed to process bulk notifications:", error);
+    return { delivered: 0, blocked: notifications.length, batched: 0 };
+  }
 }
 
 export async function cancelNotification(notificationId: string): Promise<void> {

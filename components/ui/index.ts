@@ -52,6 +52,7 @@ export {
   ErrorState,
 } from "./EmptyState";
 export { Divider, SectionHeader } from "./Divider";
+export { SelectItem } from "./Select";
 
 // Settings components
 export {

@@ -75,6 +75,16 @@ export interface Conversation {
   updatedAt: string;
 }
 
+export type NotificationType =
+  | "message"
+  | "dm"
+  | "mention"
+  | "reply"
+  | "friend_request"
+  | "server_invite"
+  | "call"
+  | "system";
+
 export interface Notification {
   id: string;
   type: "message" | "mention" | "friend" | "system";
