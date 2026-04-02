@@ -54,8 +54,8 @@
           "io.hearth.mobile.view-profile"
         ],
         // APNs environment for push notifications
-        // TODO: Set to "production" before release to App Store
-        "aps-environment": "development"
+        // Set to "production" for App Store release, "development" for testing
+        "aps-environment": "production"
       }
     },
     "android": {
@@ -145,7 +145,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "00000000-0000-0000-0000-000000000000"
+        "projectId": "REPLACE_WITH_ACTUAL_EAS_PROJECT_ID"
       }
     }
   }

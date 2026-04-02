@@ -1,0 +1,44 @@
+{
+  "_comment": "PLACEHOLDER - Replace with actual google-services.json from Firebase Console",
+  "_instructions": [
+    "1. Go to Firebase Console (console.firebase.google.com)",
+    "2. Select your Hearth project (or create one)",
+    "3. Go to Project Settings > Your Apps",
+    "4. Click on your Android app or add one with package: io.hearth.mobile",
+    "5. Download google-services.json",
+    "6. Replace this file with the downloaded one"
+  ],
+  "project_info": {
+    "project_number": "YOUR_PROJECT_NUMBER",
+    "firebase_url": "https://YOUR_PROJECT_ID.firebaseio.com",
+    "project_id": "YOUR_PROJECT_ID",
+    "storage_bucket": "YOUR_PROJECT_ID.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:YOUR_PROJECT_NUMBER:android:YOUR_ANDROID_APP_ID",
+        "android_client_info": {
+          "package_name": "io.hearth.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "YOUR_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
