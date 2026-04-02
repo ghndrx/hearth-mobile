@@ -1047,6 +1047,80 @@
   - Dependencies: MCISC-003
   - Success: 100% renewable energy routing for mobile edge computing
 
+### Voice Transcription & Intelligent Audio Intelligence (PRD-052)
+**Target**: Q2 2026 | **Owner**: Mobile Audio Team | **Effort**: 12 weeks
+
+- [ ] **VTIAI-001**: Real-time voice transcription infrastructure setup
+  - Estimated: 4 weeks
+  - Dependencies: Voice channel infrastructure
+  - Success: >95% transcription accuracy for English, <200ms latency
+
+- [ ] **VTIAI-002**: AI-powered noise suppression and audio processing
+  - Estimated: 3 weeks
+  - Dependencies: VTIAI-001
+  - Success: 90%+ background noise reduction, adaptive echo cancellation
+
+- [ ] **VTIAI-003**: Spatial audio and 3D voice positioning system
+  - Estimated: 3 weeks
+  - Dependencies: VTIAI-002
+  - Success: 3D positional audio for 50+ participants, head tracking support
+
+- [ ] **VTIAI-004**: Voice search and intelligent content discovery
+  - Estimated: 2 weeks
+  - Dependencies: VTIAI-003
+  - Success: Search transcribed voice messages, privacy-preserving indexing
+
+### Developer Ecosystem & Bot/Slash Command Framework (PRD-053)
+**Target**: Q2 2026 | **Owner**: Platform Engineering Team | **Effort**: 16 weeks
+
+- [ ] **DEBSCF-001**: Core developer SDK and REST API infrastructure
+  - Estimated: 6 weeks
+  - Dependencies: None
+  - Success: Full-featured bot API with message, channel, server management
+
+- [ ] **DEBSCF-002**: OAuth 2.0 and permission framework implementation
+  - Estimated: 3 weeks
+  - Dependencies: DEBSCF-001
+  - Success: Secure OAuth flow with granular permission scopes
+
+- [ ] **DEBSCF-003**: Slash command system with auto-complete
+  - Estimated: 4 weeks
+  - Dependencies: DEBSCF-002
+  - Success: Dynamic command registration, rich responses, error handling
+
+- [ ] **DEBSCF-004**: App directory and marketplace deployment
+  - Estimated: 3 weeks
+  - Dependencies: DEBSCF-003
+  - Success: App discovery, ratings, one-click installation for admins
+
+### Advanced Gaming Integration with Mobile Overlays & Streaming (PRD-054)
+**Target**: Q2 2026 | **Owner**: Gaming & Mobile Experience Team | **Effort**: 20 weeks
+
+- [ ] **AGIMOS-001**: Mobile game detection and Rich Presence system
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: 500+ game detection, cross-platform status linking
+
+- [ ] **AGIMOS-002**: In-game overlay system with voice controls
+  - Estimated: 6 weeks
+  - Dependencies: AGIMOS-001
+  - Success: <5% performance impact, floating UI for voice and notifications
+
+- [ ] **AGIMOS-003**: Mobile game streaming infrastructure
+  - Estimated: 5 weeks
+  - Dependencies: AGIMOS-002
+  - Success: 60fps streaming, viewer interaction, stream discovery
+
+- [ ] **AGIMOS-004**: Gaming controller support and cloud gaming integration
+  - Estimated: 4 weeks
+  - Dependencies: AGIMOS-003
+  - Success: Xbox/PlayStation controller support, cloud gaming platform detection
+
+- [ ] **AGIMOS-005**: Social gaming features and Looking for Group (LFG)
+  - Estimated: 2 weeks
+  - Dependencies: AGIMOS-004
+  - Success: LFG system, game lobbies, achievement sharing
+
 ## P1 Tasks (High Priority)
 
 ### Mobile-First File Management & Deep Device Integration (PRD-052)
