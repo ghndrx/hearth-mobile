@@ -14,12 +14,12 @@
 ### Push Notifications System (PRD-001)
 **Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
 
-- [ ] **PN-001**: FCM/APNs integration and device registration
+- [x] **PN-001**: FCM/APNs integration and device registration
   - Estimated: 1 week
   - Dependencies: Firebase project setup
   - Success: Device token registration working
 
-- [ ] **PN-002**: Basic push notification delivery pipeline
+- [x] **PN-002**: Basic push notification delivery pipeline
   - Estimated: 1 week
   - Dependencies: PN-001
   - Success: Can send/receive notifications
@@ -29,12 +29,12 @@
   - Dependencies: PN-002
   - Success: Granular permission controls
 
-- [ ] **PN-004**: Smart notification batching and grouping
+- [x] **PN-004**: Smart notification batching and grouping
   - Estimated: 1 week
   - Dependencies: PN-003
   - Success: Intelligent message grouping
 
-- [ ] **PN-005**: Rich notifications with inline actions
+- [x] **PN-005**: Rich notifications with inline actions
   - Estimated: 1 week
   - Dependencies: PN-004
   - Success: Reply from notification works
