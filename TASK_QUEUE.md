@@ -199,6 +199,130 @@
   - Dependencies: APAI-003
   - Success: <15% CPU overhead, <5% battery impact
 
+### AI-Powered Real-Time Conversation Intelligence (PRD-089)
+**Target**: Q2 2026 | **Owner**: AI/ML Team + Mobile Team | **Effort**: 12 weeks
+
+- [ ] **ACI-001**: Smart reply generation system
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: 85% relevance for AI-suggested responses
+
+- [ ] **ACI-002**: Real-time conversation summarization
+  - Estimated: 2 weeks
+  - Dependencies: ACI-001
+  - Success: <2 seconds to generate 100-message summaries
+
+- [ ] **ACI-003**: Basic content moderation AI
+  - Estimated: 2 weeks
+  - Dependencies: ACI-002
+  - Success: 95% accuracy in threat detection
+
+- [ ] **ACI-004**: Mobile-optimized AI interface
+  - Estimated: 1 week
+  - Dependencies: ACI-003
+  - Success: One-tap AI reply insertion, haptic feedback
+
+- [ ] **ACI-005**: Voice transcription and translation
+  - Estimated: 2 weeks
+  - Dependencies: ACI-004
+  - Success: 95% transcription accuracy, 50+ languages
+
+- [ ] **ACI-006**: Conversation analytics and insights
+  - Estimated: 2 weeks
+  - Dependencies: ACI-005
+  - Success: Community engagement metrics and trend analysis
+
+- [ ] **ACI-007**: Context-aware notification intelligence
+  - Estimated: 1 week
+  - Dependencies: ACI-006
+  - Success: Smart notification prioritization working
+
+### Universal Mobile Integration & Share Extensions (PRD-090)
+**Target**: Q2 2026 | **Owner**: Mobile Team + Platform Team | **Effort**: 8 weeks
+
+- [ ] **UMI-001**: iOS Share Extension implementation
+  - Estimated: 1 week
+  - Dependencies: None
+  - Success: Share from any iOS app to Hearth Mobile channels
+
+- [ ] **UMI-002**: Android Share Intent handler
+  - Estimated: 1 week
+  - Dependencies: None
+  - Success: Universal sharing from Android apps
+
+- [ ] **UMI-003**: Smart channel destination suggestions
+  - Estimated: 1 week
+  - Dependencies: UMI-001, UMI-002
+  - Success: AI-powered sharing destination recommendations
+
+- [ ] **UMI-004**: Rich content preview generation
+  - Estimated: 1 week
+  - Dependencies: UMI-003
+  - Success: Automatic link previews and content cards
+
+- [ ] **UMI-005**: iOS Shortcuts and voice commands
+  - Estimated: 1 week
+  - Dependencies: UMI-004
+  - Success: Siri integration "Send to #general in Hearth"
+
+- [ ] **UMI-006**: Android App Actions integration
+  - Estimated: 1 week
+  - Dependencies: UMI-005
+  - Success: Google Assistant voice command integration
+
+- [ ] **UMI-007**: Home screen quick actions and 3D Touch
+  - Estimated: 1 week
+  - Dependencies: UMI-006
+  - Success: Dynamic shortcuts for frequent tasks
+
+- [ ] **UMI-008**: Universal clipboard and cross-device sync
+  - Estimated: 1 week
+  - Dependencies: UMI-007
+  - Success: <3 seconds for clipboard content sync
+
+### Mobile-First Real-Time Collaboration Hub (PRD-091)
+**Target**: Q3 2026 | **Owner**: Mobile Team + Backend Team | **Effort**: 14 weeks
+
+- [ ] **MFRC-001**: Real-time collaboration infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: <100ms latency for collaborative actions
+
+- [ ] **MFRC-002**: Basic interactive activities (polls, quizzes, simple games)
+  - Estimated: 2 weeks
+  - Dependencies: MFRC-001
+  - Success: Chess, polls, quizzes working with real-time sync
+
+- [ ] **MFRC-003**: Watch Together video synchronization
+  - Estimated: 2 weeks
+  - Dependencies: MFRC-002
+  - Success: YouTube synchronized viewing up to 50 users
+
+- [ ] **MFRC-004**: Mobile-optimized collaboration interface
+  - Estimated: 1 week
+  - Dependencies: MFRC-003
+  - Success: Touch-friendly controls with haptic feedback
+
+- [ ] **MFRC-005**: Shared whiteboard with touch drawing
+  - Estimated: 2 weeks
+  - Dependencies: MFRC-004
+  - Success: Pressure-sensitive collaborative drawing
+
+- [ ] **MFRC-006**: Real-time document collaboration
+  - Estimated: 2 weeks
+  - Dependencies: MFRC-005
+  - Success: Google Docs-style collaborative text editing
+
+- [ ] **MFRC-007**: Listen Along music synchronization
+  - Estimated: 1 week
+  - Dependencies: MFRC-006
+  - Success: Spotify/Apple Music listening parties
+
+- [ ] **MFRC-008**: Gaming integration and mobile game streaming
+  - Estimated: 2 weeks
+  - Dependencies: MFRC-007
+  - Success: Stream mobile games to channel participants
+
 ### Interactive Widgets & Live Activities Native Integration (WLA-001)
 **Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 12 weeks
 
