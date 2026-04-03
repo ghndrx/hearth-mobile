@@ -52,7 +52,7 @@
   - Dependencies: CDN setup
   - Success: Can upload/display images
 
-- [ ] **MS-002**: Camera integration and photo capture
+- [x] **MS-002**: Camera integration and photo capture
   - Estimated: 2 weeks
   - Dependencies: MS-001
   - Success: In-app photo capture working
@@ -1480,6 +1480,75 @@
   - Estimated: 3 weeks
   - Dependencies: UPA-003
   - Success: Social activity feed with privacy controls
+
+### Interactive Mobile Widgets & Live Activities System (PRD-077)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 14 weeks
+
+- [ ] **IW-001**: Widget data service architecture and real-time sync system
+  - Estimated: 4 weeks
+  - Dependencies: None
+  - Success: Background data refresh system with intelligent batching
+
+- [ ] **IW-002**: iOS Live Activities for voice channel participation
+  - Estimated: 3 weeks
+  - Dependencies: IW-001
+  - Success: Dynamic Island integration with voice controls
+
+- [ ] **IW-003**: Android Material You adaptive widgets
+  - Estimated: 3 weeks
+  - Dependencies: IW-001
+  - Success: Home screen widgets with server activity summaries
+
+- [ ] **IW-004**: Platform-specific integrations (Siri, Assistant, Quick Settings)
+  - Estimated: 4 weeks
+  - Dependencies: IW-002, IW-003
+  - Success: Voice commands and Quick Settings tiles functional
+
+### AI-Powered Conversation Intelligence System (PRD-078)
+**Target**: Q3 2026 | **Owner**: AI/ML Team + Mobile Team | **Effort**: 16 weeks
+
+- [ ] **AI-001**: Core AI infrastructure and intelligent content moderation
+  - Estimated: 5 weeks
+  - Dependencies: None
+  - Success: Real-time content moderation with 95% accuracy
+
+- [ ] **AI-002**: Conversation summary generation and smart replies
+  - Estimated: 4 weeks
+  - Dependencies: AI-001
+  - Success: Context-aware summaries and reply suggestions
+
+- [ ] **AI-003**: Voice transcription and speaker identification
+  - Estimated: 3 weeks
+  - Dependencies: AI-002
+  - Success: Real-time transcription with 95% accuracy
+
+- [ ] **AI-004**: Multi-language translation and accessibility features
+  - Estimated: 4 weeks
+  - Dependencies: AI-003
+  - Success: Real-time translation for 50+ languages
+
+### Real-Time Collaborative Activities Hub (PRD-079)
+**Target**: Q3 2026 | **Owner**: Mobile Team + Platform Team | **Effort**: 18 weeks
+
+- [ ] **CA-001**: Real-time synchronization infrastructure for mobile
+  - Estimated: 5 weeks
+  - Dependencies: None
+  - Success: <200ms latency for collaborative features
+
+- [ ] **CA-002**: Watch Together with synchronized video streaming
+  - Estimated: 4 weeks
+  - Dependencies: CA-001
+  - Success: YouTube Watch Together for up to 50 participants
+
+- [ ] **CA-003**: Interactive gaming and collaborative whiteboard
+  - Estimated: 5 weeks
+  - Dependencies: CA-002
+  - Success: Touch-optimized drawing and mobile trivia games
+
+- [ ] **CA-004**: Music streaming integration and audio activities
+  - Estimated: 4 weeks
+  - Dependencies: CA-003
+  - Success: Listen Along with Spotify and Apple Music
 
 ## P1 Tasks (High Priority)
 
