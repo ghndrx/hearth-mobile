@@ -22,6 +22,24 @@ export {
   dismissAllNotifications,
   NOTIFICATION_CHANNELS,
 } from "./notifications";
+export * from "./notificationDelivery";
+export {
+  notificationDeliveryService,
+  useNotificationDelivery,
+  type DeliveryStatus,
+  type NotificationDeliveryRecord,
+  type DeliveryStats,
+  type DeliverySettings,
+} from "./notificationDelivery";
+export * from "./backgroundProcessing";
+export {
+  backgroundProcessingService,
+  useBackgroundProcessing,
+  type TaskPriority,
+  type BackgroundTask,
+  type PerformanceMetrics,
+  type ResourceThresholds,
+} from "./backgroundProcessing";
 export * from "./messageQueue";
 export * from "./websocket";
 export * from "./media";
