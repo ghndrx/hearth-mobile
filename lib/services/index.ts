@@ -43,6 +43,7 @@ export {
 export * from "./messageQueue";
 export * from "./websocket";
 export * from "./media";
+export * from "./cdn";
 export * from "./settings";
 export * from "./haptics";
 export * from "./accessibility";

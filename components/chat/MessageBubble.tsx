@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, Pressable, useColorScheme } from 'react-native';
+import { View, Text, Pressable, Image, useColorScheme, Dimensions } from 'react-native';
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -10,6 +10,20 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { MessageReactions } from './MessageReactions';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const MAX_IMAGE_WIDTH = SCREEN_WIDTH * 0.65;
+const MAX_IMAGE_HEIGHT = 300;
+
+export interface MessageAttachment {
+  id?: string;
+  type: 'image' | 'file' | 'audio';
+  uri: string;
+  name: string;
+  size?: number;
+  width?: number;
+  height?: number;
+}
 
 export interface Message {
   id: string;
@@ -22,7 +36,7 @@ export interface Message {
   isCurrentUser: boolean;
   status?: 'sending' | 'sent' | 'delivered' | 'read';
   reactions?: Array<{ emoji: string; count: number; userReacted: boolean }>;
-  attachments?: Array<{ type: 'image' | 'file' | 'audio'; uri: string; name: string; size?: number }>;
+  attachments?: MessageAttachment[];
   replyTo?: { id: string; content: string; senderName: string };
 }
 
@@ -168,6 +182,44 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             <Text className={`text-[15px] leading-5 ${isOwn ? 'text-white' : isDark ? 'text-dark-100' : 'text-gray-900'}`}>
               {content}
             </Text>
+
+            {/* Image attachments */}
+            {'attachments' in message && message.attachments && message.attachments.length > 0 && (
+              <View className="mt-2 space-y-2">
+                {message.attachments.filter(att => att.type === 'image').map((attachment, imgIndex) => {
+                  // Calculate image dimensions maintaining aspect ratio
+                  let imgWidth = MAX_IMAGE_WIDTH;
+                  let imgHeight = MAX_IMAGE_HEIGHT;
+                  
+                  if (attachment.width && attachment.height) {
+                    const aspectRatio = attachment.width / attachment.height;
+                    if (aspectRatio > 1) {
+                      // Landscape
+                      imgHeight = Math.min(MAX_IMAGE_HEIGHT, imgWidth / aspectRatio);
+                    } else {
+                      // Portrait or square
+                      imgWidth = Math.min(MAX_IMAGE_WIDTH, imgHeight * aspectRatio);
+                    }
+                  }
+                  
+                  return (
+                    <Animated.View 
+                      key={attachment.id || `img-${imgIndex}`}
+                      entering={FadeInDown.delay(enterDelay + imgIndex * 50).duration(200)}
+                      className="overflow-hidden rounded-lg"
+                      style={{ width: imgWidth, height: imgHeight }}
+                    >
+                      <Image
+                        source={{ uri: attachment.uri }}
+                        style={{ width: imgWidth, height: imgHeight }}
+                        className="object-cover"
+                        resizeMode="cover"
+                      />
+                    </Animated.View>
+                  );
+                })}
+              </View>
+            )}
 
             {/* Timestamp + status row */}
             <View className={`flex-row items-center mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
