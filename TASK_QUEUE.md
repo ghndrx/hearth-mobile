@@ -1550,6 +1550,75 @@
   - Dependencies: CA-003
   - Success: Listen Along with Spotify and Apple Music
 
+### Ultra-Low Latency Mobile Infrastructure (PRD-078)
+**Target**: Q1 2026 | **Owner**: Infrastructure Team + Mobile Performance Team | **Effort**: 18 weeks
+
+- [ ] **ULL-001**: Global edge computing deployment and 5G network slicing
+  - Estimated: 6 weeks
+  - Dependencies: Infrastructure partnerships
+  - Success: Sub-3ms routing to 95% of mobile users
+
+- [ ] **ULL-002**: Real-time communication stack with hardware acceleration
+  - Estimated: 6 weeks
+  - Dependencies: ULL-001
+  - Success: Sub-5ms voice chat and sub-8ms video calls
+
+- [ ] **ULL-003**: Advanced features integration and performance validation
+  - Estimated: 4 weeks
+  - Dependencies: ULL-002
+  - Success: Real-time AR/VR support with sub-5ms motion-to-photon latency
+
+- [ ] **ULL-004**: Performance monitoring and optimization
+  - Estimated: 2 weeks
+  - Dependencies: ULL-003
+  - Success: 99.9% latency target consistency under all conditions
+
+### Mobile Ambient Computing Ecosystem Integration (PRD-079)
+**Target**: Q2 2026 | **Owner**: IoT Platform Team + Mobile Team | **Effort**: 16 weeks
+
+- [ ] **MAC-001**: Core ambient infrastructure and smart device integration
+  - Estimated: 4 weeks
+  - Dependencies: None
+  - Success: Smart speaker, wearable, and vehicle integration functional
+
+- [ ] **MAC-002**: Smart home deep integration with social presence
+  - Estimated: 4 weeks
+  - Dependencies: MAC-001
+  - Success: HomeKit, SmartThings, Matter protocol integration complete
+
+- [ ] **MAC-003**: Professional and productivity workspace integration
+  - Estimated: 4 weeks
+  - Dependencies: MAC-002
+  - Success: Meeting detection, focus mode automation, cross-platform sync
+
+- [ ] **MAC-004**: Advanced ambient intelligence and ecosystem optimization
+  - Estimated: 4 weeks
+  - Dependencies: MAC-003
+  - Success: AI-powered context switching and predictive device preparation
+
+### AI-Powered Mobile Collaboration Platform (PRD-080)
+**Target**: Q2 2026 | **Owner**: AI/ML Team + Mobile Collaboration Team | **Effort**: 20 weeks
+
+- [ ] **ACP-001**: Core AI infrastructure and conversation intelligence
+  - Estimated: 6 weeks
+  - Dependencies: None
+  - Success: Real-time conversation analysis and 90%+ smart reply accuracy
+
+- [ ] **ACP-002**: Advanced communication intelligence and predictive assistance
+  - Estimated: 6 weeks
+  - Dependencies: ACP-001
+  - Success: Personalized AI writing assistance and cultural intelligence
+
+- [ ] **ACP-003**: Collaborative intelligence platform with meeting facilitation
+  - Estimated: 6 weeks
+  - Dependencies: ACP-002
+  - Success: AI-powered meeting orchestration and automatic action item detection
+
+- [ ] **ACP-004**: Advanced AI collaboration and privacy optimization
+  - Estimated: 2 weeks
+  - Dependencies: ACP-003
+  - Success: Federated learning privacy framework and team performance insights
+
 ## P1 Tasks (High Priority)
 
 ### Mobile-First File Management & Deep Device Integration (PRD-052)
