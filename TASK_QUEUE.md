@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: April 2, 2026
+**Last Updated**: April 3, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -1234,6 +1234,75 @@
   - Estimated: 2 weeks
   - Dependencies: CONTINUITY-006
   - Success: Seamless activity handoffs with full context preservation
+
+### Message Threading, Reactions & Advanced Editing (PRD-068)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 14 weeks
+
+- [ ] **MTE-001**: Core reactions system and emoji picker
+  - Estimated: 4 weeks
+  - Dependencies: Rich Media & File Sharing (PRD-002)
+  - Success: Real-time emoji reactions with haptic feedback
+
+- [ ] **MTE-002**: Message threading and reply chains
+  - Estimated: 5 weeks
+  - Dependencies: MTE-001
+  - Success: Threaded conversations with mobile-optimized navigation
+
+- [ ] **MTE-003**: Advanced message search and filtering
+  - Estimated: 3 weeks
+  - Dependencies: MTE-002
+  - Success: Full-text search with voice queries and smart filters
+
+- [ ] **MTE-004**: Message editing and moderation tools
+  - Estimated: 2 weeks
+  - Dependencies: MTE-003
+  - Success: Edit history and bulk admin actions
+
+### Mobile Server Administration & Customization (PRD-069)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 16 weeks
+
+- [ ] **MSA-001**: Server customization and branding tools
+  - Estimated: 5 weeks
+  - Dependencies: File upload infrastructure
+  - Success: Visual server editor with real-time preview
+
+- [ ] **MSA-002**: Advanced role and permission management
+  - Estimated: 6 weeks
+  - Dependencies: MSA-001
+  - Success: Mobile-optimized role hierarchy with drag-to-reorder
+
+- [ ] **MSA-003**: Mobile admin dashboard and analytics
+  - Estimated: 3 weeks
+  - Dependencies: MSA-002
+  - Success: Real-time server health monitoring and quick actions
+
+- [ ] **MSA-004**: Server backup and advanced admin tools
+  - Estimated: 2 weeks
+  - Dependencies: MSA-003
+  - Success: Automated backup system with audit logging
+
+### User Presence, Activity & Rich Status System (PRD-070)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
+
+- [ ] **UPA-001**: Presence infrastructure and basic status
+  - Estimated: 3 weeks
+  - Dependencies: Real-time sync infrastructure
+  - Success: Real-time presence updates with platform detection
+
+- [ ] **UPA-002**: Custom status system with emoji support
+  - Estimated: 2 weeks
+  - Dependencies: UPA-001
+  - Success: Rich custom status with expiration timers
+
+- [ ] **UPA-003**: Activity detection and "Now Playing" integration
+  - Estimated: 4 weeks
+  - Dependencies: UPA-002
+  - Success: Automatic game/music detection with rich presence
+
+- [ ] **UPA-004**: Friend activity feed and notifications
+  - Estimated: 3 weeks
+  - Dependencies: UPA-003
+  - Success: Social activity feed with privacy controls
 
 ## P1 Tasks (High Priority)
 
