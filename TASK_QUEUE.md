@@ -24,7 +24,7 @@
   - Dependencies: PN-001
   - Success: Can send/receive notifications
 
-- [ ] **PN-003**: Permission handling and notification settings
+- [x] **PN-003**: Permission handling and notification settings
   - Estimated: 1 week
   - Dependencies: PN-002
   - Success: Granular permission controls
