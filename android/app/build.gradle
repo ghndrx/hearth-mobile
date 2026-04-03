@@ -37,8 +37,14 @@ dependencies {
     implementation "com.facebook.react:react-android"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 
-    // TODO: Add Firebase dependencies for FCM
+    // Firebase dependencies for FCM
     implementation platform("com.google.firebase:firebase-bom:32.7.0")
     implementation "com.google.firebase:firebase-messaging"
     implementation "com.google.firebase:firebase-analytics"
+
+    // PN-006: WorkManager for reliable background task execution
+    implementation "androidx.work:work-runtime-ktx:2.9.0"
+
+    // PN-006: Kotlin coroutines for CoroutineWorker
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 }

@@ -6,6 +6,10 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import BackgroundTaskScheduler from './BackgroundTaskScheduler';
+import NotificationDeliveryService from './NotificationDeliveryService';
+import NotificationRetryQueue from './NotificationRetryQueue';
+import BackgroundDeliveryOptimizer from './BackgroundDeliveryOptimizer';
 
 // Configure notification handler for foreground notifications
 Notifications.setNotificationHandler({
@@ -73,6 +77,9 @@ class PushNotificationService {
 
       // Set up token refresh listener
       this.setupTokenRefreshListener();
+
+      // Initialize background processing (PN-006)
+      await this.initializeBackgroundProcessing();
 
       this.isInitialized = true;
       console.log(`Push notification service initialized for ${Platform.OS}`);
@@ -299,10 +306,56 @@ class PushNotificationService {
       this.tokenRefreshSubscription?.remove();
       this.tokenRefreshSubscription = undefined;
 
+      // Clean up background processing (PN-006)
+      NotificationDeliveryService.cleanup();
+      BackgroundDeliveryOptimizer.cleanup();
+      await BackgroundTaskScheduler.unregisterAll();
+
       this.isInitialized = false;
       console.log('Push notification service cleaned up');
     } catch (error) {
       console.error('Failed to cleanup push notification service:', error);
+    }
+  }
+
+  /**
+   * Initialize background processing services (PN-006).
+   */
+  private async initializeBackgroundProcessing(): Promise<void> {
+    try {
+      // Initialize delivery service (sets up receipt tracking + retry queue)
+      await NotificationDeliveryService.initialize();
+
+      // Initialize background delivery optimizer
+      await BackgroundDeliveryOptimizer.initialize(async (batch) => {
+        for (const item of batch) {
+          await NotificationDeliveryService.deliver({
+            id: item.id,
+            title: (item.payload.title as string) || '',
+            body: (item.payload.body as string) || '',
+            data: item.payload.data as Record<string, unknown>,
+            priority: item.priority,
+          });
+        }
+      });
+
+      // Register background tasks
+      await BackgroundTaskScheduler.initialize(
+        // Background fetch handler: process retry queue
+        async () => {
+          await NotificationRetryQueue.processQueue();
+        },
+        // Background delivery handler: flush optimizer queue
+        async () => {
+          await BackgroundDeliveryOptimizer.flushQueue();
+          await NotificationRetryQueue.processQueue();
+        }
+      );
+
+      console.log('Background processing initialized (PN-006)');
+    } catch (error) {
+      // Background processing is best-effort; don't fail main initialization
+      console.error('Failed to initialize background processing:', error);
     }
   }
 
