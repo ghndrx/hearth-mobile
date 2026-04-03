@@ -13,6 +13,7 @@ import {
   NOTIFICATION_CHANNELS,
   setBadgeCount,
 } from '../../../lib/services/notifications';
+import { notificationPermissions } from '../../../lib/services/notificationPermissions';
 
 // Notification data structure from backend
 export interface IncomingNotification {
@@ -154,16 +155,42 @@ export async function processIncomingNotification(
   notification: Notifications.Notification
 ): Promise<void> {
   const { title, body, data } = notification.request.content;
+  const notificationData = data as NotificationData;
+  const notificationType = notificationData?.type || 'system';
 
   console.log('[NotificationDelivery] Processing notification:', {
     title,
-    type: (data as NotificationData)?.type,
+    type: notificationType,
   });
 
   try {
+    // Check permissions before processing notification
+    const permissionCheck = await notificationPermissions.shouldDeliverNotification(
+      notificationType,
+      notificationData?.userId || undefined,
+      notificationData?.serverId || undefined,
+      notificationData?.channelId || undefined,
+      body || undefined
+    );
+
+    if (!permissionCheck.shouldDeliver) {
+      console.log('[NotificationDelivery] Notification blocked by permissions:', permissionCheck.reason);
+      return;
+    }
+
+    console.log('[NotificationDelivery] Permission check passed:', {
+      customizations: permissionCheck.customizations,
+    });
+
     // Get the appropriate channel for this notification type
-    const notificationType = (data as NotificationData)?.type || 'system';
     const channelId = getChannelForType(notificationType);
+
+    // Apply customizations from permission settings
+    if (permissionCheck.customizations) {
+      // TODO: Apply custom sound, vibration pattern, and priority
+      // This would require updates to the notification display logic
+      console.log('[NotificationDelivery] Applying customizations:', permissionCheck.customizations);
+    }
 
     // Log notification processing
     console.log('[NotificationDelivery] Routing to channel:', channelId);
@@ -361,6 +388,7 @@ export function formatNotificationBody(
 
 /**
  * Check if notification should be displayed based on app state
+ * @deprecated Use shouldDeliverNotificationWithPermissions instead for permission-aware checking
  */
 export function shouldDisplayNotification(
   appState: 'active' | 'background' | 'inactive' | 'unknown'
@@ -368,6 +396,57 @@ export function shouldDisplayNotification(
   // Always display when backgrounded or inactive
   // When active, notifications are handled by addNotificationReceivedListener
   return appState !== 'active';
+}
+
+/**
+ * Check if notification should be delivered based on app state and permissions
+ * Combines app state checking with permission system validation
+ */
+export async function shouldDeliverNotificationWithPermissions(
+  appState: 'active' | 'background' | 'inactive' | 'unknown',
+  type: NotificationType,
+  senderId?: string,
+  serverId?: string,
+  channelId?: string,
+  content?: string
+): Promise<{
+  shouldDeliver: boolean;
+  reason?: string;
+  customizations?: {
+    sound?: string;
+    vibrationPattern?: string;
+    priority?: 'low' | 'default' | 'high' | 'max';
+  };
+}> {
+  try {
+    // First check app state (legacy behavior)
+    const appStateAllows = shouldDisplayNotification(appState);
+    if (!appStateAllows) {
+      return {
+        shouldDeliver: false,
+        reason: 'App is currently active - foreground notifications handled separately',
+      };
+    }
+
+    // Then check permission settings
+    const permissionCheck = await notificationPermissions.shouldDeliverNotification(
+      type,
+      senderId,
+      serverId,
+      channelId,
+      content
+    );
+
+    return permissionCheck;
+  } catch (error) {
+    console.error('[NotificationDelivery] Error checking delivery permissions:', error);
+    // Fallback to app state check only if permission check fails
+    const appStateAllowsFallback = shouldDisplayNotification(appState);
+    return {
+      shouldDeliver: appStateAllowsFallback,
+      reason: 'Permission check failed, using app state only',
+    };
+  }
 }
 
 /**
@@ -416,6 +495,7 @@ export default {
   formatNotificationTitle,
   formatNotificationBody,
   shouldDisplayNotification,
+  shouldDeliverNotificationWithPermissions,
   registerDeliveryListeners,
   getRouteForType,
   getChannelForType,
