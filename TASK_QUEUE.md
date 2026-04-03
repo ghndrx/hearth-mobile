@@ -1,7 +1,7 @@
 # Hearth Mobile Task Queue
 
 **Last Updated**: April 3, 2026
-**Next Review**: April 7, 2026
+**Next Review**: April 10, 2026
 
 ## Legend
 - **P0**: Critical - Must have for competitive parity
@@ -110,28 +110,71 @@
   - Dependencies: HF-005
   - Success: WCAG 2.1 AA compliance achieved
 
-### Video Calling & Screen Sharing (VCS-001)
-**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
+### Comprehensive Voice & Video Calling with Screen Sharing (VVC-001)
+**Target**: Q2 2026 | **Owner**: Real-Time Communications Team | **Effort**: 14 weeks
 
-- [ ] **VCS-001**: WebRTC infrastructure setup and basic 1:1 calling
+- [ ] **VVC-001**: WebRTC infrastructure and high-quality voice calling
   - Estimated: 4 weeks
   - Dependencies: Push notifications (PN-001)
-  - Success: Stable 1:1 video calls with <200ms latency
+  - Success: 1-on-1 voice calls with <150ms latency and noise suppression
 
-- [ ] **VCS-002**: Multi-participant video calls (up to 25 people)
+- [ ] **VVC-002**: Video calling with adaptive quality streaming
   - Estimated: 3 weeks
-  - Dependencies: VCS-001
-  - Success: Group video calls with adaptive grid layout
+  - Dependencies: VVC-001
+  - Success: 1080p video calls with background blur and hardware acceleration
 
-- [ ] **VCS-003**: Screen sharing and collaboration tools
-  - Estimated: 3 weeks
-  - Dependencies: VCS-002
-  - Success: Full screen/app sharing with basic annotation
-
-- [ ] **VCS-004**: Picture-in-picture and advanced controls
+- [ ] **VVC-003**: Native platform integration (CallKit/ConnectionService)
   - Estimated: 2 weeks
-  - Dependencies: VCS-003
-  - Success: PiP mode with floating voice controls
+  - Dependencies: VVC-002
+  - Success: Native iOS/Android call interface with system integration
+
+- [ ] **VVC-004**: Group calling (voice and video up to 25 participants)
+  - Estimated: 2 weeks
+  - Dependencies: VVC-003
+  - Success: Multi-participant calls with gallery view and speaker detection
+
+- [ ] **VVC-005**: Screen sharing with collaboration tools
+  - Estimated: 2 weeks
+  - Dependencies: VVC-004
+  - Success: Full screen/app sharing with annotations and file sharing
+
+- [ ] **VVC-006**: Advanced call management and accessibility
+  - Estimated: 1 week
+  - Dependencies: VVC-005
+  - Success: Call waiting, transfer, real-time captions, and WCAG compliance
+
+### Advanced Gaming Integration & Mobile Streaming Platform (GMS-001)
+**Target**: Q3 2026 | **Owner**: Gaming Platform Team | **Effort**: 16 weeks
+
+- [ ] **GMS-001**: Mobile game detection and rich presence system
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: Automatic detection of 500+ mobile games with rich status
+
+- [ ] **GMS-002**: Real-time mobile game streaming infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: GMS-001, Video infrastructure
+  - Success: Hardware-accelerated streaming with <100ms latency
+
+- [ ] **GMS-003**: Universal controller support and hardware integration
+  - Estimated: 3 weeks
+  - Dependencies: GMS-002
+  - Success: MFi and Android HID controller support with haptic feedback
+
+- [ ] **GMS-004**: Cloud gaming integration (Xbox, GeForce Now, Luna)
+  - Estimated: 2 weeks
+  - Dependencies: GMS-003
+  - Success: Platform detection and optimal settings for major cloud services
+
+- [ ] **GMS-005**: Gaming social features (LFG, tournaments, achievements)
+  - Estimated: 2 weeks
+  - Dependencies: GMS-004
+  - Success: Tournament system and skill-based matchmaking operational
+
+- [ ] **GMS-006**: Gaming performance optimization and creator tools
+  - Estimated: 2 weeks
+  - Dependencies: GMS-005
+  - Success: Gaming overlay, stream analytics, and <15% battery impact
 
 ### AI-Powered Audio Intelligence (APAI-001)
 **Target**: Q2 2026 | **Owner**: Audio Team | **Effort**: 10 weeks
@@ -156,28 +199,38 @@
   - Dependencies: APAI-003
   - Success: <15% CPU overhead, <5% battery impact
 
-### Live Activities & Native Platform Integration (LANPI-001)
-**Target**: Q2 2026 | **Owner**: Platform Team | **Effort**: 8 weeks
+### Interactive Widgets & Live Activities Native Integration (WLA-001)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 12 weeks
 
-- [ ] **LANPI-001**: iOS Live Activities and Dynamic Island integration
+- [ ] **WLA-001**: Widget API infrastructure and basic iOS widgets
   - Estimated: 3 weeks
-  - Dependencies: Voice channels infrastructure
-  - Success: Voice channel status in Dynamic Island and Lock Screen
+  - Dependencies: Real-time sync infrastructure
+  - Success: Small/medium iOS widgets functional with <500ms updates
 
-- [ ] **LANPI-002**: Home Screen widgets and quick actions
+- [ ] **WLA-002**: iOS Live Activities and Dynamic Island integration
   - Estimated: 2 weeks
-  - Dependencies: LANPI-001
-  - Success: Interactive widgets for server activity and voice joining
+  - Dependencies: WLA-001, Voice channels
+  - Success: Voice call Live Activities with Dynamic Island controls
 
-- [ ] **LANPI-003**: Android persistent notifications and Quick Settings
+- [ ] **WLA-003**: Android widgets and Material You integration
   - Estimated: 2 weeks
-  - Dependencies: LANPI-002
-  - Success: Rich notifications with voice controls and QS tiles
+  - Dependencies: WLA-001
+  - Success: Adaptive Android widgets with real-time server activity
 
-- [ ] **LANPI-004**: Siri Shortcuts and voice command integration
+- [ ] **WLA-004**: iOS Shortcuts and Siri integration
   - Estimated: 1 week
-  - Dependencies: LANPI-003
-  - Success: "Hey Siri, join my voice channel" working
+  - Dependencies: WLA-002
+  - Success: Voice commands for joining channels and messaging
+
+- [ ] **WLA-005**: Android Quick Settings tiles and advanced features
+  - Estimated: 2 weeks
+  - Dependencies: WLA-003
+  - Success: Voice control tiles and server switcher operational
+
+- [ ] **WLA-006**: Widget customization and ML-powered personalization
+  - Estimated: 2 weeks
+  - Dependencies: WLA-004, WLA-005
+  - Success: Smart content curation and user customization working
 
 ### Advanced Offline Mode & Smart Caching (PRD-005)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
@@ -2424,6 +2477,78 @@
   - Dependencies: MQS-005
   - Success: <5% performance impact with invisible security UX
 
+### Mobile Gaming Integration & Streaming Platform (PRD-070)
+**Target**: Q2 2026 | **Owner**: Mobile Gaming Team | **Effort**: 12 weeks
+**Priority**: P0 - Critical Discord competitive parity
+
+- [ ] **MGIS-001**: Mobile game detection infrastructure and Rich Presence system
+  - Estimated: 4 weeks
+  - Dependencies: Game database setup, privacy framework
+  - Success: 500+ games detected with Rich Presence for top 50 titles
+
+- [ ] **MGIS-002**: Mobile streaming platform and "Go Live" functionality
+  - Estimated: 3 weeks
+  - Dependencies: MGIS-001, streaming CDN infrastructure
+  - Success: <500ms latency mobile game streaming to voice channels
+
+- [ ] **MGIS-003**: In-game voice overlay and gaming mode optimization
+  - Estimated: 3 weeks
+  - Dependencies: MGIS-002, voice infrastructure upgrades
+  - Success: Floating voice controls with <100ms audio latency
+
+- [ ] **MGIS-004**: Gaming community discovery and performance optimization
+  - Estimated: 2 weeks
+  - Dependencies: MGIS-003, community platform integration
+  - Success: Gaming communities discoverable with battery-optimized performance
+
+### Seamless Cross-Platform Handoff & Continuity (PRD-071)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 12 weeks
+**Priority**: P0 - Critical multi-device user retention
+
+- [ ] **SCPH-001**: Real-time state synchronization and device discovery infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: WebSocket scaling, cross-platform auth improvements
+  - Success: <500ms state sync across all devices with 99.9% reliability
+
+- [ ] **SCPH-002**: Voice call handoff and WebRTC migration system
+  - Estimated: 3 weeks
+  - Dependencies: SCPH-001, voice infrastructure upgrades
+  - Success: <200ms voice call handoff between mobile and desktop
+
+- [ ] **SCPH-003**: Content continuation and smart handoff suggestions
+  - Estimated: 3 weeks
+  - Dependencies: SCPH-002, AI recommendation engine
+  - Success: 90% successful activity handoff with AI-powered suggestions
+
+- [ ] **SCPH-004**: Advanced continuity features and platform integrations
+  - Estimated: 2 weeks
+  - Dependencies: SCPH-003, iOS/Android platform APIs
+  - Success: Native platform handoff integration with universal experience
+
+### Mobile-First Social Discovery & Community Intelligence (PRD-072)
+**Target**: Q2 2026 | **Owner**: Mobile Discovery Team | **Effort**: 12 weeks
+**Priority**: P0 - Critical for organic growth and Discord parity
+
+- [ ] **MFSD-001**: AI recommendation engine and user interest profiling system
+  - Estimated: 4 weeks
+  - Dependencies: ML infrastructure setup, privacy framework
+  - Success: 50% improvement in community discovery rate per user
+
+- [ ] **MFSD-002**: Mobile-optimized discovery UI and social graph integration
+  - Estimated: 3 weeks
+  - Dependencies: MFSD-001, social graph database scaling
+  - Success: Swipe-based discovery with friend-of-friend recommendations
+
+- [ ] **MFSD-003**: Location-based discovery and intelligent community matching
+  - Estimated: 3 weeks
+  - Dependencies: MFSD-002, geolocation services integration
+  - Success: Privacy-first location discovery with 40% successful community joins
+
+- [ ] **MFSD-004**: Discovery analytics and optimization framework
+  - Estimated: 2 weeks
+  - Dependencies: MFSD-003, analytics infrastructure
+  - Success: A/B testing framework with 35% reduction in time-to-community
+
 ---
 
 **Next Actions**:
@@ -2434,4 +2559,5 @@
 5. **URGENT**: Begin NAI-001 and MCER-001 for critical mobile parity - Week of April 14
 6. **P0 FOCUS**: Prioritize network intelligence and crisis communication features for Q2 delivery
 7. **CRITICAL NEW P0**: Begin MNMA-001 and MCGA-001 for competitive AI advantage - Week of April 21
-8. **FUTURE PREP**: Start MQS-001 architecture planning for Q4 security leadership - Week of May 12
+8. **DISCORD PARITY P0**: Start MGIS-001, SCPH-001, MFSD-001 for critical competitive gaps - Week of April 28
+9. **FUTURE PREP**: Start MQS-001 architecture planning for Q4 security leadership - Week of May 12
