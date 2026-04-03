@@ -20,6 +20,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMessageQueue } from "../lib/contexts/MessageQueueContext";
 import { useAuthStore } from "../lib/stores/auth";
 import { Avatar } from "../components/ui";
+import { ImageAttachment } from "../components/ImageAttachment";
+import type { LocalAttachment } from "../lib/types/offline";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -56,6 +58,7 @@ export default function QuickCaptureScreen() {
   const [recents] = useState<RecentContact[]>(MOCK_RECENTS);
   const [isSending, setIsSending] = useState(false);
   const [showRecents, setShowRecents] = useState(true);
+  const [attachments, setAttachments] = useState<LocalAttachment[]>([]);
 
   // Animation for slide-up
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
@@ -130,6 +133,8 @@ export default function QuickCaptureScreen() {
         useNativeDriver: true,
       }),
     ]).start(() => {
+      // Clear state on dismiss
+      setAttachments([]);
       router.back();
     });
   }, [router, slideAnim, backdropOpacity]);
@@ -144,10 +149,11 @@ export default function QuickCaptureScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedContact(null);
     setShowRecents(true);
+    setAttachments([]); // Clear attachments when changing contact
   }, []);
 
   const handleSend = useCallback(async () => {
-    if (!message.trim() || !selectedContact || !user) return;
+    if ((!message.trim() && attachments.length === 0) || !selectedContact || !user) return;
 
     setIsSending(true);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -160,10 +166,15 @@ export default function QuickCaptureScreen() {
         user.id,
         {
           serverId: selectedContact.serverId,
+          attachments: attachments.length > 0 ? attachments : undefined,
         }
       );
 
-      // Clear and dismiss after brief delay for UX
+      // Clear message and attachments
+      setMessage('');
+      setAttachments([]);
+
+      // Dismiss after brief delay for UX
       setTimeout(() => {
         handleDismiss();
       }, 300);
@@ -176,7 +187,7 @@ export default function QuickCaptureScreen() {
     } finally {
       setIsSending(false);
     }
-  }, [message, selectedContact, user, queueMessage, handleDismiss]);
+  }, [message, attachments, selectedContact, user, queueMessage, handleDismiss]);
 
   const handleTextChange = useCallback((text: string) => {
     setMessage(text);
@@ -186,7 +197,7 @@ export default function QuickCaptureScreen() {
     }
   }, [selectedContact, showRecents]);
 
-  const canSend = message.trim().length > 0 && selectedContact !== null && !isSending;
+  const canSend = (message.trim().length > 0 || attachments.length > 0) && selectedContact !== null && !isSending;
 
   // Format timestamp for display (used in future enhancement)
    
@@ -279,6 +290,19 @@ export default function QuickCaptureScreen() {
                 <Ionicons name="close" size={16} color={isDark ? "#9ca3af" : "#6b7280"} />
               </Pressable>
             </View>
+          </View>
+        )}
+
+        {/* Image Attachments */}
+        {selectedContact && (
+          <View className="px-4 pb-4">
+            <ImageAttachment
+              attachments={attachments}
+              onAttachmentChange={setAttachments}
+              maxImages={3}
+              maxSizeBytes={8 * 1024 * 1024} // 8MB max
+              quality={0.8}
+            />
           </View>
         )}
 
@@ -379,11 +403,18 @@ export default function QuickCaptureScreen() {
               </Pressable>
             </View>
 
-            {/* Character count */}
+            {/* Character count and attachment info */}
             <View className="flex-row justify-between mt-2">
-              <Text className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                {message.length}/2000
-              </Text>
+              <View className="flex-row gap-3">
+                <Text className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                  {message.length}/2000
+                </Text>
+                {attachments.length > 0 && (
+                  <Text className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                    {attachments.length} image{attachments.length > 1 ? 's' : ''}
+                  </Text>
+                )}
+              </View>
               {selectedContact && (
                 <Text className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"}`}>
                   Sending to {selectedContact.name}

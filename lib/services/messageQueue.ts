@@ -43,7 +43,9 @@ interface UploadResult {
  */
 async function uploadAttachment(
   attachment: LocalAttachment,
-  onProgress?: (progress: number) => void
+  messageLocalId: string,
+  updateProgress: (messageId: string, attachmentId: string, progress: number) => void,
+  markUploaded: (messageId: string, attachmentId: string, uploaded: Attachment) => void
 ): Promise<UploadResult> {
   try {
     // Create form data
@@ -62,13 +64,15 @@ async function uploadAttachment(
         onProgress: (event) => {
           if (event.total) {
             const progress = Math.round((event.loaded / event.total) * 100);
-            onProgress?.(progress);
+            updateProgress(messageLocalId, attachment.id, progress);
           }
         },
       }
     );
 
     if (response.data?.attachment) {
+      // Mark as uploaded in the store
+      markUploaded(messageLocalId, attachment.id, response.data.attachment);
       return { success: true, attachment: response.data.attachment };
     }
 
@@ -84,7 +88,11 @@ async function uploadAttachment(
 /**
  * Send a single message to the server
  */
-async function sendMessage(message: QueuedMessage): Promise<SendResult> {
+async function sendMessage(
+  message: QueuedMessage,
+  updateProgress: (messageId: string, attachmentId: string, progress: number) => void,
+  markUploaded: (messageId: string, attachmentId: string, uploaded: Attachment) => void
+): Promise<SendResult> {
   try {
     // Upload attachments first if any
     let uploadedAttachments: Attachment[] | undefined;
@@ -99,7 +107,12 @@ async function sendMessage(message: QueuedMessage): Promise<SendResult> {
           continue;
         }
 
-        const result = await uploadAttachment(attachment);
+        const result = await uploadAttachment(
+          attachment,
+          message.localId,
+          updateProgress,
+          markUploaded
+        );
         if (!result.success || !result.attachment) {
           return {
             success: false,
@@ -219,27 +232,12 @@ export function useMessageQueueProcessor() {
         lastAttemptAt: Date.now(),
       });
 
-      // Handle attachment uploads with progress
-      if (message.attachments) {
-        for (const attachment of message.attachments) {
-          if (!attachment.uploaded) {
-            const result = await uploadAttachment(attachment, (progress) => {
-              updateAttachmentProgress(message.localId, attachment.id, progress);
-            });
-
-            if (result.success && result.attachment) {
-              markAttachmentUploaded(
-                message.localId,
-                attachment.id,
-                result.attachment
-              );
-            }
-          }
-        }
-      }
-
-      // Send the message
-      const result = await sendMessage(message);
+      // Send the message (attachment uploads happen inside sendMessage)
+      const result = await sendMessage(
+        message,
+        updateAttachmentProgress,
+        markAttachmentUploaded
+      );
 
       if (result.success) {
         markSent(message.localId, result.serverId);
