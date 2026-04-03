@@ -24,6 +24,8 @@ module.exports = {
     // Mock expo/src/winter required by jest-expo
     '^expo/src/winter$': '<rootDir>/__mocks__/expo/src/winter/index.ts',
     '^expo/src/winter/(.*)$': '<rootDir>/__mocks__/expo/src/winter/index.ts',
+    // Mock AsyncStorage
+    '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
   },
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
