@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthStore } from "../lib/stores/auth";
 import { PushNotificationProvider } from "../src/services/pushNotifications/PushNotificationProvider";
 import { BiometricProvider } from "../lib/contexts/BiometricContext";
+import { BackgroundProcessingProvider } from "../lib/contexts/BackgroundProcessingContext";
 import { NotificationBanner } from "../components/notifications";
 import { BiometricLockScreen } from "../components/BiometricLockScreen";
 import { LoadingSpinner } from "../components/ui";
@@ -15,6 +16,9 @@ import { ErrorBoundary } from "../components/ErrorBoundary";
 import { deepLinkManager, quickActionsService, spotlightService } from "../lib/services";
 import { offlineSyncService } from "../lib/services/offlineSync";
 import { analytics } from "../lib/services/analytics";
+import { backgroundProcessingService } from "../lib/services/backgroundProcessing";
+import { batteryOptimizationService } from "../lib/services/batteryOptimization";
+import { performanceMonitorService } from "../lib/services/performanceMonitor";
 import { useAppStatePerformance } from "../lib/hooks";
 import "../global.css";
 
@@ -53,8 +57,22 @@ function RootLayoutNav() {
         // Initialize Spotlight/Siri integration (iOS only)
         await spotlightService.initialize();
 
-        // Start offline sync service
-        offlineSyncService.start();
+        // Initialize performance optimization services (PN-006)
+        console.log('[App] Initializing background processing services...');
+
+        // Initialize performance monitoring first as other services depend on it
+        await performanceMonitorService.initialize();
+
+        // Initialize battery optimization service
+        await batteryOptimizationService.initialize();
+
+        // Initialize background processing service
+        await backgroundProcessingService.start();
+
+        // Start enhanced offline sync service (now with intelligent optimization)
+        await offlineSyncService.start();
+
+        console.log('[App] Background processing services initialized successfully');
 
         setServicesInitialized(true);
       } catch (error) {
@@ -68,6 +86,14 @@ function RootLayoutNav() {
 
     // Cleanup on unmount
     return () => {
+      console.log('[App] Cleaning up background processing services...');
+
+      // Stop background processing services (PN-006)
+      backgroundProcessingService.stop();
+      batteryOptimizationService.stop();
+      performanceMonitorService.stop();
+
+      // Stop other services
       deepLinkManager.cleanup();
       offlineSyncService.stop();
       analytics.cleanup();
@@ -88,12 +114,31 @@ function RootLayoutNav() {
     }
   }, [isAuthenticated, user]);
 
-  // Handle app state changes for Quick Actions
+  // Handle app state changes for services and optimization
   useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      console.log(`[App] App state changed to: ${nextAppState}`);
+
       if (nextAppState === "active") {
         // Re-check for quick actions when app becomes active
         // This handles shortcuts triggered while app was backgrounded
+
+        // PN-006: Optimization when app becomes active
+        // The services will automatically adjust their processing intervals
+        // and prioritize tasks when the app becomes active
+      } else if (nextAppState === "background") {
+        // PN-006: When app goes to background, enable power-saving features
+        // The services will automatically adjust to background mode
+        console.log('[App] App backgrounded, services will optimize for battery life');
+
+        // Record app backgrounding for analytics
+        analytics.logEvent("app_backgrounded", {
+          timestamp: Date.now(),
+          battery_optimization_enabled: true,
+        });
+      } else if (nextAppState === "inactive") {
+        // App is transitioning between foreground and background
+        console.log('[App] App inactive, preparing for potential background mode');
       }
     };
 
@@ -144,16 +189,18 @@ export default function RootLayout() {
     >
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <PushNotificationProvider>
-            <BiometricProvider>
-              <BiometricLockScreen>
-                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <NetworkStatusBar />
-                <RootLayoutNav />
-                <NotificationBanner />
-              </BiometricLockScreen>
-            </BiometricProvider>
-          </PushNotificationProvider>
+          <BackgroundProcessingProvider>
+            <PushNotificationProvider>
+              <BiometricProvider>
+                <BiometricLockScreen>
+                  <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                  <NetworkStatusBar />
+                  <RootLayoutNav />
+                  <NotificationBanner />
+                </BiometricLockScreen>
+              </BiometricProvider>
+            </PushNotificationProvider>
+          </BackgroundProcessingProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </ErrorBoundary>
