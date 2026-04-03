@@ -47,7 +47,7 @@
 ### Rich Media & File Sharing (PRD-002)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
 
-- [ ] **MS-001**: File upload infrastructure and basic image support
+- [x] **MS-001**: File upload infrastructure and basic image support
   - Estimated: 2 weeks
   - Dependencies: CDN setup
   - Success: Can upload/display images
