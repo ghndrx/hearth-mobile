@@ -20,6 +20,7 @@ import {
   type NotificationActionType,
 } from "./richNotificationActions";
 import { handleAndroidActionResponse } from "./androidRichNotifications";
+import { sendNotificationAction } from "./api";
 
 const PENDING_ACTIONS_KEY = "@hearth/pending_notification_actions";
 const ACTION_HISTORY_KEY = "@hearth/notification_action_history";
@@ -73,28 +74,17 @@ export interface BackendActionResponse {
  */
 async function sendActionToBackend(
   request: BackendActionRequest,
-  authToken?: string
+  _authToken?: string
 ): Promise<BackendActionResponse> {
   try {
-    const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-    if (!apiUrl) {
-      throw new Error("API URL not configured");
-    }
+    // Convert to API request format
+    const apiRequest = {
+      action: request.action as string,
+      notificationId: request.notificationId,
+      data: request.data,
+    };
 
-    const response = await fetch(`${apiUrl}/notifications/actions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(authToken && { Authorization: `Bearer ${authToken}` }),
-      },
-      body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    return await response.json();
+    return await sendNotificationAction(apiRequest);
   } catch (error) {
     console.error("Failed to send action to backend:", error);
     throw error;

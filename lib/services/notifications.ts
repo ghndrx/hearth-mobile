@@ -11,6 +11,9 @@ import {
   setupIOSNotificationCategories,
   deliverBatchedNotification,
 } from "./notificationBatching";
+import { initializeRichNotificationActions } from "./richNotificationActions";
+import { initializeNotificationActionHandlers } from "./notificationActionHandlers";
+import { setupAndroidRichNotificationChannels } from "./androidRichNotifications";
 
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
@@ -232,12 +235,17 @@ export async function registerForPushNotifications(): Promise<string | null> {
   if (Platform.OS === "android") {
     await setupAndroidChannels();
     await setupAndroidNotificationGroups();
+    await setupAndroidRichNotificationChannels();
   }
 
   // Configure iOS notification categories for grouped display
   if (Platform.OS === "ios") {
     await setupIOSNotificationCategories();
   }
+
+  // Initialize rich notification actions system
+  await initializeRichNotificationActions();
+  await initializeNotificationActionHandlers();
 
   // Initialize the notification batch manager
   const batchManager = getBatchManager();

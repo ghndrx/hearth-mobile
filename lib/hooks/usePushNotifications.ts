@@ -22,6 +22,7 @@ import {
   type NotificationSettings,
   type NotificationPayload,
 } from '../services/notifications';
+import { processNotificationAction } from '../services/notificationActionHandlers';
 
 interface UsePushNotificationsOptions {
   authToken?: string;
@@ -47,15 +48,30 @@ interface UsePushNotificationsReturn {
 }
 
 /**
- * Handle notification tap - navigate to relevant screen
+ * Handle notification tap - process actions first, then navigate to relevant screen
  */
-function handleNotificationResponse(
+async function handleNotificationResponse(
   response: Notifications.NotificationResponse
-): void {
-  const data = response.notification.request.content.data as NotificationPayload;
-
+): Promise<void> {
   // Clear badge when user interacts with notification
   clearBadgeCount();
+
+  // First, check if this is an action response and process it
+  try {
+    await processNotificationAction(response);
+
+    // If action was processed, return early (don't navigate)
+    const actionId = response.actionIdentifier;
+    if (actionId && actionId !== "default") {
+      return;
+    }
+  } catch (error) {
+    console.error('Failed to process notification action:', error);
+    // Continue with normal navigation if action processing fails
+  }
+
+  // Normal notification tap - navigate to relevant screen
+  const data = response.notification.request.content.data as NotificationPayload;
 
   switch (data.type) {
     case 'message':
@@ -154,11 +170,11 @@ export function usePushNotifications(
 
     // Listener for notification taps
     responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
+      Notifications.addNotificationResponseReceivedListener(async (response) => {
         const data = response.notification.request.content
           .data as NotificationPayload;
         onNotificationTapped?.(data);
-        handleNotificationResponse(response);
+        await handleNotificationResponse(response);
       });
 
     // App state listener to refresh badge count

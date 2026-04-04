@@ -452,3 +452,49 @@ export async function unregisterDevice(deviceId: string): Promise<void> {
     throw new Error(error.message);
   }
 }
+
+/**
+ * Notification Action API
+ */
+interface NotificationActionRequest {
+  action: string;
+  notificationId: string;
+  data: {
+    type?: string;
+    channelId?: string;
+    serverId?: string;
+    messageId?: string;
+    userId?: string;
+    userText?: string;
+    emoji?: string;
+  };
+}
+
+interface NotificationActionResponse {
+  success: boolean;
+  message?: string;
+  data?: any;
+}
+
+/**
+ * Send notification action to backend
+ */
+export async function sendNotificationAction(
+  request: NotificationActionRequest
+): Promise<NotificationActionResponse> {
+  const { data, error } = await api.post<NotificationActionResponse>(
+    "/notifications/actions",
+    request,
+    true // requireAuth
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("No response data from server");
+  }
+
+  return data;
+}
