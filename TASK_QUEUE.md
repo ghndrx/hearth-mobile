@@ -1593,9 +1593,83 @@
 - **Media Upload**: <3s average upload time
 - **Stream Quality**: 95% maintain stable quality
 
+## NEW P0 TASKS - Added April 4, 2026
+
+### Stage Channels Mobile Experience & Audio Broadcasting (PRD-045)
+**Target**: Q2 2026 | **Owner**: Mobile Audio Team | **Effort**: 12 weeks
+
+- [ ] **STAGE-001**: Core audio broadcasting infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: Scalable audio backend setup
+  - Success: Support for 100+ concurrent listeners
+
+- [ ] **STAGE-002**: Mobile-optimized stage controls and speaker queue
+  - Estimated: 3 weeks
+  - Dependencies: STAGE-001
+  - Success: Gesture-based speaker management working
+
+- [ ] **STAGE-003**: Stage discovery and event scheduling system
+  - Estimated: 3 weeks
+  - Dependencies: STAGE-002
+  - Success: Mobile event creation and notification system
+
+- [ ] **STAGE-004**: Advanced stage features and accessibility
+  - Estimated: 2 weeks
+  - Dependencies: STAGE-003
+  - Success: Screen reader support and 500+ listener capacity
+
+### Mobile-First Forum Threading & Organization (PRD-046)
+**Target**: Q3 2026 | **Owner**: Mobile UX Team | **Effort**: 10 weeks
+
+- [ ] **FORUM-001**: Mobile-native thread browsing and gesture controls
+  - Estimated: 4 weeks
+  - Dependencies: None
+  - Success: Swipe-based thread management and touch optimization
+
+- [ ] **FORUM-002**: Thread organization and smart filtering system
+  - Estimated: 3 weeks
+  - Dependencies: FORUM-001
+  - Success: Tag-based filtering and mobile search optimization
+
+- [ ] **FORUM-003**: Offline thread caching and performance optimization
+  - Estimated: 2 weeks
+  - Dependencies: FORUM-002
+  - Success: Offline reading and battery usage optimization
+
+- [ ] **FORUM-004**: Intelligent thread discovery and recommendation
+  - Estimated: 1 week
+  - Dependencies: FORUM-003
+  - Success: AI-powered thread recommendations and trending detection
+
+### Mobile Creator Studio & Monetization Platform (PRD-047)
+**Target**: Q3 2026 | **Owner**: Mobile Platform Team | **Effort**: 14 weeks
+
+- [ ] **CREATOR-001**: Core subscription system and mobile payment integration
+  - Estimated: 5 weeks
+  - Dependencies: App Store/Play Store payment approval
+  - Success: Mobile subscription creation and App Store integration
+
+- [ ] **CREATOR-002**: Advanced creator tools and analytics dashboard
+  - Estimated: 4 weeks
+  - Dependencies: CREATOR-001
+  - Success: Real-time mobile analytics and subscriber management
+
+- [ ] **CREATOR-003**: Digital commerce platform and fan funding
+  - Estimated: 3 weeks
+  - Dependencies: CREATOR-002
+  - Success: Event ticketing and tip functionality working
+
+- [ ] **CREATOR-004**: Platform optimization and creator support systems
+  - Estimated: 2 weeks
+  - Dependencies: CREATOR-003
+  - Success: Performance optimization and creator dispute resolution
+
 ---
 
 **Next Actions**:
 1. Start PN-001 (FCM/APNs integration) - Week of March 25
 2. Resource planning meeting for Q2 priorities - March 28
 3. Technical architecture review for media pipeline - April 1
+4. **NEW**: Resource planning for Stage Channels (STAGE-001) - April 7
+5. **NEW**: Mobile UX team allocation for Forum optimization - April 14
+6. **NEW**: Payment processing partnership negotiations for Creator platform - April 21
