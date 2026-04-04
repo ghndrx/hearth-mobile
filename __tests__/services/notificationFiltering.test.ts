@@ -464,7 +464,7 @@ describe("Notification Filtering", () => {
             tags: ["reminder", "meeting"],
           },
         },
-        trigger: new Date(notificationData.triggerAt),
+        trigger: { date: new Date(notificationData.triggerAt) },
       });
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(

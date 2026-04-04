@@ -250,16 +250,17 @@ export async function checkKeywordAlerts(
       }
 
       // Check keyword match
-      const searchText = `${payload.title} ${payload.body}`.toLowerCase();
+      const searchText = `${payload.title} ${payload.body}`;
+      const searchTextForMatching = alert.caseSensitive ? searchText : searchText.toLowerCase();
       const keyword = alert.caseSensitive ? alert.keyword : alert.keyword.toLowerCase();
 
       let matches = false;
 
       if (alert.wholeWord) {
-        const wordBoundaryRegex = new RegExp(`\\b${keyword}\\b`, alert.caseSensitive ? 'g' : 'gi');
-        matches = wordBoundaryRegex.test(searchText);
+        const wordBoundaryRegex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, alert.caseSensitive ? 'g' : 'gi');
+        matches = wordBoundaryRegex.test(searchTextForMatching);
       } else {
-        matches = searchText.includes(keyword);
+        matches = searchTextForMatching.includes(keyword);
       }
 
       if (matches) {
@@ -516,9 +517,12 @@ export async function scheduleNotification(
         data: {
           ...newNotification.data,
           scheduledNotificationId: newNotification.id,
+          tags: newNotification.tags,
         },
       },
-      trigger: null, // Scheduled notifications would use different implementation
+      trigger: newNotification.triggerAt
+        ? ({ date: new Date(newNotification.triggerAt) } as any)
+        : null,
     });
 
     return newNotification;
