@@ -779,6 +779,125 @@
   - Dependencies: CMI-005
   - Success: Pattern recognition for routine tasks with automation
 
+### Mobile Screen Sharing & Collaborative Features (PRD-046)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 14 weeks
+
+- [ ] **SS-001**: Core Screen Capture Infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: iOS ReplayKit 2 and Android MediaProjection integration functional
+
+- [ ] **SS-002**: Real-Time Streaming Engine
+  - Estimated: 2 weeks
+  - Dependencies: SS-001
+  - Success: WebRTC-based streaming with adaptive bitrate working
+
+- [ ] **SS-003**: Channel Integration
+  - Estimated: 2 weeks
+  - Dependencies: SS-002
+  - Success: Share screen button and viewer UI in voice channels
+
+- [ ] **SS-004**: Go Live from Mobile Apps
+  - Estimated: 2 weeks
+  - Dependencies: SS-003
+  - Success: App-specific screen sharing and mobile game streaming
+
+- [ ] **SS-005**: Collaborative Watch Features
+  - Estimated: 2 weeks
+  - Dependencies: SS-004
+  - Success: Watch party creation and synchronized playback
+
+- [ ] **SS-006**: Picture-in-Picture Mode
+  - Estimated: 2 weeks
+  - Dependencies: SS-005
+  - Success: Floating stream viewer and background audio continuation
+
+- [ ] **SS-007**: Performance Optimization
+  - Estimated: 2 weeks
+  - Dependencies: SS-006
+  - Success: <500ms latency, >95% uptime, <20% battery drain
+
+### Native OS Integration & Live Activities (PRD-047)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 13 weeks
+
+- [ ] **OS-001**: iOS Live Activities Infrastructure
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Live Activities for voice calls with Dynamic Island integration
+
+- [ ] **OS-002**: iOS Widget System
+  - Estimated: 2 weeks
+  - Dependencies: None (parallel to OS-001)
+  - Success: Small, medium, and large widgets for channel access
+
+- [ ] **OS-003**: CallKit Integration
+  - Estimated: 1 week
+  - Dependencies: OS-001
+  - Success: System-level call interface for voice channels
+
+- [ ] **OS-004**: Siri Shortcuts & Voice Commands
+  - Estimated: 2 weeks
+  - Dependencies: OS-002
+  - Success: Pre-built shortcuts and custom shortcut creation
+
+- [ ] **OS-005**: Focus Modes & Automation
+  - Estimated: 1 week
+  - Dependencies: OS-004
+  - Success: iOS Focus mode integration and automation triggers
+
+- [ ] **OS-006**: System Share Extensions
+  - Estimated: 1 week
+  - Dependencies: OS-005
+  - Success: Share extension for sending content to Hearth channels
+
+- [ ] **OS-007**: Android Quick Settings & Tiles
+  - Estimated: 2 weeks
+  - Dependencies: OS-006
+  - Success: Quick Settings tiles and adaptive features
+
+- [ ] **OS-008**: Cross-Platform Polish
+  - Estimated: 2 weeks
+  - Dependencies: OS-007
+  - Success: 60% widget adoption, 4.8+ App Store rating for ease of use
+
+### Advanced Mobile Voice Processing (PRD-048)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 15 weeks
+
+- [ ] **VP-001**: Real-Time Noise Suppression Engine
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: ML-based noise suppression with <20ms latency addition
+
+- [ ] **VP-002**: Voice Enhancement Pipeline
+  - Estimated: 2 weeks
+  - Dependencies: VP-001
+  - Success: Dynamic range compression and voice clarity enhancement
+
+- [ ] **VP-003**: Echo Cancellation System
+  - Estimated: 2 weeks
+  - Dependencies: VP-002
+  - Success: Acoustic echo cancellation for mobile environments
+
+- [ ] **VP-004**: Spatial Audio Engine
+  - Estimated: 3 weeks
+  - Dependencies: VP-003
+  - Success: 3D positional audio with HRTF processing
+
+- [ ] **VP-005**: Mobile-Optimized Audio Quality
+  - Estimated: 2 weeks
+  - Dependencies: VP-004
+  - Success: Adaptive bitrate audio and network-aware quality switching
+
+- [ ] **VP-006**: Advanced Voice Activity Detection
+  - Estimated: 1 week
+  - Dependencies: VP-005
+  - Success: ML-powered VAD with customizable sensitivity
+
+- [ ] **VP-007**: External Device Integration
+  - Estimated: 2 weeks
+  - Dependencies: VP-006
+  - Success: AirPods, Bluetooth headset, and car audio integration
+
 ## P1 Tasks (High Priority)
 
 ### Cross-Device Continuity & Seamless Handoff (PRD-028)
@@ -1641,28 +1760,74 @@
   - Dependencies: FORUM-003
   - Success: AI-powered thread recommendations and trending detection
 
-### Mobile Creator Studio & Monetization Platform (PRD-047)
-**Target**: Q3 2026 | **Owner**: Mobile Platform Team | **Effort**: 14 weeks
+### Mobile-Native Live Streaming & Content Creation Studio (PRD-047)
+**Target**: Q2 2026 | **Owner**: Mobile Creator Platform Team | **Effort**: 16 weeks
 
-- [ ] **CREATOR-001**: Core subscription system and mobile payment integration
+- [ ] **STREAM-001**: Core mobile streaming infrastructure and real-time effects
+  - Estimated: 6 weeks
+  - Dependencies: Mobile video processing pipeline setup
+  - Success: Real-time filters and effects during mobile streaming
+
+- [ ] **STREAM-002**: AI-powered content tools and clip generation
   - Estimated: 5 weeks
-  - Dependencies: App Store/Play Store payment approval
-  - Success: Mobile subscription creation and App Store integration
+  - Dependencies: STREAM-001, AI model integration
+  - Success: Automatic highlight detection and clip creation with 90% accuracy
 
-- [ ] **CREATOR-002**: Advanced creator tools and analytics dashboard
-  - Estimated: 4 weeks
-  - Dependencies: CREATOR-001
-  - Success: Real-time mobile analytics and subscriber management
-
-- [ ] **CREATOR-003**: Digital commerce platform and fan funding
+- [ ] **STREAM-003**: Multi-platform broadcasting and analytics
   - Estimated: 3 weeks
-  - Dependencies: CREATOR-002
-  - Success: Event ticketing and tip functionality working
+  - Dependencies: STREAM-002, platform API integrations
+  - Success: Simultaneous streaming to 3+ platforms with unified analytics
 
-- [ ] **CREATOR-004**: Platform optimization and creator support systems
+- [ ] **STREAM-004**: Creator monetization and optimization features
   - Estimated: 2 weeks
-  - Dependencies: CREATOR-003
-  - Success: Performance optimization and creator dispute resolution
+  - Dependencies: STREAM-003, payment processing integration
+  - Success: Mobile tip integration and creator revenue dashboard
+
+### Advanced Multi-Language Real-Time Communication (PRD-048)
+**Target**: Q3 2026 | **Owner**: Mobile AI & Internationalization Team | **Effort**: 14 weeks
+
+- [ ] **TRANSLATE-001**: Real-time voice translation infrastructure
+  - Estimated: 6 weeks
+  - Dependencies: AI translation model integration and optimization
+  - Success: <3 second latency voice translation for top 10 languages
+
+- [ ] **TRANSLATE-002**: Live caption translation and accessibility features
+  - Estimated: 5 weeks
+  - Dependencies: TRANSLATE-001, voice-to-text pipeline
+  - Success: Real-time translated captions with screen reader integration
+
+- [ ] **TRANSLATE-003**: Community language learning integration
+  - Estimated: 2 weeks
+  - Dependencies: TRANSLATE-002, community matching system
+  - Success: Language exchange matching and pronunciation training
+
+- [ ] **TRANSLATE-004**: Cultural context AI and optimization
+  - Estimated: 1 week
+  - Dependencies: TRANSLATE-003, cultural context models
+  - Success: Cultural nuance understanding and extended language support
+
+### Mobile Community Commerce & Monetization Platform (PRD-049)
+**Target**: Q4 2026 | **Owner**: Mobile Commerce & Creator Economy Team | **Effort**: 18 weeks
+
+- [ ] **COMMERCE-001**: Mobile commerce infrastructure and payment processing
+  - Estimated: 6 weeks
+  - Dependencies: PCI compliance setup, mobile payment APIs
+  - Success: Secure mobile payments with Apple Pay/Google Pay integration
+
+- [ ] **COMMERCE-002**: Community marketplace and creator stores
+  - Estimated: 7 weeks
+  - Dependencies: COMMERCE-001, digital rights management
+  - Success: Creator storefronts with automated digital product delivery
+
+- [ ] **COMMERCE-003**: Subscription and membership management system
+  - Estimated: 3 weeks
+  - Dependencies: COMMERCE-002, recurring billing setup
+  - Success: Automated subscription billing with mobile management interface
+
+- [ ] **COMMERCE-004**: Advanced commerce features and enterprise tools
+  - Estimated: 2 weeks
+  - Dependencies: COMMERCE-003, analytics integration
+  - Success: Revenue analytics, international commerce, and enterprise features
 
 ---
 
