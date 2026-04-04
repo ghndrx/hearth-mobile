@@ -1,36 +1,39 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { CropRegion } from '../../services/media/ImageEditingService';
+import { CropRegion, FaceRegion } from '../../services/media/ImageEditingService';
 
 export interface CropToolProps {
   imageWidth: number;
   imageHeight: number;
   onCropRegionChange: (region: CropRegion) => void;
+  onSmartCrop?: (aspectRatio: number) => void;
   currentCropRegion?: CropRegion;
+  faces?: FaceRegion[];
 }
+
+const ASPECT_RATIOS = [
+  { label: 'Free', value: 'free', ratio: null },
+  { label: '1:1', value: '1:1', ratio: 1 },
+  { label: '4:3', value: '4:3', ratio: 4 / 3 },
+  { label: '16:9', value: '16:9', ratio: 16 / 9 },
+  { label: '3:4', value: '3:4', ratio: 3 / 4 },
+  { label: '9:16', value: '9:16', ratio: 9 / 16 },
+];
 
 export const CropTool: React.FC<CropToolProps> = ({
   imageWidth,
   imageHeight,
   onCropRegionChange,
+  onSmartCrop,
   currentCropRegion,
+  faces = [],
 }) => {
   const [aspectRatio, setAspectRatio] = useState<string>('free');
-
-  const aspectRatios = [
-    { label: 'Free', value: 'free', ratio: null },
-    { label: '1:1', value: '1:1', ratio: 1 },
-    { label: '4:3', value: '4:3', ratio: 4 / 3 },
-    { label: '16:9', value: '16:9', ratio: 16 / 9 },
-    { label: '3:4', value: '3:4', ratio: 3 / 4 },
-    { label: '9:16', value: '9:16', ratio: 9 / 16 },
-  ];
 
   const applyCropRatio = (ratio: number | null) => {
     let cropRegion: CropRegion;
 
     if (ratio === null) {
-      // Free form - default to 80% of image
       cropRegion = {
         originX: imageWidth * 0.1,
         originY: imageHeight * 0.1,
@@ -38,11 +41,8 @@ export const CropTool: React.FC<CropToolProps> = ({
         height: imageHeight * 0.8,
       };
     } else {
-      // Calculate crop region based on aspect ratio
       const imageRatio = imageWidth / imageHeight;
-
       if (ratio > imageRatio) {
-        // Crop is wider than image - fit to width
         const cropWidth = imageWidth * 0.8;
         const cropHeight = cropWidth / ratio;
         cropRegion = {
@@ -52,7 +52,6 @@ export const CropTool: React.FC<CropToolProps> = ({
           height: cropHeight,
         };
       } else {
-        // Crop is taller than image - fit to height
         const cropHeight = imageHeight * 0.8;
         const cropWidth = cropHeight * ratio;
         cropRegion = {
@@ -72,11 +71,17 @@ export const CropTool: React.FC<CropToolProps> = ({
     applyCropRatio(ratio);
   };
 
+  const handleSmartCrop = () => {
+    const selectedRatio = ASPECT_RATIOS.find(r => r.value === aspectRatio);
+    const ratio = selectedRatio?.ratio ?? imageWidth / imageHeight;
+    onSmartCrop?.(ratio);
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Crop Aspect Ratio</Text>
+      <Text style={styles.title}>Aspect Ratio</Text>
       <View style={styles.aspectRatioContainer}>
-        {aspectRatios.map((item) => (
+        {ASPECT_RATIOS.map((item) => (
           <TouchableOpacity
             key={item.value}
             style={[
@@ -97,10 +102,19 @@ export const CropTool: React.FC<CropToolProps> = ({
         ))}
       </View>
 
+      {/* Smart crop button (face detection) */}
+      {faces.length > 0 && onSmartCrop && (
+        <TouchableOpacity style={styles.smartCropButton} onPress={handleSmartCrop}>
+          <Text style={styles.smartCropText}>
+            Smart Crop ({faces.length} face{faces.length > 1 ? 's' : ''} detected)
+          </Text>
+        </TouchableOpacity>
+      )}
+
       {currentCropRegion && (
         <View style={styles.cropInfo}>
           <Text style={styles.cropInfoText}>
-            Crop: {Math.round(currentCropRegion.width)}×{Math.round(currentCropRegion.height)}
+            {Math.round(currentCropRegion.width)} × {Math.round(currentCropRegion.height)}
           </Text>
         </View>
       )}
@@ -111,12 +125,12 @@ export const CropTool: React.FC<CropToolProps> = ({
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    gap: 12,
   },
   title: {
     color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
   },
   aspectRatioContainer: {
     flexDirection: 'row',
@@ -142,11 +156,22 @@ const styles = StyleSheet.create({
   activeAspectRatioText: {
     color: '#FFF',
   },
+  smartCropButton: {
+    backgroundColor: '#34C759',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  smartCropText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   cropInfo: {
-    marginTop: 12,
     padding: 8,
     backgroundColor: '#2C2C2E',
     borderRadius: 8,
+    alignSelf: 'flex-start',
   },
   cropInfoText: {
     color: '#FFF',

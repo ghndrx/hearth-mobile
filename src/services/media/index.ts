@@ -10,4 +10,10 @@ export type {
   CropRegion,
   ImageAnnotation,
   ImageFilter,
+  FilterSettings,
+  ResizeOptions,
+  DrawingPath,
+  DrawingPoint,
+  FaceRegion,
 } from './ImageEditingService';
+export { DEFAULT_FILTER_SETTINGS } from './ImageEditingService';

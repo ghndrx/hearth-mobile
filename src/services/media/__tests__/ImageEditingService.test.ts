@@ -1,22 +1,39 @@
-import ImageEditingService, { EditableImage, CropRegion, ImageAnnotation } from '../ImageEditingService';
+import ImageEditingService, {
+  EditableImage,
+  CropRegion,
+  ImageAnnotation,
+  DEFAULT_FILTER_SETTINGS,
+} from '../ImageEditingService';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
 
-// Mock the expo modules
 jest.mock('expo-image-manipulator', () => ({
   manipulateAsync: jest.fn(),
-  SaveFormat: {
-    JPEG: 'jpeg',
-  },
-  FlipType: {
-    Horizontal: 'horizontal',
-    Vertical: 'vertical',
-  },
+  SaveFormat: { JPEG: 'jpeg' },
+  FlipType: { Horizontal: 'horizontal', Vertical: 'vertical' },
 }));
 
 jest.mock('expo-file-system', () => ({
   getInfoAsync: jest.fn(),
 }));
+
+jest.mock('expo-face-detector', () => ({
+  detectFacesAsync: jest.fn().mockResolvedValue({ faces: [] }),
+  FaceDetectorMode: { fast: 1 },
+  FaceDetectorLandmarks: { none: 0 },
+  FaceDetectorClassifications: { none: 0 },
+}));
+
+const mockEditableImage = (): EditableImage => ({
+  uri: 'file://test.jpg',
+  width: 1000,
+  height: 800,
+  originalUri: 'file://original.jpg',
+  rotation: 0,
+  filters: { ...DEFAULT_FILTER_SETTINGS },
+  annotations: [],
+  faces: [],
+});
 
 describe('ImageEditingService', () => {
   let service: ImageEditingService;
@@ -37,15 +54,12 @@ describe('ImageEditingService', () => {
   describe('initializeEditableImage', () => {
     it('should initialize an editable image successfully', async () => {
       const mockUri = 'file://test-image.jpg';
-      const mockFileInfo = { exists: true };
-      const mockManipulateResult = {
+      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({ exists: true });
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
         uri: mockUri,
         width: 1000,
         height: 800,
-      };
-
-      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue(mockFileInfo);
-      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue(mockManipulateResult);
+      });
 
       const result = await service.initializeEditableImage(mockUri);
 
@@ -54,227 +68,308 @@ describe('ImageEditingService', () => {
         width: 1000,
         height: 800,
         originalUri: mockUri,
-        filters: {},
+        rotation: 0,
+        filters: DEFAULT_FILTER_SETTINGS,
         annotations: [],
+        faces: [],
       });
-
-      expect(FileSystem.getInfoAsync).toHaveBeenCalledWith(mockUri);
-      expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
-        mockUri,
-        [],
-        { format: ImageManipulator.SaveFormat.JPEG }
-      );
     });
 
     it('should throw error if file does not exist', async () => {
-      const mockUri = 'file://nonexistent.jpg';
-      const mockFileInfo = { exists: false };
-
-      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue(mockFileInfo);
-
-      await expect(service.initializeEditableImage(mockUri)).rejects.toThrow('Image file not found');
+      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({ exists: false });
+      await expect(service.initializeEditableImage('file://missing.jpg'))
+        .rejects.toThrow('Image file not found');
     });
   });
 
   describe('cropImage', () => {
-    it('should crop an image successfully', async () => {
-      const mockEditableImage: EditableImage = {
-        uri: 'file://test.jpg',
-        width: 1000,
-        height: 800,
-        originalUri: 'file://original.jpg',
-        filters: {},
-        annotations: [],
-      };
+    it('should crop an image with rounded coordinates', async () => {
+      const image = mockEditableImage();
+      const cropRegion: CropRegion = { originX: 100.7, originY: 50.3, width: 500.5, height: 400.9 };
 
-      const mockCropRegion: CropRegion = {
-        originX: 100,
-        originY: 50,
-        width: 500,
-        height: 400,
-      };
-
-      const mockManipulateResult = {
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
         uri: 'file://cropped.jpg',
-        width: 500,
-        height: 400,
-      };
-
-      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue(mockManipulateResult);
-
-      const result = await service.cropImage(mockEditableImage, mockCropRegion);
-
-      expect(result).toEqual({
-        ...mockEditableImage,
-        uri: 'file://cropped.jpg',
-        width: 500,
-        height: 400,
-        cropRegion: mockCropRegion,
+        width: 501,
+        height: 401,
       });
 
+      const result = await service.cropImage(image, cropRegion);
+
+      expect(result.uri).toBe('file://cropped.jpg');
+      expect(result.cropRegion).toEqual(cropRegion);
       expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
-        mockEditableImage.originalUri,
-        [
-          {
-            crop: {
-              originX: 100,
-              originY: 50,
-              width: 500,
-              height: 400,
-            },
-          },
-        ],
-        { format: ImageManipulator.SaveFormat.JPEG, compress: 0.8 }
+        image.uri,
+        [{ crop: { originX: 101, originY: 50, width: 501, height: 401 } }],
+        { format: 'jpeg', compress: 0.9 }
       );
     });
   });
 
-  describe('addAnnotation', () => {
-    it('should add an annotation to the image', () => {
-      const mockEditableImage: EditableImage = {
-        uri: 'file://test.jpg',
-        width: 1000,
-        height: 800,
-        originalUri: 'file://original.jpg',
-        filters: {},
-        annotations: [],
-      };
+  describe('resizeImage', () => {
+    it('should resize maintaining aspect ratio by width', async () => {
+      const image = mockEditableImage();
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
+        uri: 'file://resized.jpg',
+        width: 500,
+        height: 400,
+      });
 
-      const mockAnnotation: ImageAnnotation = {
-        type: 'text',
-        x: 100,
-        y: 200,
-        content: 'Test text',
-        color: '#FFFFFF',
-        fontSize: 20,
-      };
+      const result = await service.resizeImage(image, { width: 500, maintainAspectRatio: true });
 
-      const result = service.addAnnotation(mockEditableImage, mockAnnotation);
-
-      expect(result.annotations).toHaveLength(1);
-      expect(result.annotations[0]).toEqual(mockAnnotation);
-      expect(result.annotations).not.toBe(mockEditableImage.annotations); // Should be a new array
+      expect(result.width).toBe(500);
+      expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
+        image.uri,
+        [{ resize: { width: 500 } }],
+        { format: 'jpeg', compress: 0.9 }
+      );
     });
-  });
 
-  describe('removeAnnotation', () => {
-    it('should remove an annotation from the image', () => {
-      const mockAnnotation: ImageAnnotation = {
-        type: 'text',
-        x: 100,
-        y: 200,
-        content: 'Test text',
-        color: '#FFFFFF',
-        fontSize: 20,
-      };
+    it('should resize with explicit width and height', async () => {
+      const image = mockEditableImage();
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
+        uri: 'file://resized.jpg',
+        width: 300,
+        height: 300,
+      });
 
-      const mockEditableImage: EditableImage = {
-        uri: 'file://test.jpg',
-        width: 1000,
-        height: 800,
-        originalUri: 'file://original.jpg',
-        filters: {},
-        annotations: [mockAnnotation],
-      };
+      await service.resizeImage(image, { width: 300, height: 300, maintainAspectRatio: false });
 
-      const result = service.removeAnnotation(mockEditableImage, 0);
-
-      expect(result.annotations).toHaveLength(0);
-      expect(result.annotations).not.toBe(mockEditableImage.annotations); // Should be a new array
+      expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
+        image.uri,
+        [{ resize: { width: 300, height: 300 } }],
+        { format: 'jpeg', compress: 0.9 }
+      );
     });
   });
 
   describe('rotateImage', () => {
-    it('should rotate an image successfully', async () => {
-      const mockEditableImage: EditableImage = {
-        uri: 'file://test.jpg',
-        width: 1000,
-        height: 800,
-        originalUri: 'file://original.jpg',
-        filters: {},
-        annotations: [],
-      };
-
-      const mockManipulateResult = {
-        uri: 'file://rotated.jpg',
-        width: 800,
-        height: 1000,
-      };
-
-      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue(mockManipulateResult);
-
-      const result = await service.rotateImage(mockEditableImage, 90);
-
-      expect(result).toEqual({
-        ...mockEditableImage,
+    it('should rotate and track cumulative rotation', async () => {
+      const image = mockEditableImage();
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
         uri: 'file://rotated.jpg',
         width: 800,
         height: 1000,
       });
 
+      const result = await service.rotateImage(image, 90);
+
+      expect(result.rotation).toBe(90);
+      expect(result.width).toBe(800);
+      expect(result.height).toBe(1000);
+    });
+
+    it('should support free rotation with arbitrary degrees', async () => {
+      const image = mockEditableImage();
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
+        uri: 'file://rotated.jpg',
+        width: 1000,
+        height: 800,
+      });
+
+      const result = await service.rotateImage(image, 45);
+
+      expect(result.rotation).toBe(45);
       expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
-        mockEditableImage.uri,
-        [{ rotate: 90 }],
-        { format: ImageManipulator.SaveFormat.JPEG, compress: 0.8 }
+        image.uri,
+        [{ rotate: 45 }],
+        { format: 'jpeg', compress: 0.9 }
       );
     });
   });
 
   describe('flipImage', () => {
-    it('should flip an image horizontally', async () => {
-      const mockEditableImage: EditableImage = {
-        uri: 'file://test.jpg',
-        width: 1000,
-        height: 800,
-        originalUri: 'file://original.jpg',
-        filters: {},
-        annotations: [],
-      };
-
-      const mockManipulateResult = {
+    it('should flip horizontally', async () => {
+      const image = mockEditableImage();
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
         uri: 'file://flipped.jpg',
         width: 1000,
         height: 800,
-      };
+      });
 
-      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue(mockManipulateResult);
-
-      const result = await service.flipImage(mockEditableImage, 'horizontal');
+      const result = await service.flipImage(image, 'horizontal');
 
       expect(result.uri).toBe('file://flipped.jpg');
       expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
-        mockEditableImage.uri,
+        image.uri,
         [{ flip: ImageManipulator.FlipType.Horizontal }],
-        { format: ImageManipulator.SaveFormat.JPEG, compress: 0.8 }
+        { format: 'jpeg', compress: 0.9 }
+      );
+    });
+
+    it('should flip vertically', async () => {
+      const image = mockEditableImage();
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
+        uri: 'file://flipped.jpg',
+        width: 1000,
+        height: 800,
+      });
+
+      await service.flipImage(image, 'vertical');
+
+      expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
+        image.uri,
+        [{ flip: ImageManipulator.FlipType.Vertical }],
+        { format: 'jpeg', compress: 0.9 }
       );
     });
   });
 
+  describe('applyFilterSettings', () => {
+    it('should merge filter settings', () => {
+      const image = mockEditableImage();
+      const result = service.applyFilterSettings(image, { brightness: 50, contrast: 20 });
+
+      expect(result.filters.brightness).toBe(50);
+      expect(result.filters.contrast).toBe(20);
+      expect(result.filters.saturation).toBe(0);
+      expect(result.filters.warmth).toBe(0);
+    });
+  });
+
+  describe('annotations', () => {
+    it('should add a text annotation', () => {
+      const image = mockEditableImage();
+      const annotation: ImageAnnotation = {
+        type: 'text',
+        x: 100,
+        y: 200,
+        content: 'Test',
+        color: '#FFF',
+        fontSize: 20,
+      };
+
+      const result = service.addAnnotation(image, annotation);
+
+      expect(result.annotations).toHaveLength(1);
+      expect(result.annotations[0]).toEqual(annotation);
+    });
+
+    it('should add a drawing annotation', () => {
+      const image = mockEditableImage();
+      const annotation: ImageAnnotation = {
+        type: 'draw',
+        x: 0,
+        y: 0,
+        paths: [{ points: [{ x: 0, y: 0 }, { x: 100, y: 100 }], color: '#FF0000', strokeWidth: 4 }],
+        color: '#FF0000',
+        strokeWidth: 4,
+      };
+
+      const result = service.addAnnotation(image, annotation);
+      expect(result.annotations).toHaveLength(1);
+      expect(result.annotations[0].type).toBe('draw');
+    });
+
+    it('should remove an annotation by index', () => {
+      const image: EditableImage = {
+        ...mockEditableImage(),
+        annotations: [
+          { type: 'text', x: 0, y: 0, content: 'A', color: '#FFF', fontSize: 20 },
+          { type: 'text', x: 0, y: 0, content: 'B', color: '#FFF', fontSize: 20 },
+        ],
+      };
+
+      const result = service.removeAnnotation(image, 0);
+      expect(result.annotations).toHaveLength(1);
+      expect(result.annotations[0].content).toBe('B');
+    });
+  });
+
+  describe('getSmartCropRegion', () => {
+    it('should return null when no faces detected', () => {
+      const image = mockEditableImage();
+      const result = service.getSmartCropRegion(image, 1);
+      expect(result).toBeNull();
+    });
+
+    it('should return crop region centered on faces', () => {
+      const image: EditableImage = {
+        ...mockEditableImage(),
+        faces: [
+          { bounds: { origin: { x: 300, y: 200 }, size: { width: 100, height: 120 } } },
+        ],
+      };
+
+      const result = service.getSmartCropRegion(image, 1);
+
+      expect(result).not.toBeNull();
+      expect(result!.width).toBe(result!.height); // 1:1 ratio
+      expect(result!.originX).toBeGreaterThanOrEqual(0);
+      expect(result!.originY).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should encompass multiple faces', () => {
+      const image: EditableImage = {
+        ...mockEditableImage(),
+        faces: [
+          { bounds: { origin: { x: 100, y: 200 }, size: { width: 100, height: 120 } } },
+          { bounds: { origin: { x: 600, y: 200 }, size: { width: 100, height: 120 } } },
+        ],
+      };
+
+      const result = service.getSmartCropRegion(image, 16 / 9);
+
+      expect(result).not.toBeNull();
+      // Should be wide enough to include both faces
+      expect(result!.width).toBeGreaterThan(400);
+    });
+  });
+
   describe('getPresetFilters', () => {
-    it('should return an array of preset filters', () => {
+    it('should return preset filters with proper structure', () => {
       const filters = service.getPresetFilters();
 
-      expect(filters).toBeInstanceOf(Array);
-      expect(filters.length).toBeGreaterThan(0);
-      expect(filters[0]).toHaveProperty('name');
-      expect(filters[0]).toHaveProperty('label');
-      expect(filters[0]).toHaveProperty('adjustments');
+      expect(filters.length).toBe(6);
+      expect(filters[0]).toEqual({
+        name: 'original',
+        label: 'Original',
+        adjustments: { brightness: 0, contrast: 0, saturation: 0, warmth: 0 },
+      });
+      filters.forEach(f => {
+        expect(f).toHaveProperty('name');
+        expect(f).toHaveProperty('label');
+        expect(f.adjustments).toHaveProperty('brightness');
+        expect(f.adjustments).toHaveProperty('contrast');
+        expect(f.adjustments).toHaveProperty('saturation');
+        expect(f.adjustments).toHaveProperty('warmth');
+      });
     });
   });
 
   describe('finalizeImage', () => {
-    it('should return the current URI for finalized image', async () => {
-      const mockEditableImage: EditableImage = {
-        uri: 'file://test.jpg',
+    it('should return optimized URI', async () => {
+      const image = mockEditableImage();
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
+        uri: 'file://final.jpg',
         width: 1000,
         height: 800,
-        originalUri: 'file://original.jpg',
-        filters: {},
-        annotations: [],
-      };
+      });
 
-      const result = await service.finalizeImage(mockEditableImage);
-      expect(result).toBe(mockEditableImage.uri);
+      const result = await service.finalizeImage(image);
+      expect(result).toBe('file://final.jpg');
+      expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
+        image.uri,
+        [],
+        { format: 'jpeg', compress: 0.85 }
+      );
+    });
+  });
+
+  describe('resetImage', () => {
+    it('should re-initialize from original URI', async () => {
+      const image = mockEditableImage();
+      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({ exists: true });
+      (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
+        uri: image.originalUri,
+        width: 1000,
+        height: 800,
+      });
+
+      const result = await service.resetImage(image);
+      expect(result.uri).toBe(image.originalUri);
+      expect(result.rotation).toBe(0);
+      expect(result.filters).toEqual(DEFAULT_FILTER_SETTINGS);
+      expect(result.annotations).toEqual([]);
     });
   });
 });

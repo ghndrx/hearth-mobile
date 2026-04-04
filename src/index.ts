@@ -13,3 +13,4 @@ export * from './components/media';
 
 // Hooks
 export { useImageEditor } from './hooks/useImageEditor';
+export type { UseImageEditorReturn, UseImageEditorState, UseImageEditorActions } from './hooks/useImageEditor';

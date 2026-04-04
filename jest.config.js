@@ -26,6 +26,11 @@ module.exports = {
     '^expo/src/winter/(.*)$': '<rootDir>/__mocks__/expo/src/winter/index.ts',
     // Mock AsyncStorage
     '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage/jest/async-storage-mock',
+    // Mock expo media modules (transformed via jest.mock in tests)
+    '^expo-image-manipulator$': '<rootDir>/__mocks__/expo-image-manipulator.js',
+    '^expo-file-system$': '<rootDir>/__mocks__/expo-file-system.js',
+    '^expo-face-detector$': '<rootDir>/__mocks__/expo-face-detector.js',
+    '^react-native-svg$': '<rootDir>/__mocks__/react-native-svg.js',
   },
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',

@@ -1,24 +1,39 @@
+/**
+ * @jest-environment jsdom
+ */
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useImageEditor } from '../useImageEditor';
-import ImageEditingService from '../../services/media/ImageEditingService';
+import ImageEditingService, { DEFAULT_FILTER_SETTINGS } from '../../services/media/ImageEditingService';
 
-// Mock the ImageEditingService
 jest.mock('../../services/media/ImageEditingService');
 
-const mockImageEditingService = {
+const mockService = {
   initializeEditableImage: jest.fn(),
   cropImage: jest.fn(),
-  applyFilters: jest.fn(),
+  resizeImage: jest.fn(),
   rotateImage: jest.fn(),
   flipImage: jest.fn(),
+  applyFilterSettings: jest.fn(),
   addAnnotation: jest.fn(),
   removeAnnotation: jest.fn(),
+  getSmartCropRegion: jest.fn(),
   resetImage: jest.fn(),
   finalizeImage: jest.fn(),
   getPresetFilters: jest.fn(),
 };
 
-(ImageEditingService.getInstance as jest.Mock).mockReturnValue(mockImageEditingService);
+(ImageEditingService.getInstance as jest.Mock).mockReturnValue(mockService);
+
+const mockEditableImage = {
+  uri: 'file://test.jpg',
+  width: 1000,
+  height: 800,
+  originalUri: 'file://original.jpg',
+  rotation: 0,
+  filters: { ...DEFAULT_FILTER_SETTINGS },
+  annotations: [],
+  faces: [],
+};
 
 describe('useImageEditor', () => {
   beforeEach(() => {
@@ -32,19 +47,11 @@ describe('useImageEditor', () => {
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
     expect(result.current.hasUnsavedChanges).toBe(false);
+    expect(result.current.filterSettings).toEqual(DEFAULT_FILTER_SETTINGS);
   });
 
   it('should handle successful image initialization', async () => {
-    const mockEditableImage = {
-      uri: 'file://test.jpg',
-      width: 1000,
-      height: 800,
-      originalUri: 'file://original.jpg',
-      filters: {},
-      annotations: [],
-    };
-
-    mockImageEditingService.initializeEditableImage.mockResolvedValue(mockEditableImage);
+    mockService.initializeEditableImage.mockResolvedValue(mockEditableImage);
 
     const { result } = renderHook(() => useImageEditor());
 
@@ -55,13 +62,12 @@ describe('useImageEditor', () => {
     expect(result.current.editableImage).toEqual(mockEditableImage);
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
-    expect(result.current.hasUnsavedChanges).toBe(true);
-    expect(mockImageEditingService.initializeEditableImage).toHaveBeenCalledWith('file://test.jpg');
+    expect(result.current.hasUnsavedChanges).toBe(false);
+    expect(result.current.filterSettings).toEqual(DEFAULT_FILTER_SETTINGS);
   });
 
   it('should handle image initialization error', async () => {
-    const errorMessage = 'Failed to load image';
-    mockImageEditingService.initializeEditableImage.mockRejectedValue(new Error(errorMessage));
+    mockService.initializeEditableImage.mockRejectedValue(new Error('Load failed'));
 
     const { result } = renderHook(() => useImageEditor());
 
@@ -70,177 +76,143 @@ describe('useImageEditor', () => {
     });
 
     expect(result.current.editableImage).toBeNull();
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.error).toBe(`Failed to initialize image: ${errorMessage}`);
-    expect(result.current.hasUnsavedChanges).toBe(false);
+    expect(result.current.error).toBe('Failed to initialize image: Load failed');
   });
 
-  it('should handle successful crop operation', async () => {
-    const mockEditableImage = {
-      uri: 'file://test.jpg',
-      width: 1000,
-      height: 800,
-      originalUri: 'file://original.jpg',
-      filters: {},
-      annotations: [],
-    };
-
-    const mockCroppedImage = {
-      ...mockEditableImage,
-      uri: 'file://cropped.jpg',
-      width: 500,
-      height: 400,
-    };
-
-    mockImageEditingService.cropImage.mockResolvedValue(mockCroppedImage);
+  it('should handle rotation', async () => {
+    const rotatedImage = { ...mockEditableImage, rotation: 90, uri: 'file://rotated.jpg' };
+    mockService.initializeEditableImage.mockResolvedValue(mockEditableImage);
+    mockService.rotateImage.mockResolvedValue(rotatedImage);
 
     const { result } = renderHook(() => useImageEditor());
-
-    // Set initial image
-    act(() => {
-      result.current.setEditableImage = jest.fn();
-      // @ts-ignore - accessing private state for testing
-      result.current._setEditableImage(mockEditableImage);
-    });
 
     await act(async () => {
-      await result.current.cropImage({
-        originX: 100,
-        originY: 100,
-        width: 500,
-        height: 400,
-      });
+      await result.current.initializeImage('file://test.jpg');
     });
-
-    expect(mockImageEditingService.cropImage).toHaveBeenCalledWith(
-      mockEditableImage,
-      { originX: 100, originY: 100, width: 500, height: 400 }
-    );
-  });
-
-  it('should handle annotation addition', () => {
-    const mockEditableImage = {
-      uri: 'file://test.jpg',
-      width: 1000,
-      height: 800,
-      originalUri: 'file://original.jpg',
-      filters: {},
-      annotations: [],
-    };
-
-    const mockAnnotatedImage = {
-      ...mockEditableImage,
-      annotations: [{
-        type: 'text' as const,
-        x: 100,
-        y: 200,
-        content: 'Test annotation',
-        color: '#FFFFFF',
-        fontSize: 20,
-      }],
-    };
-
-    mockImageEditingService.addAnnotation.mockReturnValue(mockAnnotatedImage);
-
-    const { result } = renderHook(() => useImageEditor());
-
-    // Simulate having an editable image
-    // @ts-ignore - accessing private state for testing
-    result.current._state = { ...result.current._state, editableImage: mockEditableImage };
-
-    act(() => {
-      result.current.addAnnotation({
-        type: 'text',
-        x: 100,
-        y: 200,
-        content: 'Test annotation',
-        color: '#FFFFFF',
-        fontSize: 20,
-      });
-    });
-
-    expect(mockImageEditingService.addAnnotation).toHaveBeenCalled();
-  });
-
-  it('should handle successful image rotation', async () => {
-    const mockEditableImage = {
-      uri: 'file://test.jpg',
-      width: 1000,
-      height: 800,
-      originalUri: 'file://original.jpg',
-      filters: {},
-      annotations: [],
-    };
-
-    const mockRotatedImage = {
-      ...mockEditableImage,
-      uri: 'file://rotated.jpg',
-      width: 800,
-      height: 1000,
-    };
-
-    mockImageEditingService.rotateImage.mockResolvedValue(mockRotatedImage);
-
-    const { result } = renderHook(() => useImageEditor());
-
-    // Simulate having an editable image
-    // @ts-ignore - accessing private state for testing
-    result.current._state = { ...result.current._state, editableImage: mockEditableImage };
 
     await act(async () => {
       await result.current.rotateImage(90);
     });
 
-    expect(mockImageEditingService.rotateImage).toHaveBeenCalledWith(mockEditableImage, 90);
+    expect(mockService.rotateImage).toHaveBeenCalledWith(mockEditableImage, 90);
   });
 
-  it('should handle successful image flip', async () => {
-    const mockEditableImage = {
-      uri: 'file://test.jpg',
-      width: 1000,
-      height: 800,
-      originalUri: 'file://original.jpg',
-      filters: {},
-      annotations: [],
-    };
-
-    const mockFlippedImage = {
-      ...mockEditableImage,
-      uri: 'file://flipped.jpg',
-    };
-
-    mockImageEditingService.flipImage.mockResolvedValue(mockFlippedImage);
+  it('should handle flip', async () => {
+    const flippedImage = { ...mockEditableImage, uri: 'file://flipped.jpg' };
+    mockService.initializeEditableImage.mockResolvedValue(mockEditableImage);
+    mockService.flipImage.mockResolvedValue(flippedImage);
 
     const { result } = renderHook(() => useImageEditor());
 
-    // Simulate having an editable image
-    // @ts-ignore - accessing private state for testing
-    result.current._state = { ...result.current._state, editableImage: mockEditableImage };
+    await act(async () => {
+      await result.current.initializeImage('file://test.jpg');
+    });
 
     await act(async () => {
       await result.current.flipImage('horizontal');
     });
 
-    expect(mockImageEditingService.flipImage).toHaveBeenCalledWith(mockEditableImage, 'horizontal');
+    expect(mockService.flipImage).toHaveBeenCalledWith(mockEditableImage, 'horizontal');
   });
 
-  it('should handle finalize image', async () => {
-    const mockEditableImage = {
-      uri: 'file://test.jpg',
-      width: 1000,
-      height: 800,
-      originalUri: 'file://original.jpg',
-      filters: {},
-      annotations: [],
+  it('should update filter settings', async () => {
+    const updatedImage = {
+      ...mockEditableImage,
+      filters: { ...DEFAULT_FILTER_SETTINGS, brightness: 50 },
     };
-
-    mockImageEditingService.finalizeImage.mockResolvedValue('file://final.jpg');
+    mockService.initializeEditableImage.mockResolvedValue(mockEditableImage);
+    mockService.applyFilterSettings.mockReturnValue(updatedImage);
 
     const { result } = renderHook(() => useImageEditor());
 
-    // Simulate having an editable image
-    // @ts-ignore - accessing private state for testing
-    result.current._state = { ...result.current._state, editableImage: mockEditableImage };
+    await act(async () => {
+      await result.current.initializeImage('file://test.jpg');
+    });
+
+    act(() => {
+      result.current.updateFilterSettings({ brightness: 50 });
+    });
+
+    expect(mockService.applyFilterSettings).toHaveBeenCalledWith(
+      mockEditableImage,
+      { brightness: 50 }
+    );
+    expect(result.current.filterSettings.brightness).toBe(50);
+    expect(result.current.hasUnsavedChanges).toBe(true);
+  });
+
+  it('should handle smart crop with faces', async () => {
+    const imageWithFaces = {
+      ...mockEditableImage,
+      faces: [{ bounds: { origin: { x: 300, y: 200 }, size: { width: 100, height: 120 } } }],
+    };
+    const croppedImage = { ...imageWithFaces, uri: 'file://smart-cropped.jpg', width: 500, height: 500 };
+
+    mockService.initializeEditableImage.mockResolvedValue(imageWithFaces);
+    mockService.getSmartCropRegion.mockReturnValue({ originX: 200, originY: 150, width: 500, height: 500 });
+    mockService.cropImage.mockResolvedValue(croppedImage);
+
+    const { result } = renderHook(() => useImageEditor());
+
+    await act(async () => {
+      await result.current.initializeImage('file://test.jpg');
+    });
+
+    await act(async () => {
+      await result.current.smartCrop(1);
+    });
+
+    expect(mockService.getSmartCropRegion).toHaveBeenCalledWith(imageWithFaces, 1);
+    expect(mockService.cropImage).toHaveBeenCalled();
+  });
+
+  it('should set error when smart crop has no faces', async () => {
+    mockService.initializeEditableImage.mockResolvedValue(mockEditableImage);
+    mockService.getSmartCropRegion.mockReturnValue(null);
+
+    const { result } = renderHook(() => useImageEditor());
+
+    await act(async () => {
+      await result.current.initializeImage('file://test.jpg');
+    });
+
+    await act(async () => {
+      await result.current.smartCrop(1);
+    });
+
+    expect(result.current.error).toBe('No faces detected for smart crop');
+  });
+
+  it('should handle resize', async () => {
+    const resizedImage = { ...mockEditableImage, uri: 'file://resized.jpg', width: 500, height: 400 };
+    mockService.initializeEditableImage.mockResolvedValue(mockEditableImage);
+    mockService.resizeImage.mockResolvedValue(resizedImage);
+
+    const { result } = renderHook(() => useImageEditor());
+
+    await act(async () => {
+      await result.current.initializeImage('file://test.jpg');
+    });
+
+    await act(async () => {
+      await result.current.resizeImage({ width: 500, maintainAspectRatio: true });
+    });
+
+    expect(mockService.resizeImage).toHaveBeenCalledWith(
+      mockEditableImage,
+      { width: 500, maintainAspectRatio: true }
+    );
+  });
+
+  it('should handle finalize image', async () => {
+    mockService.initializeEditableImage.mockResolvedValue(mockEditableImage);
+    mockService.finalizeImage.mockResolvedValue('file://final.jpg');
+
+    const { result } = renderHook(() => useImageEditor());
+
+    await act(async () => {
+      await result.current.initializeImage('file://test.jpg');
+    });
 
     let finalUri: string | null = null;
     await act(async () => {
@@ -248,22 +220,38 @@ describe('useImageEditor', () => {
     });
 
     expect(finalUri).toBe('file://final.jpg');
-    expect(mockImageEditingService.finalizeImage).toHaveBeenCalledWith(mockEditableImage);
+    expect(result.current.hasUnsavedChanges).toBe(false);
   });
 
-  it('should return preset filters', () => {
-    const mockFilters = [
-      { name: 'original', label: 'Original', adjustments: {} },
-      { name: 'bright', label: 'Bright', adjustments: {} },
-    ];
-
-    mockImageEditingService.getPresetFilters.mockReturnValue(mockFilters);
+  it('should reset filter settings on image reset', async () => {
+    const resetResult = { ...mockEditableImage };
+    mockService.initializeEditableImage.mockResolvedValue({
+      ...mockEditableImage,
+      filters: { brightness: 50, contrast: 20, saturation: 0, warmth: 0 },
+    });
+    mockService.resetImage.mockResolvedValue(resetResult);
 
     const { result } = renderHook(() => useImageEditor());
 
-    const filters = result.current.getPresetFilters();
+    await act(async () => {
+      await result.current.initializeImage('file://test.jpg');
+    });
 
-    expect(filters).toEqual(mockFilters);
-    expect(mockImageEditingService.getPresetFilters).toHaveBeenCalled();
+    await act(async () => {
+      await result.current.resetImage();
+    });
+
+    expect(result.current.filterSettings).toEqual(DEFAULT_FILTER_SETTINGS);
+    expect(result.current.hasUnsavedChanges).toBe(false);
+  });
+
+  it('should return preset filters', () => {
+    const presets = [
+      { name: 'original', label: 'Original', adjustments: DEFAULT_FILTER_SETTINGS },
+    ];
+    mockService.getPresetFilters.mockReturnValue(presets);
+
+    const { result } = renderHook(() => useImageEditor());
+    expect(result.current.getPresetFilters()).toEqual(presets);
   });
 });

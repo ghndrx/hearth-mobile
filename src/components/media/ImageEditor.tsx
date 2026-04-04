@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,25 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
+import {
+  GestureDetector,
+  Gesture,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import { useImageEditor } from '../../hooks/useImageEditor';
-import { CropRegion, ImageAnnotation } from '../../services/media/ImageEditingService';
+import { CropRegion, ImageAnnotation, DrawingPath } from '../../services/media/ImageEditingService';
+import { CropTool } from './CropTool';
+import { FilterPanel } from './FilterPanel';
+import { RotationTool } from './RotationTool';
+import { DrawingCanvas } from './DrawingCanvas';
 
 export interface ImageEditorProps {
   initialImageUri: string;
@@ -20,7 +35,9 @@ export interface ImageEditorProps {
   onError?: (error: string) => void;
 }
 
-export type EditMode = 'crop' | 'filters' | 'annotations' | 'adjustments';
+export type EditMode = 'crop' | 'rotate' | 'filters' | 'draw' | 'text';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export const ImageEditor: React.FC<ImageEditorProps> = ({
   initialImageUri,
@@ -29,22 +46,29 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
   onError,
 }) => {
   const [editMode, setEditMode] = useState<EditMode>('crop');
-  const [isAnnotating, setIsAnnotating] = useState(false);
-  const [annotationText, setAnnotationText] = useState('');
   const [cropRegion, setCropRegion] = useState<CropRegion | null>(null);
+  const [annotationText, setAnnotationText] = useState('');
+  const [isTextInputVisible, setIsTextInputVisible] = useState(false);
+  const [drawingPaths, setDrawingPaths] = useState<DrawingPath[]>([]);
+
+  const imageScale = useSharedValue(1);
+  const imageTranslateX = useSharedValue(0);
+  const imageTranslateY = useSharedValue(0);
 
   const {
     editableImage,
     isLoading,
     error,
     hasUnsavedChanges,
+    filterSettings,
     initializeImage,
     cropImage,
-    applyFilter,
     rotateImage,
     flipImage,
+    updateFilterSettings,
     addAnnotation,
     removeAnnotation,
+    smartCrop,
     resetImage,
     finalizeImage,
     getPresetFilters,
@@ -59,6 +83,37 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
       onError(error);
     }
   }, [error, onError]);
+
+  // Pinch-to-zoom gesture for image preview
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate((e) => {
+      imageScale.value = Math.min(Math.max(e.scale, 0.5), 3);
+    })
+    .onEnd(() => {
+      if (imageScale.value < 1) {
+        imageScale.value = withTiming(1);
+        imageTranslateX.value = withTiming(0);
+        imageTranslateY.value = withTiming(0);
+      }
+    });
+
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      if (imageScale.value > 1) {
+        imageTranslateX.value = e.translationX;
+        imageTranslateY.value = e.translationY;
+      }
+    });
+
+  const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
+
+  const animatedImageStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: imageTranslateX.value },
+      { translateY: imageTranslateY.value },
+      { scale: imageScale.value },
+    ],
+  }));
 
   const handleSave = async () => {
     const finalUri = await finalizeImage();
@@ -82,7 +137,7 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
     }
   };
 
-  const handleCrop = async () => {
+  const handleApplyCrop = async () => {
     if (cropRegion) {
       await cropImage(cropRegion);
       setCropRegion(null);
@@ -90,261 +145,299 @@ export const ImageEditor: React.FC<ImageEditorProps> = ({
   };
 
   const handleAddTextAnnotation = () => {
-    if (annotationText.trim()) {
-      const annotation: ImageAnnotation = {
-        type: 'text',
-        x: 50, // Default position
-        y: 50,
-        content: annotationText,
-        color: '#FFFFFF',
-        fontSize: 20,
-      };
-      addAnnotation(annotation);
-      setAnnotationText('');
-      setIsAnnotating(false);
-    }
+    if (!annotationText.trim()) return;
+    const annotation: ImageAnnotation = {
+      type: 'text',
+      x: 50,
+      y: 50,
+      content: annotationText,
+      color: '#FFFFFF',
+      fontSize: 20,
+    };
+    addAnnotation(annotation);
+    setAnnotationText('');
+    setIsTextInputVisible(false);
   };
 
-  const renderEditModeSelector = () => (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.modeSelector}
-    >
-      {[
-        { mode: 'crop', label: 'Crop' },
-        { mode: 'adjustments', label: 'Adjust' },
-        { mode: 'filters', label: 'Filters' },
-        { mode: 'annotations', label: 'Text' },
-      ].map(({ mode, label }) => (
-        <TouchableOpacity
-          key={mode}
-          style={[
-            styles.modeButton,
-            editMode === mode && styles.activeModeButton,
-          ]}
-          onPress={() => setEditMode(mode as EditMode)}
-        >
-          <Text
-            style={[
-              styles.modeButtonText,
-              editMode === mode && styles.activeModeButtonText,
-            ]}
-          >
-            {label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
-  );
+  const handleDrawingPathComplete = useCallback((path: DrawingPath) => {
+    setDrawingPaths(prev => [...prev, path]);
+  }, []);
 
-  const renderCropControls = () => (
-    <View style={styles.controlsContainer}>
-      <Text style={styles.controlsTitle}>Crop Image</Text>
-      <View style={styles.cropControls}>
-        <TouchableOpacity
-          style={styles.cropButton}
-          onPress={() => setCropRegion({
-            originX: editableImage ? editableImage.width * 0.1 : 0,
-            originY: editableImage ? editableImage.height * 0.1 : 0,
-            width: editableImage ? editableImage.width * 0.8 : 0,
-            height: editableImage ? editableImage.height * 0.8 : 0,
-          })}
-        >
-          <Text style={styles.buttonText}>Set Crop Region</Text>
-        </TouchableOpacity>
-        {cropRegion && (
-          <TouchableOpacity style={styles.applyButton} onPress={handleCrop}>
-            <Text style={styles.buttonText}>Apply Crop</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  );
+  const handleClearDrawing = useCallback(() => {
+    setDrawingPaths([]);
+  }, []);
 
-  const renderAdjustmentControls = () => (
-    <View style={styles.controlsContainer}>
-      <Text style={styles.controlsTitle}>Adjustments</Text>
-      <View style={styles.adjustmentControls}>
-        <TouchableOpacity
-          style={styles.adjustmentButton}
-          onPress={() => rotateImage(90)}
-        >
-          <Text style={styles.buttonText}>Rotate 90°</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.adjustmentButton}
-          onPress={() => flipImage('horizontal')}
-        >
-          <Text style={styles.buttonText}>Flip H</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.adjustmentButton}
-          onPress={() => flipImage('vertical')}
-        >
-          <Text style={styles.buttonText}>Flip V</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.resetButton} onPress={resetImage}>
-          <Text style={styles.buttonText}>Reset</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderFilterControls = () => {
-    const presetFilters = getPresetFilters();
-
-    return (
-      <View style={styles.controlsContainer}>
-        <Text style={styles.controlsTitle}>Filters</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.filtersContainer}>
-            {presetFilters.map((filter) => (
-              <TouchableOpacity
-                key={filter.name}
-                style={styles.filterButton}
-                onPress={() => applyFilter(filter.adjustments)}
-              >
-                <Text style={styles.filterButtonText}>{filter.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      </View>
-    );
+  const handleSaveDrawing = () => {
+    if (drawingPaths.length === 0) return;
+    const annotation: ImageAnnotation = {
+      type: 'draw',
+      x: 0,
+      y: 0,
+      paths: drawingPaths,
+      color: drawingPaths[0].color,
+      strokeWidth: drawingPaths[0].strokeWidth,
+    };
+    addAnnotation(annotation);
+    setDrawingPaths([]);
   };
 
-  const renderAnnotationControls = () => (
-    <View style={styles.controlsContainer}>
-      <Text style={styles.controlsTitle}>Add Text</Text>
-      {isAnnotating ? (
-        <View style={styles.annotationInput}>
-          <TextInput
-            style={styles.textInput}
-            value={annotationText}
-            onChangeText={setAnnotationText}
-            placeholder="Enter text..."
-            placeholderTextColor="#999"
-          />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={handleAddTextAnnotation}
-          >
-            <Text style={styles.buttonText}>Add</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => setIsAnnotating(false)}
-          >
-            <Text style={styles.buttonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity
-          style={styles.addTextButton}
-          onPress={() => setIsAnnotating(true)}
-        >
-          <Text style={styles.buttonText}>Add Text</Text>
-        </TouchableOpacity>
-      )}
+  const presetFilters = getPresetFilters();
+  const imagePreviewWidth = SCREEN_WIDTH - 32;
+  const imageAspectRatio = editableImage
+    ? editableImage.width / editableImage.height
+    : 1;
+  const imagePreviewHeight = imagePreviewWidth / imageAspectRatio;
 
-      {editableImage && editableImage.annotations.length > 0 && (
-        <View style={styles.annotationsList}>
-          <Text style={styles.annotationsTitle}>Annotations:</Text>
-          {editableImage.annotations.map((annotation, index) => (
-            <View key={index} style={styles.annotationItem}>
-              <Text style={styles.annotationText}>
-                {annotation.content || 'Drawing'}
-              </Text>
-              <TouchableOpacity
-                style={styles.removeButton}
-                onPress={() => removeAnnotation(index)}
-              >
-                <Text style={styles.removeButtonText}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-      )}
-    </View>
-  );
+  const MODES: { mode: EditMode; label: string }[] = [
+    { mode: 'crop', label: 'Crop' },
+    { mode: 'rotate', label: 'Rotate' },
+    { mode: 'filters', label: 'Filters' },
+    { mode: 'draw', label: 'Draw' },
+    { mode: 'text', label: 'Text' },
+  ];
 
   const renderControls = () => {
+    if (!editableImage) return null;
+
     switch (editMode) {
       case 'crop':
-        return renderCropControls();
-      case 'adjustments':
-        return renderAdjustmentControls();
+        return (
+          <View>
+            <CropTool
+              imageWidth={editableImage.width}
+              imageHeight={editableImage.height}
+              onCropRegionChange={setCropRegion}
+              onSmartCrop={smartCrop}
+              currentCropRegion={cropRegion ?? undefined}
+              faces={editableImage.faces}
+            />
+            {cropRegion && (
+              <View style={styles.actionRow}>
+                <TouchableOpacity style={styles.applyButton} onPress={handleApplyCrop}>
+                  <Text style={styles.buttonText}>Apply Crop</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cancelActionButton}
+                  onPress={() => setCropRegion(null)}
+                >
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        );
+
+      case 'rotate':
+        return (
+          <RotationTool
+            rotation={editableImage.rotation}
+            onRotate90={() => rotateImage(90)}
+            onRotate270={() => rotateImage(-90)}
+            onFreeRotate={(deg) => rotateImage(deg)}
+            onFlipH={() => flipImage('horizontal')}
+            onFlipV={() => flipImage('vertical')}
+          />
+        );
+
       case 'filters':
-        return renderFilterControls();
-      case 'annotations':
-        return renderAnnotationControls();
+        return (
+          <FilterPanel
+            onFilterChange={updateFilterSettings}
+            currentFilters={filterSettings}
+            presetFilters={presetFilters}
+          />
+        );
+
+      case 'draw':
+        return (
+          <View style={styles.drawSection}>
+            <DrawingCanvas
+              width={imagePreviewWidth}
+              height={Math.min(imagePreviewHeight, 300)}
+              paths={drawingPaths}
+              onPathComplete={handleDrawingPathComplete}
+              onClear={handleClearDrawing}
+            />
+            {drawingPaths.length > 0 && (
+              <TouchableOpacity style={styles.saveDrawingButton} onPress={handleSaveDrawing}>
+                <Text style={styles.buttonText}>Save Drawing</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        );
+
+      case 'text':
+        return (
+          <View style={styles.textSection}>
+            {isTextInputVisible ? (
+              <View style={styles.textInputRow}>
+                <TextInput
+                  style={styles.textInput}
+                  value={annotationText}
+                  onChangeText={setAnnotationText}
+                  placeholder="Enter text..."
+                  placeholderTextColor="#666"
+                  autoFocus
+                />
+                <TouchableOpacity style={styles.addButton} onPress={handleAddTextAnnotation}>
+                  <Text style={styles.buttonText}>Add</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cancelActionButton}
+                  onPress={() => { setIsTextInputVisible(false); setAnnotationText(''); }}
+                >
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.addTextButton}
+                onPress={() => setIsTextInputVisible(true)}
+              >
+                <Text style={styles.buttonText}>Add Text Overlay</Text>
+              </TouchableOpacity>
+            )}
+
+            {editableImage.annotations.length > 0 && (
+              <View style={styles.annotationsList}>
+                <Text style={styles.annotationsTitle}>
+                  Annotations ({editableImage.annotations.length})
+                </Text>
+                {editableImage.annotations.map((annotation, index) => (
+                  <View key={index} style={styles.annotationItem}>
+                    <Text style={styles.annotationLabel} numberOfLines={1}>
+                      {annotation.type === 'text' ? annotation.content : 'Drawing'}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => removeAnnotation(index)}
+                    >
+                      <Text style={styles.removeButtonText}>×</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+        );
+
       default:
         return null;
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !editableImage) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Processing image...</Text>
+        <Text style={styles.loadingText}>Loading image...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton} onPress={handleCancel}>
           <Text style={styles.headerButtonText}>Cancel</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Image</Text>
-        <TouchableOpacity style={styles.headerButton} onPress={handleSave}>
-          <Text style={[styles.headerButtonText, styles.saveButtonText]}>
-            Save
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          {isLoading && <ActivityIndicator size="small" color="#007AFF" style={styles.spinner} />}
+          <TouchableOpacity style={styles.headerButton} onPress={resetImage}>
+            <Text style={styles.resetText}>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerButton} onPress={handleSave} disabled={isLoading}>
+            <Text style={[styles.headerButtonText, styles.saveText]}>Save</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Image Preview */}
       <View style={styles.imageContainer}>
-        {editableImage && (
-          <Image
-            source={{ uri: editableImage.uri }}
-            style={styles.image}
-            contentFit="contain"
-          />
+        <GestureDetector gesture={composedGesture}>
+          <Animated.View style={animatedImageStyle}>
+            {editableImage && (
+              <Image
+                source={{ uri: editableImage.uri }}
+                style={{
+                  width: imagePreviewWidth,
+                  height: Math.min(imagePreviewHeight, 400),
+                }}
+                contentFit="contain"
+              />
+            )}
+          </Animated.View>
+        </GestureDetector>
+
+        {/* Crop overlay */}
+        {cropRegion && editableImage && (
+          <View style={styles.cropOverlayContainer} pointerEvents="none">
+            <View
+              style={[
+                styles.cropOverlay,
+                {
+                  left: (cropRegion.originX / editableImage.width) * imagePreviewWidth,
+                  top: (cropRegion.originY / editableImage.height) * Math.min(imagePreviewHeight, 400),
+                  width: (cropRegion.width / editableImage.width) * imagePreviewWidth,
+                  height: (cropRegion.height / editableImage.height) * Math.min(imagePreviewHeight, 400),
+                },
+              ]}
+            />
+          </View>
         )}
-        {cropRegion && (
+
+        {/* Face indicators */}
+        {editMode === 'crop' && editableImage && editableImage.faces.map((face, i) => (
           <View
+            key={i}
+            pointerEvents="none"
             style={[
-              styles.cropOverlay,
+              styles.faceIndicator,
               {
-                left: cropRegion.originX,
-                top: cropRegion.originY,
-                width: cropRegion.width,
-                height: cropRegion.height,
+                left: (face.bounds.origin.x / editableImage.width) * imagePreviewWidth,
+                top: (face.bounds.origin.y / editableImage.height) * Math.min(imagePreviewHeight, 400),
+                width: (face.bounds.size.width / editableImage.width) * imagePreviewWidth,
+                height: (face.bounds.size.height / editableImage.height) * Math.min(imagePreviewHeight, 400),
               },
             ]}
           />
-        )}
+        ))}
       </View>
 
-      {/* Mode Selector */}
-      {renderEditModeSelector()}
+      {/* Mode selector */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.modeSelector}
+        contentContainerStyle={styles.modeSelectorContent}
+      >
+        {MODES.map(({ mode, label }) => (
+          <TouchableOpacity
+            key={mode}
+            style={[styles.modeButton, editMode === mode && styles.activeModeButton]}
+            onPress={() => setEditMode(mode)}
+          >
+            <Text style={[styles.modeButtonText, editMode === mode && styles.activeModeButtonText]}>
+              {label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-      {/* Controls */}
-      {renderControls()}
+      {/* Controls panel */}
+      <ScrollView style={styles.controlsPanel} bounces={false}>
+        {renderControls()}
+      </ScrollView>
 
-      {/* Error Display */}
+      {/* Error banner */}
       {error && (
-        <View style={styles.errorContainer}>
+        <View style={styles.errorBanner}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
-    </View>
+    </GestureHandlerRootView>
   );
 };
 
@@ -369,50 +462,77 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     backgroundColor: '#1C1C1E',
   },
   headerButton: {
-    padding: 8,
+    padding: 6,
   },
   headerButtonText: {
     color: '#007AFF',
     fontSize: 16,
     fontWeight: '500',
   },
-  saveButtonText: {
-    fontWeight: '600',
-  },
   headerTitle: {
     color: '#FFF',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  spinner: {
+    marginRight: 4,
+  },
+  resetText: {
+    color: '#FF9500',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  saveText: {
+    fontWeight: '700',
   },
   imageContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: 200,
     position: 'relative',
   },
-  image: {
-    width: '90%',
-    height: '90%',
+  cropOverlayContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cropOverlay: {
     position: 'absolute',
     borderWidth: 2,
     borderColor: '#007AFF',
     borderStyle: 'dashed',
+    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+  },
+  faceIndicator: {
+    position: 'absolute',
+    borderWidth: 1.5,
+    borderColor: '#34C759',
+    borderRadius: 4,
+    backgroundColor: 'rgba(52, 199, 89, 0.08)',
   },
   modeSelector: {
     backgroundColor: '#1C1C1E',
-    paddingVertical: 12,
+    maxHeight: 52,
+  },
+  modeSelectorContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
   },
   modeButton: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     paddingVertical: 8,
-    marginHorizontal: 4,
-    borderRadius: 16,
+    borderRadius: 18,
     backgroundColor: '#2C2C2E',
   },
   activeModeButton: {
@@ -426,70 +546,49 @@ const styles = StyleSheet.create({
   activeModeButtonText: {
     color: '#FFF',
   },
-  controlsContainer: {
+  controlsPanel: {
     backgroundColor: '#1C1C1E',
-    padding: 16,
-    maxHeight: 200,
+    maxHeight: 280,
   },
-  controlsTitle: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  cropControls: {
+  actionRow: {
     flexDirection: 'row',
     gap: 12,
-  },
-  cropButton: {
-    backgroundColor: '#007AFF',
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingBottom: 12,
   },
   applyButton: {
     backgroundColor: '#34C759',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  cancelActionButton: {
+    backgroundColor: '#3A3A3C',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 8,
   },
   buttonText: {
     color: '#FFF',
-    fontWeight: '500',
-  },
-  adjustmentControls: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  adjustmentButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  resetButton: {
-    backgroundColor: '#FF3B30',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  filtersContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  filterButton: {
-    backgroundColor: '#2C2C2E',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    minWidth: 80,
-    alignItems: 'center',
-  },
-  filterButtonText: {
-    color: '#FFF',
+    fontWeight: '600',
     fontSize: 14,
   },
-  annotationInput: {
+  drawSection: {
+    padding: 16,
+    alignItems: 'center',
+    gap: 12,
+  },
+  saveDrawingButton: {
+    backgroundColor: '#34C759',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  textSection: {
+    padding: 16,
+    gap: 12,
+  },
+  textInputRow: {
     flexDirection: 'row',
     gap: 8,
     alignItems: 'center',
@@ -499,66 +598,70 @@ const styles = StyleSheet.create({
     backgroundColor: '#2C2C2E',
     color: '#FFF',
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 8,
+    fontSize: 15,
   },
   addButton: {
     backgroundColor: '#34C759',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  cancelButton: {
-    backgroundColor: '#FF3B30',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 8,
   },
   addTextButton: {
     backgroundColor: '#007AFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     borderRadius: 8,
-    alignSelf: 'flex-start',
+    alignItems: 'center',
   },
   annotationsList: {
-    marginTop: 12,
+    gap: 6,
   },
   annotationsTitle: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
+    color: '#999',
+    fontSize: 13,
+    fontWeight: '600',
   },
   annotationItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
+    backgroundColor: '#2C2C2E',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
   },
-  annotationText: {
+  annotationLabel: {
     color: '#FFF',
     flex: 1,
+    fontSize: 14,
   },
   removeButton: {
     backgroundColor: '#FF3B30',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
   removeButtonText: {
     color: '#FFF',
-    fontSize: 12,
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 20,
   },
-  errorContainer: {
+  errorBanner: {
     backgroundColor: '#FF3B30',
-    padding: 12,
-    margin: 16,
+    padding: 10,
+    marginHorizontal: 16,
+    marginBottom: 8,
     borderRadius: 8,
   },
   errorText: {
     color: '#FFF',
     textAlign: 'center',
+    fontSize: 13,
   },
 });
 

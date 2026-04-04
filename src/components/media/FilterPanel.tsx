@@ -1,47 +1,36 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Slider } from '@react-native-community/slider';
+import Slider from '@react-native-community/slider';
+import { FilterSettings, ImageFilter } from '../../services/media/ImageEditingService';
 
-export interface FilterSettings {
-  brightness: number;
-  contrast: number;
-  saturation: number;
-  warmth: number;
-}
+export { FilterSettings } from '../../services/media/ImageEditingService';
 
 export interface FilterPanelProps {
   onFilterChange: (filters: Partial<FilterSettings>) => void;
   currentFilters: FilterSettings;
+  presetFilters: ImageFilter[];
 }
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({
   onFilterChange,
   currentFilters,
+  presetFilters,
 }) => {
   const [activeFilter, setActiveFilter] = useState<keyof FilterSettings>('brightness');
 
   const filterOptions = [
-    { key: 'brightness', label: 'Brightness', min: -100, max: 100, step: 1 },
-    { key: 'contrast', label: 'Contrast', min: -100, max: 100, step: 1 },
-    { key: 'saturation', label: 'Saturation', min: -100, max: 100, step: 1 },
-    { key: 'warmth', label: 'Warmth', min: -100, max: 100, step: 1 },
-  ] as const;
-
-  const presetFilters = [
-    { name: 'Original', filters: { brightness: 0, contrast: 0, saturation: 0, warmth: 0 } },
-    { name: 'Vivid', filters: { brightness: 10, contrast: 15, saturation: 25, warmth: 5 } },
-    { name: 'Dramatic', filters: { brightness: -5, contrast: 30, saturation: 15, warmth: -10 } },
-    { name: 'Warm', filters: { brightness: 5, contrast: 10, saturation: 10, warmth: 25 } },
-    { name: 'Cool', filters: { brightness: 5, contrast: 10, saturation: 10, warmth: -25 } },
-    { name: 'Black & White', filters: { brightness: 0, contrast: 20, saturation: -100, warmth: 0 } },
+    { key: 'brightness' as const, label: 'Brightness', min: -100, max: 100, step: 1 },
+    { key: 'contrast' as const, label: 'Contrast', min: -100, max: 100, step: 1 },
+    { key: 'saturation' as const, label: 'Saturation', min: -100, max: 100, step: 1 },
+    { key: 'warmth' as const, label: 'Warmth', min: -100, max: 100, step: 1 },
   ];
 
   const handleSliderChange = (value: number) => {
-    onFilterChange({ [activeFilter]: value });
+    onFilterChange({ [activeFilter]: Math.round(value) });
   };
 
-  const handlePresetSelect = (preset: typeof presetFilters[0]) => {
-    onFilterChange(preset.filters);
+  const handlePresetSelect = (preset: ImageFilter) => {
+    onFilterChange(preset.adjustments);
   };
 
   const handleReset = () => {
@@ -62,7 +51,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
               style={styles.presetButton}
               onPress={() => handlePresetSelect(preset)}
             >
-              <Text style={styles.presetText}>{preset.name}</Text>
+              <Text style={styles.presetText}>{preset.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -72,7 +61,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Adjustments</Text>
 
-        {/* Filter Type Selector */}
         <View style={styles.filterTypeContainer}>
           {filterOptions.map((filter) => (
             <TouchableOpacity
@@ -95,13 +83,10 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
           ))}
         </View>
 
-        {/* Slider for Active Filter */}
         <View style={styles.sliderContainer}>
           <View style={styles.sliderHeader}>
             <Text style={styles.sliderLabel}>{currentFilterOption.label}</Text>
-            <Text style={styles.sliderValue}>
-              {currentFilters[activeFilter]}
-            </Text>
+            <Text style={styles.sliderValue}>{currentFilters[activeFilter]}</Text>
           </View>
           <Slider
             style={styles.slider}
@@ -112,11 +97,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             onValueChange={handleSliderChange}
             minimumTrackTintColor="#007AFF"
             maximumTrackTintColor="#3A3A3C"
-            thumbStyle={styles.sliderThumb}
           />
         </View>
 
-        {/* Reset Button */}
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
           <Text style={styles.resetButtonText}>Reset All</Text>
         </TouchableOpacity>
@@ -130,7 +113,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   sectionTitle: {
     color: '#FFF',
@@ -198,11 +181,6 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 40,
-  },
-  sliderThumb: {
-    backgroundColor: '#007AFF',
-    width: 20,
-    height: 20,
   },
   resetButton: {
     backgroundColor: '#FF3B30',
