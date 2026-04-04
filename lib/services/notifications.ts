@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerDevice, unregisterDevice } from "./api";
+import { shouldShowNotification } from "./granularNotifications";
 
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
@@ -69,10 +70,11 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
 
 // Configure default notification behavior
 Notifications.setNotificationHandler({
-  handleNotification: async (_notification) => {
+  handleNotification: async (notification) => {
     const settings = await getNotificationSettings();
-    
-    // Check quiet hours
+    const data = notification.request.content.data as NotificationPayload;
+
+    // Check quiet hours first
     if (settings.quietHoursEnabled && isQuietHours(settings)) {
       return {
         shouldShowAlert: false,
@@ -83,13 +85,51 @@ Notifications.setNotificationHandler({
       };
     }
 
-    return {
-      shouldShowAlert: settings.enabled,
-      shouldPlaySound: settings.enabled && settings.sounds,
-      shouldSetBadge: settings.enabled && settings.badgeCount,
-      shouldShowBanner: settings.enabled,
-      shouldShowList: true,
-    };
+    // Check granular permission settings
+    try {
+      const permissionCheck = await shouldShowNotification({
+        type: data.type,
+        serverId: data.serverId,
+        channelId: data.channelId,
+        userId: data.userId,
+        content: data.body,
+        mentionsUser: data.type === 'mention' || data.type === 'reply',
+        // userRoles would need to be passed from the backend
+      });
+
+      if (!permissionCheck.allowed) {
+        return {
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+          shouldShowBanner: false,
+          shouldShowList: false,
+        };
+      }
+
+      // Adjust settings based on priority
+      const isPriorityHigh = permissionCheck.priority === 'high';
+      const isPriorityLow = permissionCheck.priority === 'low';
+
+      return {
+        shouldShowAlert: settings.enabled && !isPriorityLow,
+        shouldPlaySound: settings.enabled && settings.sounds && !isPriorityLow,
+        shouldSetBadge: settings.enabled && settings.badgeCount,
+        shouldShowBanner: settings.enabled && !isPriorityLow,
+        shouldShowList: true,
+      };
+    } catch (error) {
+      console.error('Error checking granular notification permissions:', error);
+
+      // Fallback to basic settings if granular check fails
+      return {
+        shouldShowAlert: settings.enabled,
+        shouldPlaySound: settings.enabled && settings.sounds,
+        shouldSetBadge: settings.enabled && settings.badgeCount,
+        shouldShowBanner: settings.enabled,
+        shouldShowList: true,
+      };
+    }
   },
 });
 

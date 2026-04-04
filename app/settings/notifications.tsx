@@ -383,6 +383,41 @@ export default function NotificationSettingsScreen() {
           )}
         </View>
 
+        {/* Granular Settings Link */}
+        <View className="mx-4 mt-6">
+          <TouchableOpacity
+            onPress={() => router.push("/settings/granular-notifications")}
+            className={`
+              flex-row items-center justify-between
+              p-4
+              rounded-xl
+              ${isDark ? "bg-dark-800" : "bg-white"}
+              border
+              ${isDark ? "border-dark-700" : "border-gray-200"}
+            `}
+          >
+            <View className="flex-row items-center">
+              <Ionicons
+                name="options-outline"
+                size={22}
+                color={isDark ? "#80848e" : "#6b7280"}
+              />
+              <Text
+                className={`ml-3 font-medium ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Advanced Notification Settings
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isDark ? "#80848e" : "#6b7280"}
+            />
+          </TouchableOpacity>
+        </View>
+
         {/* System Settings Link */}
         <View className="mx-4 mt-6">
           <TouchableOpacity
