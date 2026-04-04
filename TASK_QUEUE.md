@@ -34,7 +34,7 @@
   - Dependencies: PN-003
   - Success: Intelligent message grouping
 
-- [ ] **PN-005**: Rich notifications with inline actions
+- [x] **PN-005**: Rich notifications with inline actions ✅
   - Estimated: 1 week
   - Dependencies: PN-004
   - Success: Reply from notification works
@@ -1829,12 +1829,91 @@
   - Dependencies: COMMERCE-003, analytics integration
   - Success: Revenue analytics, international commerce, and enterprise features
 
+### Mobile Home Dashboard & Quick Access Widgets (PRD-050)
+**Target**: Q2 2026 | **Owner**: Mobile UX Team | **Effort**: 11 weeks
+
+- [ ] **HOME-001**: Core dashboard infrastructure and widget system
+  - Estimated: 4 weeks
+  - Dependencies: Real-time data streaming API setup
+  - Success: Dashboard loads in <500ms with real-time voice channel data
+
+- [ ] **HOME-002**: Voice channel and recent DMs widgets
+  - Estimated: 3 weeks
+  - Dependencies: HOME-001, voice channel participant tracking
+  - Success: One-tap voice channel joining working with participant indicators
+
+- [ ] **HOME-003**: Activity feed and smart suggestions engine
+  - Estimated: 2 weeks
+  - Dependencies: HOME-002, friend activity streaming
+  - Success: ML-powered channel suggestions with 60%+ relevance
+
+- [ ] **HOME-004**: Quick actions and personalization features
+  - Estimated: 2 weeks
+  - Dependencies: HOME-003, user preference system
+  - Success: Customizable widgets with 80%+ daily usage adoption
+
+### Mobile-First Navigation & Quick Switcher (PRD-051)
+**Target**: Q2 2026 | **Owner**: Mobile UX Team | **Effort**: 10 weeks
+
+- [ ] **NAV-001**: Gesture infrastructure and basic swipe navigation
+  - Estimated: 3 weeks
+  - Dependencies: Platform gesture libraries, haptic framework
+  - Success: Channel switching via swipes with <200ms response time
+
+- [ ] **NAV-002**: Universal quick switcher with fuzzy search
+  - Estimated: 3 weeks
+  - Dependencies: NAV-001, search indexing infrastructure
+  - Success: Pull-down switcher with <300ms search results
+
+- [ ] **NAV-003**: Contextual long-press menus and floating voice UI
+  - Estimated: 2 weeks
+  - Dependencies: NAV-002, voice call state management
+  - Success: Picture-in-picture voice UI with draggable controls
+
+- [ ] **NAV-004**: Advanced suggestions and navigation intelligence
+  - Estimated: 2 weeks
+  - Dependencies: NAV-003, ML model deployment
+  - Success: Smart navigation suggestions with 75%+ user adoption
+
+### Native OS Integration & System Controls (PRD-052)
+**Target**: Q2 2026 | **Owner**: Mobile Platform Team | **Effort**: 13 weeks
+
+- [ ] **OS-001**: iOS Live Activities and CallKit integration
+  - Estimated: 4 weeks
+  - Dependencies: iOS developer entitlements, voice call infrastructure
+  - Success: Voice calls appear in system interface with Dynamic Island support
+
+- [ ] **OS-002**: Android system integration and voice assistant support
+  - Estimated: 4 weeks
+  - Dependencies: Android ConnectionService setup, Google Assistant API
+  - Success: System call integration and "Hey Google" voice commands working
+
+- [ ] **OS-003**: System sharing and Control Center widgets
+  - Estimated: 3 weeks
+  - Dependencies: OS-001, OS-002, share extension frameworks
+  - Success: Share to Hearth from Photos/Files apps with smart channel suggestions
+
+- [ ] **OS-004**: Background processing and state management optimization
+  - Estimated: 2 weeks
+  - Dependencies: OS-003, background task entitlements
+  - Success: 95%+ state preservation during multitasking with battery optimization
+
 ---
 
+## CRITICAL COMPETITIVE PRIORITY UPDATE - April 4, 2026
+
+**URGENT**: The three new P0 tasks above (HOME, NAV, OS) represent the most critical competitive disadvantages vs Discord mobile. These should be prioritized over advanced features until mobile platform parity is achieved.
+
+**Current Mobile Feature Gap**: 25% vs Discord mobile (estimated)
+**Target Parity**: 85% by Q3 2026
+
 **Next Actions**:
-1. Start PN-001 (FCM/APNs integration) - Week of March 25
-2. Resource planning meeting for Q2 priorities - March 28
-3. Technical architecture review for media pipeline - April 1
-4. **NEW**: Resource planning for Stage Channels (STAGE-001) - April 7
-5. **NEW**: Mobile UX team allocation for Forum optimization - April 14
-6. **NEW**: Payment processing partnership negotiations for Creator platform - April 21
+1. **IMMEDIATE**: Resource allocation for HOME-001 (mobile dashboard) - Week of April 7
+2. **IMMEDIATE**: Platform team assignment for OS-001 (iOS integration) - Week of April 7
+3. **IMMEDIATE**: UX team allocation for NAV-001 (gesture navigation) - Week of April 14
+4. Start PN-001 (FCM/APNs integration) - Week of March 25
+5. Resource planning meeting for Q2 priorities - March 28
+6. Technical architecture review for media pipeline - April 1
+7. **NEW**: Resource planning for Stage Channels (STAGE-001) - April 7
+8. **NEW**: Mobile UX team allocation for Forum optimization - April 14
+9. **NEW**: Payment processing partnership negotiations for Creator platform - April 21
