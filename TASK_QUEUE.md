@@ -62,7 +62,7 @@
   - Dependencies: MS-002
   - Success: Video sharing functional
 
-- [ ] **MS-004**: Image editing tools (crop, filters, annotations)
+- [x] **MS-004**: Image editing tools (crop, filters, annotations)
   - Estimated: 2 weeks
   - Dependencies: MS-003
   - Success: Basic editing tools work
