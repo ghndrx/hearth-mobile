@@ -516,6 +516,110 @@ export async function saveBatchingConfig(
 }
 
 // ============================================================================
+// Platform-Specific Notification Grouping Setup
+// ============================================================================
+
+/**
+ * Setup Android notification channel groups for bundled notification display.
+ * Channel groups allow related channels to be organized together in system settings.
+ * Should be called during app initialization on Android.
+ */
+export async function setupAndroidNotificationGroups(): Promise<void> {
+  if (Platform.OS !== "android") return;
+
+  // Create channel groups for organizing notification channels
+  await Notifications.setNotificationChannelGroupAsync("messages-group", {
+    name: "Messages",
+    description: "All message-related notifications",
+  });
+
+  await Notifications.setNotificationChannelGroupAsync("social-group", {
+    name: "Social",
+    description: "Friend requests and social activity",
+  });
+
+  await Notifications.setNotificationChannelGroupAsync("system-group", {
+    name: "System",
+    description: "System and app notifications",
+  });
+
+  await Notifications.setNotificationChannelGroupAsync("calls-group", {
+    name: "Calls",
+    description: "Voice and video call notifications",
+  });
+}
+
+/**
+ * Setup iOS notification categories with actions for grouped display.
+ * Categories define the action buttons shown on notifications
+ * and enable thread-based grouping in the notification center.
+ * Should be called during app initialization on iOS.
+ */
+export async function setupIOSNotificationCategories(): Promise<void> {
+  if (Platform.OS !== "ios") return;
+
+  await Notifications.setNotificationCategoryAsync("messages", [
+    {
+      identifier: "reply",
+      buttonTitle: "Reply",
+      options: { opensAppToForeground: false },
+      textInput: {
+        submitButtonTitle: "Send",
+        placeholder: "Type a reply...",
+      },
+    },
+    {
+      identifier: "mark_read",
+      buttonTitle: "Mark as Read",
+      options: { opensAppToForeground: false },
+    },
+  ]);
+
+  await Notifications.setNotificationCategoryAsync("dm", [
+    {
+      identifier: "reply",
+      buttonTitle: "Reply",
+      options: { opensAppToForeground: false },
+      textInput: {
+        submitButtonTitle: "Send",
+        placeholder: "Type a reply...",
+      },
+    },
+    {
+      identifier: "mute",
+      buttonTitle: "Mute",
+      options: { opensAppToForeground: false, isDestructive: true },
+    },
+  ]);
+
+  await Notifications.setNotificationCategoryAsync("mention", [
+    {
+      identifier: "view",
+      buttonTitle: "View",
+      options: { opensAppToForeground: true },
+    },
+    {
+      identifier: "mark_read",
+      buttonTitle: "Mark as Read",
+      options: { opensAppToForeground: false },
+    },
+  ]);
+
+  await Notifications.setNotificationCategoryAsync("social", [
+    {
+      identifier: "accept",
+      buttonTitle: "Accept",
+      options: { opensAppToForeground: false },
+    },
+    {
+      identifier: "decline",
+      buttonTitle: "Decline",
+      options: { opensAppToForeground: false, isDestructive: true },
+    },
+  ]);
+}
+
+// ============================================================================
 // Singleton Instance
 // ============================================================================
 

@@ -5,6 +5,12 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { registerDevice, unregisterDevice } from "./api";
 import { shouldShowNotification } from "./granularNotifications";
+import {
+  getBatchManager,
+  setupAndroidNotificationGroups,
+  setupIOSNotificationCategories,
+  deliverBatchedNotification,
+} from "./notificationBatching";
 
 const PUSH_TOKEN_KEY = "@hearth/push_token";
 const NOTIFICATION_SETTINGS_KEY = "@hearth/notification_settings";
@@ -225,7 +231,21 @@ export async function registerForPushNotifications(): Promise<string | null> {
   // Configure Android notification channel
   if (Platform.OS === "android") {
     await setupAndroidChannels();
+    await setupAndroidNotificationGroups();
   }
+
+  // Configure iOS notification categories for grouped display
+  if (Platform.OS === "ios") {
+    await setupIOSNotificationCategories();
+  }
+
+  // Initialize the notification batch manager
+  const batchManager = getBatchManager();
+  batchManager.setFlushCallback(async (batched) => {
+    for (const notification of batched) {
+      await deliverBatchedNotification(notification);
+    }
+  });
 
   return token;
 }

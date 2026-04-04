@@ -10,6 +10,9 @@ import {
   getBatchingConfig,
   saveBatchingConfig,
   resetBatchManager,
+  setupAndroidNotificationGroups,
+  setupIOSNotificationCategories,
+  deliverBatchedNotification,
   DEFAULT_BATCHING_CONFIG,
   type BatchedNotification,
   type NotificationGroup,
@@ -29,6 +32,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Mock expo-notifications
 jest.mock("expo-notifications", () => ({
   scheduleNotificationAsync: jest.fn().mockResolvedValue("notif-id-123"),
+  setNotificationChannelGroupAsync: jest.fn().mockResolvedValue(undefined),
+  setNotificationCategoryAsync: jest.fn().mockResolvedValue(undefined),
   AndroidImportance: {
     MAX: 5,
     HIGH: 4,
@@ -38,10 +43,15 @@ jest.mock("expo-notifications", () => ({
   },
 }));
 
+import * as Notifications from "expo-notifications";
+const mockNotifications = Notifications as jest.Mocked<typeof Notifications>;
+
 // Mock Platform
 jest.mock("react-native", () => ({
   Platform: { OS: "ios" },
 }));
+
+import { Platform } from "react-native";
 
 // ============================================================================
 // Helpers
@@ -387,6 +397,165 @@ describe("config persistence", () => {
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "@hearth/notification_batching_settings",
       expect.stringContaining('"maxBatchSize":8')
+    );
+  });
+});
+
+// ============================================================================
+// Android Notification Groups Tests
+// ============================================================================
+
+describe("setupAndroidNotificationGroups", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("creates channel groups on Android", async () => {
+    (Platform as any).OS = "android";
+
+    await setupAndroidNotificationGroups();
+
+    expect(mockNotifications.setNotificationChannelGroupAsync).toHaveBeenCalledWith(
+      "messages-group",
+      expect.objectContaining({ name: "Messages" })
+    );
+    expect(mockNotifications.setNotificationChannelGroupAsync).toHaveBeenCalledWith(
+      "social-group",
+      expect.objectContaining({ name: "Social" })
+    );
+    expect(mockNotifications.setNotificationChannelGroupAsync).toHaveBeenCalledWith(
+      "system-group",
+      expect.objectContaining({ name: "System" })
+    );
+    expect(mockNotifications.setNotificationChannelGroupAsync).toHaveBeenCalledWith(
+      "calls-group",
+      expect.objectContaining({ name: "Calls" })
+    );
+  });
+
+  it("skips setup on iOS", async () => {
+    (Platform as any).OS = "ios";
+
+    await setupAndroidNotificationGroups();
+
+    expect(mockNotifications.setNotificationChannelGroupAsync).not.toHaveBeenCalled();
+  });
+});
+
+// ============================================================================
+// iOS Notification Categories Tests
+// ============================================================================
+
+describe("setupIOSNotificationCategories", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("creates notification categories on iOS", async () => {
+    (Platform as any).OS = "ios";
+
+    await setupIOSNotificationCategories();
+
+    expect(mockNotifications.setNotificationCategoryAsync).toHaveBeenCalledWith(
+      "messages",
+      expect.arrayContaining([
+        expect.objectContaining({ identifier: "reply", buttonTitle: "Reply" }),
+        expect.objectContaining({ identifier: "mark_read", buttonTitle: "Mark as Read" }),
+      ])
+    );
+    expect(mockNotifications.setNotificationCategoryAsync).toHaveBeenCalledWith(
+      "dm",
+      expect.arrayContaining([
+        expect.objectContaining({ identifier: "reply" }),
+        expect.objectContaining({ identifier: "mute", buttonTitle: "Mute" }),
+      ])
+    );
+    expect(mockNotifications.setNotificationCategoryAsync).toHaveBeenCalledWith(
+      "mention",
+      expect.arrayContaining([
+        expect.objectContaining({ identifier: "view" }),
+      ])
+    );
+    expect(mockNotifications.setNotificationCategoryAsync).toHaveBeenCalledWith(
+      "social",
+      expect.arrayContaining([
+        expect.objectContaining({ identifier: "accept" }),
+        expect.objectContaining({ identifier: "decline" }),
+      ])
+    );
+  });
+
+  it("skips setup on Android", async () => {
+    (Platform as any).OS = "android";
+
+    await setupIOSNotificationCategories();
+
+    expect(mockNotifications.setNotificationCategoryAsync).not.toHaveBeenCalled();
+  });
+});
+
+// ============================================================================
+// deliverBatchedNotification Tests
+// ============================================================================
+
+describe("deliverBatchedNotification", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("delivers a batched notification via expo-notifications", async () => {
+    (Platform as any).OS = "ios";
+
+    const batched: BatchedNotification = {
+      groupKey: "channel:s1:c1",
+      title: "#general",
+      body: "3 new messages",
+      count: 3,
+      notifications: [
+        makePayload({ body: "a" }),
+        makePayload({ body: "b" }),
+        makePayload({ body: "c" }),
+      ],
+      priority: "normal",
+      channelId: "messages",
+    };
+
+    const id = await deliverBatchedNotification(batched);
+    expect(id).toBe("notif-id-123");
+    expect(mockNotifications.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({
+          title: "#general",
+          body: "3 new messages",
+        }),
+        trigger: null,
+      })
+    );
+  });
+
+  it("delivers on Android with channel info", async () => {
+    (Platform as any).OS = "android";
+
+    const batched: BatchedNotification = {
+      groupKey: "dm:user-1",
+      title: "Alice",
+      body: "Hey!",
+      count: 1,
+      notifications: [makePayload({ type: "dm", body: "Hey!" })],
+      priority: "high",
+      channelId: "direct-messages",
+    };
+
+    await deliverBatchedNotification(batched);
+
+    expect(mockNotifications.scheduleNotificationAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: expect.objectContaining({
+          title: "Alice",
+          body: "Hey!",
+        }),
+        trigger: null,
+      })
     );
   });
 });
