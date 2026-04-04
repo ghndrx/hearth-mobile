@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 28, 2026
+**Last Updated**: April 4, 2026
 **Next Review**: April 7, 2026
 
 ## Legend
@@ -77,38 +77,36 @@
   - Dependencies: MS-001
   - Success: Giphy integration functional
 
-### Haptic Feedback & Advanced Mobile Gestures (PRD-004)
-**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 8 weeks
+### Advanced Gesture Navigation 2.0 (PRD-049)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 5 weeks
+**Replaces**: HF-001, HF-002, HF-003, HF-004, HF-005, HF-006
 
-- [ ] **HF-001**: Core haptic infrastructure and basic patterns
+> **Note**: This supersedes the stalled PRD-004 (HF-001 through HF-006). A consolidated 5-week sprint replaces the previous 8-week phased approach.
+
+- [ ] **GEST-001**: Core gesture + haptic infrastructure
   - Estimated: 1 week
-  - Dependencies: None
-  - Success: Platform-specific haptic feedback working
+  - Dependencies: None (react-native-gesture-handler and expo-haptics already in package.json)
+  - Success: GestureService and HapticService registered app-wide; react-native-gesture-handler wraps app root
 
-- [ ] **HF-002**: Platform-specific optimizations (iOS Taptic Engine, Android vibration)
+- [ ] **GEST-002**: Chat gestures (swipe-to-reply, swipe-to-member-list, long-press quick actions)
   - Estimated: 1 week
-  - Dependencies: HF-001
-  - Success: Optimal haptic experience on both platforms
+  - Dependencies: GEST-001
+  - Success: Swipe-right-to-reply, swipe-left-to-open-members, long-press message menu all functional with haptic confirmation
 
-- [ ] **HF-003**: Core gesture recognition system
-  - Estimated: 2 weeks
-  - Dependencies: HF-002
-  - Success: Advanced gestures (swipe, long-press, pinch) working
-
-- [ ] **HF-004**: Chat and voice channel haptic integration
-  - Estimated: 2 weeks
-  - Dependencies: HF-003
-  - Success: Contextual haptics for all interactions
-
-- [ ] **HF-005**: Navigation and UI gesture implementation
+- [ ] **GEST-003**: Navigation gestures (horizontal channel switch, pull-to-refresh, voice controls)
   - Estimated: 1 week
-  - Dependencies: HF-004
-  - Success: Gesture-based navigation functional
+  - Dependencies: GEST-002
+  - Success: Horizontal swipe between channels, enhanced pull-to-refresh, swipe-to-minimize voice widget working
 
-- [ ] **HF-006**: Accessibility features and customization
+- [ ] **GEST-004**: Accessibility, customization, and polish
   - Estimated: 1 week
-  - Dependencies: HF-005
-  - Success: WCAG 2.1 AA compliance achieved
+  - Dependencies: GEST-003
+  - Success: WCAG 2.1 AA compliance, gesture sensitivity slider, haptic intensity control, full device matrix tested
+
+- [ ] **GEST-005**: Quick Switcher with Spotlight/Siri integration
+  - Estimated: 1 week
+  - Dependencies: GEST-004
+  - Success: iOS Spotlight and Android App Search integration for quick user/channel search
 
 ### Advanced Offline Mode & Smart Caching (PRD-005)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
@@ -142,6 +140,62 @@
   - Estimated: 2 weeks
   - Dependencies: AO-005
   - Success: Seamless offline experience with clear indicators
+
+### iOS Live Activities & Android Lock Screen Integration (PRD-050)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
+
+- [ ] **LIVE-001**: iOS Live Activities — voice channel state on lock screen and Dynamic Island
+  - Estimated: 2 weeks
+  - Dependencies: Voice channel infrastructure (existing)
+  - Success: Active voice channel shows on iOS lock screen with participant count, join button, mute controls
+
+- [ ] **LIVE-002**: iOS Dynamic Island — expanded view with participant avatars and mute controls
+  - Estimated: 1 week
+  - Dependencies: LIVE-001
+  - Success: Dynamic Island expanded/compact/minimal views show correct voice channel state
+
+- [ ] **LIVE-003**: Android lock screen widget and home screen widget
+  - Estimated: 2 weeks
+  - Dependencies: LIVE-001
+  - Success: Voice channel widget appears on Android lock screen and home screen with join/mute controls
+
+- [ ] **LIVE-004**: Home screen quick actions (iOS) and app shortcuts (Android)
+  - Estimated: 1 week
+  - Dependencies: None
+  - Success: Long-press Hearth icon shows "Join Last Voice", "Open Last DM" quick actions on both platforms
+
+- [ ] **LIVE-005**: Media Session controls for voice audio playback
+  - Estimated: 1 week
+  - Dependencies: LIVE-001
+  - Success: Lock screen media controls (play/pause) appear for voice channel shared audio
+
+### Biometric App Lock & Advanced 2FA (PRD-051)
+**Target**: Q2 2026 | **Owner**: Security & Mobile Teams | **Effort**: 5 weeks
+
+- [ ] **BIO-001**: App lock infrastructure — biometric required on every app launch
+  - Estimated: 1 week
+  - Dependencies: expo-local-authentication (already in package.json)
+  - Success: BiometricAppLockGate renders on every app launch when enabled; AppState listener locks on background
+
+- [ ] **BIO-002**: PIN fallback and lock delay settings
+  - Estimated: 1 week
+  - Dependencies: BIO-001
+  - Success: PIN fallback works after 3 failed biometric attempts; lock delay (immediate/1min/5min/1hr) configurable
+
+- [ ] **BIO-003**: TOTP 2FA enrollment — QR code setup, backup codes, SMS/email backup
+  - Estimated: 2 weeks
+  - Dependencies: BIO-001
+  - Success: Users can scan QR code with Google Authenticator/Authy/1Password; 10 single-use backup codes generated
+
+- [ ] **BIO-004**: Biometric 2FA challenge flow — approve 2FA with Face ID/Touch ID instead of TOTP code
+  - Estimated: 1 week
+  - Dependencies: BIO-003
+  - Success: 2FA challenge shows device name/location; user approves with biometric in <3s (vs. ~10s for code entry)
+
+- [ ] **BIO-005**: Security dashboard — active sessions, security events, session revocation
+  - Estimated: 1 week
+  - Dependencies: BIO-003
+  - Success: Users can view active sessions, revoke individual sessions or all sessions, see security event history
 
 ### Camera Integration & AR Features (PRD-007)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
@@ -899,6 +953,61 @@
   - Success: AirPods, Bluetooth headset, and car audio integration
 
 ## P1 Tasks (High Priority)
+
+### Offline Message Queue & Conflict Resolution (PRD-005 / PRD-051)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 4 weeks
+
+- [ ] **AO-003** *(reprioritized)*: Offline action queue system — compose messages, queue reactions, queue channel actions
+  - Estimated: 2 weeks
+  - Dependencies: AO-002 (cache infrastructure)
+  - Success: Offline message composition functional; offline actions queue and sync on reconnect
+
+- [ ] **AO-004** *(reprioritized)*: Conflict resolution for offline message editing/deletion
+  - Estimated: 1 week
+  - Dependencies: AO-003
+  - Success: Server-wins strategy with user notification for conflicts; undo option
+
+- [ ] **SEC-001** *(reprioritized)*: TOTP two-factor authentication system — Google Authenticator/Authy/1Password integration
+  - Estimated: 2 weeks
+  - Dependencies: BIO-001 (biometric service)
+  - Success: TOTP enrollment via QR code; code verification with ±30s time drift tolerance
+
+- [ ] **SEC-002** *(reprioritized)*: SMS and email 2FA backup codes
+  - Estimated: 1 week
+  - Dependencies: SEC-001
+  - Success: SMS/email backup codes functional; 10 single-use hashed backup codes
+
+### QR Code Server Discovery (PRD-007)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 1 week
+
+- [ ] **CAM-005**: QR code scanner for server join
+  - Estimated: 1 week
+  - Dependencies: CAM-001 (camera)
+  - Success: QR code server join functional via in-app camera; also works from system camera app deep link
+
+### Mobile Forum Threading Gestures (PRD-046)
+**Target**: Q2 2026 | **Owner**: Mobile UX Team | **Effort**: 2 weeks
+
+- [ ] **FORUM-001**: Mobile-native thread browsing and gesture controls
+  - Estimated: 2 weeks
+  - Dependencies: None
+  - Success: Swipe-based thread management (swipe right to follow, swipe left to mute), touch-optimized thread list
+
+### Video Calling — P2P Foundation (PRD-011)
+**Target**: Q2 2026 | **Owner**: Mobile Video Team | **Effort**: 4 weeks
+
+- [ ] **VID-001**: Core peer-to-peer video calling
+  - Estimated: 4 weeks
+  - Dependencies: WebRTC infrastructure
+  - Success: HD video calls (720p) with adaptive quality on iOS and Android
+
+### Stage Channels Mobile Experience (PRD-045)
+**Target**: Q2 2026 | **Owner**: Mobile Audio Team | **Effort**: 4 weeks
+
+- [ ] **STAGE-001**: Core audio broadcasting infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: Scalable audio backend
+  - Success: Support for 100+ concurrent listeners in a stage channel on mobile
 
 ### Cross-Device Continuity & Seamless Handoff (PRD-028)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
