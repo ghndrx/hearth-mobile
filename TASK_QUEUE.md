@@ -57,7 +57,7 @@
   - Dependencies: MS-001
   - Success: In-app photo capture working
 
-- [ ] **MS-003**: Video upload and compression pipeline
+- [x] **MS-003**: Video upload and compression pipeline
   - Estimated: 2 weeks
   - Dependencies: MS-002
   - Success: Video sharing functional
