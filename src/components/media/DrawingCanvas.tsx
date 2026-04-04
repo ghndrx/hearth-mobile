@@ -5,7 +5,7 @@ import {
   Gesture,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import Svg, { Path } from 'react-native-svg';
+// import Svg, { Path } from 'react-native-svg';
 import { DrawingPath, DrawingPoint } from '../../services/media/ImageEditingService';
 
 export interface DrawingCanvasProps {
@@ -64,29 +64,11 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
       <GestureHandlerRootView style={styles.canvasWrapper}>
         <GestureDetector gesture={panGesture}>
           <View style={[styles.canvas, { width, height }]}>
-            <Svg width={width} height={height} style={StyleSheet.absoluteFill}>
-              {paths.map((path, index) => (
-                <Path
-                  key={index}
-                  d={pointsToSvgPath(path.points)}
-                  stroke={path.color}
-                  strokeWidth={path.strokeWidth}
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              ))}
-              {currentPoints.length > 0 && (
-                <Path
-                  d={pointsToSvgPath(currentPoints)}
-                  stroke={currentColor}
-                  strokeWidth={currentStrokeWidth}
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
-            </Svg>
+            <View style={StyleSheet.absoluteFill}>
+              <Text style={{ color: '#666', textAlign: 'center', marginTop: height / 2 - 20 }}>
+                Drawing requires react-native-svg
+              </Text>
+            </View>
           </View>
         </GestureDetector>
       </GestureHandlerRootView>

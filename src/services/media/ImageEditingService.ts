@@ -1,6 +1,6 @@
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
-import * as FaceDetector from 'expo-face-detector';
+// import * as FaceDetector from 'expo-face-detector';
 
 export interface ImageFilter {
   name: string;
@@ -251,18 +251,23 @@ class ImageEditingService {
   }
 
   async detectFaces(uri: string): Promise<FaceRegion[]> {
-    const result = await FaceDetector.detectFacesAsync(uri, {
-      mode: FaceDetector.FaceDetectorMode.fast,
-      detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
-      runClassifications: FaceDetector.FaceDetectorClassifications.none,
-    });
+    // TODO: Install expo-face-detector and uncomment this code
+    // const result = await FaceDetector.detectFacesAsync(uri, {
+    //   mode: FaceDetector.FaceDetectorMode.fast,
+    //   detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
+    //   runClassifications: FaceDetector.FaceDetectorClassifications.none,
+    // });
+    //
+    // return result.faces.map((face: any) => ({
+    //   bounds: face.bounds,
+    //   faceID: face.faceID,
+    //   rollAngle: face.rollAngle,
+    //   yawAngle: face.yawAngle,
+    // }));
 
-    return result.faces.map((face) => ({
-      bounds: face.bounds,
-      faceID: face.faceID,
-      rollAngle: face.rollAngle,
-      yawAngle: face.yawAngle,
-    }));
+    // For now, return empty array
+    console.warn('Face detection not available. Install expo-face-detector to enable.');
+    return [];
   }
 
   getSmartCropRegion(

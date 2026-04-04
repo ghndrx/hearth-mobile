@@ -4,7 +4,7 @@
  */
 
 import * as FileSystem from 'expo-file-system';
-import * as VideoThumbnails from 'expo-video-thumbnails';
+// import * as VideoThumbnails from 'expo-video-thumbnails';
 import { Video, ResizeMode } from 'expo-av';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -197,11 +197,16 @@ class VideoProcessingService {
     timeStamp: number = 1000 // milliseconds
   ): Promise<string> {
     try {
-      const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
-        time: timeStamp,
-        quality: 0.8,
-      });
-      return uri;
+      // TODO: Install expo-video-thumbnails and uncomment this code
+      // const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
+      //   time: timeStamp,
+      //   quality: 0.8,
+      // });
+      // return uri;
+
+      // For now, return a placeholder
+      console.warn('Video thumbnail generation not available. Install expo-video-thumbnails to enable.');
+      throw new Error('Video thumbnail generation not implemented');
     } catch (error) {
       console.error('Failed to generate video thumbnail:', error);
       throw new Error('Unable to generate video thumbnail');
