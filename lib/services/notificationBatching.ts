@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import type { NotificationPayload, NotificationType } from "./notifications";
+import { setupIOSRichNotificationCategories } from "./richNotificationActions";
 
 const BATCHING_SETTINGS_KEY = "@hearth/notification_batching_settings";
 const PENDING_BATCHES_KEY = "@hearth/pending_notification_batches";
@@ -440,6 +441,32 @@ export class NotificationBatchManager {
 export async function deliverBatchedNotification(
   batched: BatchedNotification
 ): Promise<string> {
+  // Determine rich notification category for PN-005
+  const firstNotification = batched.notifications[0];
+  let categoryId = "default";
+
+  switch (firstNotification.type) {
+    case "message":
+      categoryId = "rich_message";
+      break;
+    case "dm":
+      categoryId = "rich_dm";
+      break;
+    case "mention":
+    case "reply":
+      categoryId = "rich_mention";
+      break;
+    case "friend_request":
+      categoryId = "rich_friend_request";
+      break;
+    case "call":
+      categoryId = "rich_voice";
+      break;
+    default:
+      // Fall back to legacy categories
+      categoryId = firstNotification.type === "server_invite" ? "social" : "messages";
+  }
+
   const content: Notifications.NotificationContentInput = {
     title: batched.title,
     body: batched.body,
@@ -447,8 +474,21 @@ export async function deliverBatchedNotification(
       ...batched.notifications[0],
       batchCount: batched.count,
       groupKey: batched.groupKey,
+      richNotification: true,
+      categoryUsed: categoryId,
     },
     sound: true,
+    categoryIdentifier: categoryId,
+    // Add rich media support
+    ...(firstNotification.imageUrl && {
+      attachments: [
+        {
+          identifier: "image",
+          url: firstNotification.imageUrl,
+          type: "public.image",
+        },
+      ],
+    }),
   };
 
   // Android: use notification channel and group
@@ -466,7 +506,7 @@ export async function deliverBatchedNotification(
     });
   }
 
-  // iOS: use threadIdentifier for grouping
+  // iOS: use threadIdentifier for grouping and rich categories
   return await Notifications.scheduleNotificationAsync({
     content: {
       ...content,
@@ -554,10 +594,16 @@ export async function setupAndroidNotificationGroups(): Promise<void> {
  * Categories define the action buttons shown on notifications
  * and enable thread-based grouping in the notification center.
  * Should be called during app initialization on iOS.
+ *
+ * Updated for PN-005 to use rich notification actions
  */
 export async function setupIOSNotificationCategories(): Promise<void> {
   if (Platform.OS !== "ios") return;
 
+  // Use the enhanced rich notification categories
+  await setupIOSRichNotificationCategories();
+
+  // Keep legacy categories for backwards compatibility
   await Notifications.setNotificationCategoryAsync("messages", [
     {
       identifier: "reply",
