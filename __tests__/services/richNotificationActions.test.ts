@@ -250,10 +250,9 @@ describe("Rich Notification Actions", () => {
         content: expect.objectContaining({
           attachments: [
             {
+              identifier: "image",
               url: "https://example.com/image.jpg",
-              options: {
-                typeHint: "public.image",
-              },
+              type: "public.image",
             },
           ],
         }),

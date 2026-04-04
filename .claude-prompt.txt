@@ -1,0 +1,42 @@
+CD to /home/administrator/clawd/hearth-mobile. You are on branch feature/20260404-67befb.
+
+## Task: PN-005 — Rich notifications with inline actions
+
+### Context
+- Prerequisites: PN-001 (FCM/APNs integration), PN-002 (basic delivery pipeline), PN-003 (permission handling), PN-004 (smart batching/grouping) - all complete
+- Success Criteria: Reply from notification works
+- Estimate: 1 week
+- PRD: PRD-001 — Push Notifications System
+
+### What to implement
+Rich notifications with inline action buttons on both iOS and Android:
+
+1. iOS: Use expo-notifications with categoryIdentifier and action buttons. Actions: Reply, Mark Read, Dismiss. Support text input action via UNTextInputNotificationAction.
+
+2. Android: Use NotificationCompat.Builder.addAction() with PendingIntents for Reply, Mark Read, Dismiss.
+
+3. Category registration: Register notification categories with action handlers for both platforms in PushNotificationService.
+
+4. Notification response handling: Update handleNotificationResponse to detect which action was tapped and invoke the appropriate handler.
+
+5. NotificationAction type: Add actionId, title, icon, isAsync, data fields. Store action metadata in notification payload.
+
+6. UI: On iOS, inline text reply in notification. On Android, action buttons on expanded notification.
+
+### Existing code to read first
+- /home/administrator/clawd/hearth-mobile/src/services/pushNotifications/PushNotificationService.ts
+- /home/administrator/clawd/hearth-mobile/src/services/pushNotifications/fcmService.ts
+- /home/administrator/clawd/hearth-mobile/src/services/pushNotifications/__tests__/PushNotificationService.test.ts
+
+### Implementation steps
+1. Read the existing notification service files
+2. Add NotificationAction interface and RichNotificationCategory interface
+3. Add registerNotificationCategoriesAsync() method to PushNotificationService
+4. Add handleNotificationAction() method for action routing
+5. Modify initialize() to also register categories
+6. Update tests to cover new functionality
+7. Run: npm run typecheck && npm run test
+8. Commit: feat(notifications): PN-005 rich notifications with inline actions
+9. Push: git push -u origin feature/20260404-67befb
+10. Open PR: gh pr create --fill --base main
+11. Report the PR URL in your final output

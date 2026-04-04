@@ -90,7 +90,12 @@ export interface CollapsedNotification {
   count: number;
   title: string;
   body: string;
-  data: NotificationPayload;
+  data: NotificationPayload & {
+    groupInfo?: {
+      count: number;
+      strategy: GroupingStrategy;
+    };
+  };
 }
 
 // ============================================================================
@@ -471,8 +476,10 @@ export function collapseGroup(group: NotificationGroup): CollapsedNotification {
     body,
     data: {
       ...latestNotification,
-      groupedCount: count,
-      groupStrategy: strategy,
+      groupInfo: {
+        count,
+        strategy,
+      },
     },
   };
 }
@@ -635,10 +642,9 @@ export async function createRichNotification(
     ...(options?.imageUrl && {
       attachments: [
         {
+          identifier: "image",
           url: options.imageUrl,
-          options: {
-            typeHint: "public.image",
-          },
+          type: "public.image",
         },
       ],
     }),
