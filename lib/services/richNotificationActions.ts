@@ -76,6 +76,23 @@ export interface ActionHandler {
   (response: ActionResponse): Promise<void>;
 }
 
+export type GroupingStrategy = "conversation" | "server" | "type";
+
+export interface NotificationGroup {
+  groupKey: string;
+  notifications: NotificationPayload[];
+  strategy: GroupingStrategy;
+  createdAt: number;
+  lastUpdatedAt: number;
+}
+
+export interface CollapsedNotification {
+  count: number;
+  title: string;
+  body: string;
+  data: NotificationPayload;
+}
+
 // ============================================================================
 // Rich Notification Categories
 // ============================================================================
@@ -365,6 +382,102 @@ export async function clearActionCache(): Promise<void> {
 }
 
 // ============================================================================
+// Notification Grouping
+// ============================================================================
+
+/**
+ * Generate a unique group key for notifications based on strategy
+ */
+export function getGroupKey(payload: NotificationPayload, strategy: GroupingStrategy): string {
+  switch (strategy) {
+    case "conversation":
+      if (payload.type === "dm" && payload.userId) {
+        return `dm:${payload.userId}`;
+      }
+      if (payload.serverId && payload.channelId) {
+        return `channel:${payload.serverId}:${payload.channelId}`;
+      }
+      return `unknown:${payload.type}`;
+
+    case "server":
+      if (payload.serverId) {
+        return `server:${payload.serverId}`;
+      }
+      return `server:unknown`;
+
+    case "type":
+      return `type:${payload.type}`;
+
+    default:
+      return `fallback:${payload.type}`;
+  }
+}
+
+/**
+ * Collapse a group of notifications into a single notification
+ */
+export function collapseGroup(group: NotificationGroup): CollapsedNotification {
+  const { notifications, strategy } = group;
+  const count = notifications.length;
+
+  if (count === 0) {
+    throw new Error("Cannot collapse empty notification group");
+  }
+
+  // Single notification - return as-is
+  if (count === 1) {
+    const notification = notifications[0];
+    return {
+      count: 1,
+      title: notification.title,
+      body: notification.body,
+      data: notification,
+    };
+  }
+
+  // Multiple notifications - create summary
+  const latestNotification = notifications[notifications.length - 1];
+  const firstNotification = notifications[0];
+
+  let title: string;
+  let body: string;
+
+  switch (strategy) {
+    case "conversation":
+      // Use channel/user name from first notification
+      title = firstNotification.title;
+      body = `${count} new messages • ${latestNotification.body}`;
+      break;
+
+    case "server":
+      title = `Server Updates`;
+      body = `${count} new notifications from ${firstNotification.title || "server"}`;
+      break;
+
+    case "type":
+      const typeLabel = latestNotification.type === "mention" ? "mentions" : `${latestNotification.type}s`;
+      title = `New ${typeLabel}`;
+      body = `${count} new ${typeLabel} • ${latestNotification.body}`;
+      break;
+
+    default:
+      title = "New Notifications";
+      body = `${count} new notifications`;
+  }
+
+  return {
+    count,
+    title,
+    body,
+    data: {
+      ...latestNotification,
+      groupedCount: count,
+      groupStrategy: strategy,
+    },
+  };
+}
+
+// ============================================================================
 // Platform-Specific Setup
 // ============================================================================
 
@@ -522,9 +635,10 @@ export async function createRichNotification(
     ...(options?.imageUrl && {
       attachments: [
         {
-          identifier: "image",
           url: options.imageUrl,
-          type: "public.image",
+          options: {
+            typeHint: "public.image",
+          },
         },
       ],
     }),
