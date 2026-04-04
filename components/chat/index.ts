@@ -54,6 +54,11 @@ export {
 } from "./VoiceMessagePlayer";
 export { GifPicker, type GifImage } from "./GifPicker";
 export {
+  GifMessageBubble,
+  type GifAttachment,
+  type GifMessageBubbleProps,
+} from "./GifMessageBubble";
+export {
   ReadReceiptsDisplay,
   ReadReceiptsModal,
   SeenIndicator,

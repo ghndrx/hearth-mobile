@@ -22,7 +22,7 @@ export interface Message {
   isCurrentUser: boolean;
   status?: 'sending' | 'sent' | 'delivered' | 'read';
   reactions?: Array<{ emoji: string; count: number; userReacted: boolean }>;
-  attachments?: Array<{ type: 'image' | 'file' | 'audio'; uri: string; name: string; size?: number }>;
+  attachments?: Array<{ type: 'image' | 'file' | 'audio' | 'gif'; uri: string; name: string; size?: number; previewUri?: string; width?: number; height?: number }>;
   replyTo?: { id: string; content: string; senderName: string };
 }
 
