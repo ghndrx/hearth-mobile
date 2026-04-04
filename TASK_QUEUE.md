@@ -67,7 +67,7 @@
   - Dependencies: MS-003
   - Success: Basic editing tools work
 
-- [ ] **MS-005**: Document and file attachment support
+- [x] **MS-005**: Document and file attachment support
   - Estimated: 1 week
   - Dependencies: MS-001
   - Success: PDF/DOC sharing works
