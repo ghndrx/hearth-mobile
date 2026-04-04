@@ -1,6 +1,6 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: April 3, 2026
+**Last Updated**: April 4, 2026
 **Next Review**: April 10, 2026
 
 ## Legend
@@ -1618,6 +1618,90 @@
   - Estimated: 2 weeks
   - Dependencies: ACP-003
   - Success: Federated learning privacy framework and team performance insights
+
+### Mobile Contextual AI & Predictive Assistance (PRD-023)
+**Target**: Q3 2026 | **Owner**: Mobile AI Team | **Effort**: 24 weeks
+
+- [ ] **MCAI-001**: Contextual awareness engine and device integration
+  - Estimated: 6 weeks
+  - Dependencies: None
+  - Success: Real-time context collection from device sensors, usage patterns, and social graph
+
+- [ ] **MCAI-002**: Predictive assistance and smart suggestions system
+  - Estimated: 6 weeks
+  - Dependencies: MCAI-001
+  - Success: 60% user acceptance rate for AI-generated channel and friend suggestions
+
+- [ ] **MCAI-003**: Mobile-native AI integration and smart compose
+  - Estimated: 4 weeks
+  - Dependencies: MCAI-002
+  - Success: CarPlay/Android Auto voice integration and context-aware message completion
+
+- [ ] **MCAI-004**: Privacy-first AI and on-device processing optimization
+  - Estimated: 4 weeks
+  - Dependencies: MCAI-003
+  - Success: Core AI models running locally with <100ms suggestion latency
+
+- [ ] **MCAI-005**: Advanced AI features and transparency controls
+  - Estimated: 4 weeks
+  - Dependencies: MCAI-004
+  - Success: AI explanation system and granular user controls operational
+
+### Mobile Behavioral & Biometric Security Platform (PRD-024)
+**Target**: Q2 2026 | **Owner**: Mobile Security Team + Privacy Team | **Effort**: 28 weeks
+
+- [ ] **MBBS-001**: Behavioral biometric engine and pattern recognition
+  - Estimated: 8 weeks
+  - Dependencies: None
+  - Success: Real-time analysis of typing patterns, gestures, and device movement with <0.1% false positive rate
+
+- [ ] **MBBS-002**: Continuous authentication and risk scoring system
+  - Estimated: 6 weeks
+  - Dependencies: MBBS-001
+  - Success: Invisible re-authentication for sensitive actions with 95% user satisfaction
+
+- [ ] **MBBS-003**: Mobile threat detection and device integrity monitoring
+  - Estimated: 6 weeks
+  - Dependencies: MBBS-002
+  - Success: Root/jailbreak detection, malicious app identification, and network attack prevention
+
+- [ ] **MBBS-004**: Privacy-preserving security and compliance framework
+  - Estimated: 4 weeks
+  - Dependencies: MBBS-003
+  - Success: On-device processing, differential privacy, and zero-knowledge authentication
+
+- [ ] **MBBS-005**: Advanced biometric integration and accessibility compliance
+  - Estimated: 4 weeks
+  - Dependencies: MBBS-004
+  - Success: Multi-modal biometrics, liveness detection, and WCAG accessibility features
+
+### Mobile Spatial Collaboration & Interactive Platform (PRD-025)
+**Target**: Q4 2026 | **Owner**: Mobile Innovation Team + AR/VR Team | **Effort**: 36 weeks
+
+- [ ] **MSCP-001**: Spatial audio engine and 3D voice positioning
+  - Estimated: 8 weeks
+  - Dependencies: Voice infrastructure
+  - Success: HRTF-based 3D audio with head tracking and distance-based volume
+
+- [ ] **MSCP-002**: Mobile AR collaboration platform and shared workspaces
+  - Estimated: 10 weeks
+  - Dependencies: MSCP-001
+  - Success: Cross-platform AR object manipulation with <50ms synchronization latency
+
+- [ ] **MSCP-003**: Spatial voice channels and virtual 3D rooms
+  - Estimated: 8 weeks
+  - Dependencies: MSCP-002
+  - Success: Avatar representation and proximity-based conversation grouping
+
+- [ ] **MSCP-004**: Camera-based collaboration and environmental mapping
+  - Estimated: 6 weeks
+  - Dependencies: MSCP-003
+  - Success: Shared camera viewing and AR object placement in real spaces
+
+- [ ] **MSCP-005**: Mobile-native 3D activities and optimization
+  - Estimated: 4 weeks
+  - Dependencies: MSCP-004
+  - Success: 3D collaborative whiteboard and presentation tools with 95% spatial accuracy
 
 ## P1 Tasks (High Priority)
 
