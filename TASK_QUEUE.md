@@ -2007,6 +2007,94 @@
   - Dependencies: OS-003, background task entitlements
   - Success: 95%+ state preservation during multitasking with battery optimization
 
+### Mobile Creator Economy & Monetization Platform (PRD-060)
+**Target**: Q3 2026 | **Owner**: Creator Economy Team | **Effort**: 32 weeks
+**Priority**: P0 - CRITICAL COMPETITIVE GAP
+
+> **Discord's $200M+ creator economy** represents the largest competitive threat. This foundational platform enables creators to build sustainable income streams and drives platform loyalty.
+
+- [ ] **CREATOR-001**: Core payment infrastructure and tip jar system
+  - Estimated: 8 weeks
+  - Dependencies: PCI compliance, Stripe integration, mobile payment SDKs
+  - Success: One-tap tipping with Apple Pay/Google Pay, real-time payment processing
+
+- [ ] **CREATOR-002**: Creator subscription platform and tier management
+  - Estimated: 8 weeks
+  - Dependencies: CREATOR-001, subscription billing infrastructure
+  - Success: Multi-tier subscriptions with exclusive channel access controls
+
+- [ ] **CREATOR-003**: Premium content marketplace and digital sales
+  - Estimated: 8 weeks
+  - Dependencies: CREATOR-002, content delivery and DRM systems
+  - Success: Digital content sales with automated delivery and analytics
+
+- [ ] **CREATOR-004**: Creator analytics dashboard and revenue optimization
+  - Estimated: 4 weeks
+  - Dependencies: CREATOR-003, business intelligence infrastructure
+  - Success: Real-time revenue tracking with subscriber analytics and growth insights
+
+- [ ] **CREATOR-005**: Creator verification and partnership program
+  - Estimated: 4 weeks
+  - Dependencies: CREATOR-004, creator vetting and legal compliance
+  - Success: Verified creator badges with enhanced discovery and promotion features
+
+### Advanced Mobile Gesture Control & Neural Interface Preparation (PRD-061)
+**Target**: Q2 2026 | **Owner**: Future Interfaces Team | **Effort**: 24 weeks
+**Priority**: P0 - NEXT-GENERATION COMPUTING PREPARATION
+
+> **Neural interface preparation** positions Hearth Mobile for the ambient computing era, with BCI integration and predictive interfaces as competitive differentiators.
+
+- [ ] **NEURAL-001**: Predictive interface intelligence and AI intent recognition
+  - Estimated: 6 weeks
+  - Dependencies: ML infrastructure, user behavior analytics pipeline
+  - Success: 90%+ accuracy for action prediction with contextual UI adaptation
+
+- [ ] **NEURAL-002**: Advanced gesture recognition and custom gesture creation
+  - Estimated: 6 weeks
+  - Dependencies: NEURAL-001, computer vision processing, haptic feedback systems
+  - Success: 50+ gesture types with custom gesture training tools
+
+- [ ] **NEURAL-003**: Neural interface SDK integration and basic BCI support
+  - Estimated: 6 weeks
+  - Dependencies: NEURAL-002, BCI platform partnerships, privacy framework
+  - Success: Basic neural commands for messages and navigation with 95%+ accuracy
+
+- [ ] **NEURAL-004**: Ambient computing integration and multi-device continuity
+  - Estimated: 6 weeks
+  - Dependencies: NEURAL-003, cross-platform synchronization, environmental sensors
+  - Success: Seamless gesture/neural control across mobile, wearables, and smart environments
+
+### Mobile-First Ambient Computing Intelligence (PRD-062)
+**Target**: Q4 2026 | **Owner**: Ambient Intelligence Team | **Effort**: 32 weeks
+**Priority**: P0 - AI-FIRST COMMUNICATION PLATFORM
+
+> **Contextual AI and workflow automation** represent the future of mobile communication, with Discord's 2026 ambient features showing 60% reduction in manual communication tasks.
+
+- [ ] **AMBIENT-001**: Contextual intelligence engine and personal AI profile
+  - Estimated: 8 weeks
+  - Dependencies: Privacy-preserving ML infrastructure, multi-modal data fusion
+  - Success: 90%+ context recognition accuracy with personal communication style learning
+
+- [ ] **AMBIENT-002**: Predictive communication assistant and response generation
+  - Estimated: 8 weeks
+  - Dependencies: AMBIENT-001, large language model integration, user personality modeling
+  - Success: 85%+ user acceptance rate for AI-generated responses and suggestions
+
+- [ ] **AMBIENT-003**: Intelligent workflow automation and community management AI
+  - Estimated: 8 weeks
+  - Dependencies: AMBIENT-002, automation frameworks, community analytics
+  - Success: 50% reduction in routine communication tasks with intelligent moderation
+
+- [ ] **AMBIENT-004**: Privacy-first federated learning and transparent AI
+  - Estimated: 4 weeks
+  - Dependencies: AMBIENT-003, differential privacy implementation, explainable AI
+  - Success: 100% local sensitive data processing with user-controllable AI transparency
+
+- [ ] **AMBIENT-005**: Cross-platform ambient intelligence and third-party integration
+  - Estimated: 4 weeks
+  - Dependencies: AMBIENT-004, API integration framework, productivity app partnerships
+  - Success: Seamless ambient intelligence across 20+ connected apps and services
+
 ---
 
 ## CRITICAL COMPETITIVE PRIORITY UPDATE - April 4, 2026
