@@ -17,6 +17,17 @@ export {
 export { useNotificationContext } from "./NotificationContext";
 
 export {
+  PowerManagementProvider,
+  usePowerManagementContext,
+  usePowerState,
+  useBatteryStatus,
+  useResourceStatus,
+  useTaskManagerStatus,
+  useSyncStatus,
+  usePowerActions,
+} from "./PowerManagementContext";
+
+export {
   VoiceProvider,
   useVoice,
 } from "./VoiceContext";

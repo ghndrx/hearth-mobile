@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "../lib/stores/auth";
 import { NotificationProvider } from "../lib/contexts/NotificationContext";
 import { BiometricProvider } from "../lib/contexts/BiometricContext";
+import { PowerManagementProvider } from "../lib/contexts/PowerManagementContext";
 import { NotificationBanner } from "../components/notifications";
 import { BiometricLockScreen } from "../components/BiometricLockScreen";
 import { LoadingSpinner } from "../components/ui";
@@ -16,6 +17,7 @@ import { ErrorBoundary } from "../components/ErrorBoundary";
 import { deepLinkManager, quickActionsService, spotlightService } from "../lib/services";
 import { offlineSyncService } from "../lib/services/offlineSync";
 import { analytics } from "../lib/services/analytics";
+import PowerOptimizedBackgroundIntegration from "../lib/services/powerOptimizedBackgroundIntegration";
 import { useAppStatePerformance } from "../lib/hooks";
 import "../global.css";
 
@@ -57,6 +59,15 @@ function RootLayoutNav() {
         // Start offline sync service
         offlineSyncService.start();
 
+        // Initialize PN-006 power optimization background integration
+        const powerIntegration = PowerOptimizedBackgroundIntegration.getInstance();
+        await powerIntegration.initialize({
+          enablePowerOptimization: true,
+          enableAdaptiveSync: true,
+          enableSmartQueuing: true,
+          enableResourceMonitoring: true,
+        });
+
         setServicesInitialized(true);
       } catch (error) {
         console.error("Failed to initialize platform services:", error);
@@ -71,6 +82,11 @@ function RootLayoutNav() {
     return () => {
       deepLinkManager.cleanup();
       offlineSyncService.stop();
+
+      // Shutdown PN-006 power optimization
+      const powerIntegration = PowerOptimizedBackgroundIntegration.getInstance();
+      powerIntegration.shutdown();
+
       analytics.cleanup();
     };
   }, []);
@@ -146,16 +162,18 @@ export default function RootLayout() {
       >
         <SafeAreaProvider>
           <QueryClientProvider client={queryClient}>
-            <NotificationProvider>
-              <BiometricProvider>
-                <BiometricLockScreen>
-                  <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                  <NetworkStatusBar />
-                  <RootLayoutNav />
-                  <NotificationBanner />
-                </BiometricLockScreen>
-              </BiometricProvider>
-            </NotificationProvider>
+            <PowerManagementProvider>
+              <NotificationProvider>
+                <BiometricProvider>
+                  <BiometricLockScreen>
+                    <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                    <NetworkStatusBar />
+                    <RootLayoutNav />
+                    <NotificationBanner />
+                  </BiometricLockScreen>
+                </BiometricProvider>
+              </NotificationProvider>
+            </PowerManagementProvider>
           </QueryClientProvider>
         </SafeAreaProvider>
       </ErrorBoundary>
