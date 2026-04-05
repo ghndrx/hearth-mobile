@@ -14,6 +14,9 @@ jest.mock('react-native', () => ({
   },
 }));
 
+// Use fake timers for consistent test behavior
+jest.useFakeTimers();
+
 describe('BackgroundTaskManager', () => {
   let taskManager: BackgroundTaskManager;
   let mockBatteryService: jest.Mocked<BatteryMonitoringService>;
@@ -391,12 +394,21 @@ describe('BackgroundTaskManager', () => {
         appState: 'active' as const,
       };
 
-      const result = await (taskManager as any).runTaskByCategory(mockTask, context);
+      const resultPromise = (taskManager as any).runTaskByCategory(mockTask, context);
+
+      // Advance timers to complete the async task
+      jest.advanceTimersByTime(1000);
+
+      const result = await resultPromise;
       expect(result).toBeDefined();
       expect(result.messagesSynced).toBeGreaterThan(0);
     });
 
     it('should execute attachment upload task with progress', async () => {
+      // Mock Math.random to avoid random failures during testing
+      const originalMathRandom = Math.random;
+      Math.random = jest.fn(() => 0.5); // Ensure no random failure (0.5 > 0.1)
+
       const mockTask: BackgroundTask = {
         id: 'upload-test',
         category: 'attachment_upload',
@@ -425,33 +437,53 @@ describe('BackgroundTaskManager', () => {
 
       const resultPromise = (taskManager as any).runTaskByCategory(mockTask, context);
 
-      // Fast forward to trigger progress
+      // Fast forward to trigger progress callbacks
       jest.advanceTimersByTime(500);
 
+      // Advance to complete the task
+      jest.advanceTimersByTime(2000);
+
       const result = await resultPromise;
+
+      // Restore Math.random
+      Math.random = originalMathRandom;
       expect(mockTask.onProgress).toHaveBeenCalled();
       expect(result.uploadedBytes).toBe(1024000);
     });
   });
 
   describe('task failure handling', () => {
-    it('should retry failed tasks', async () => {
-      const mockTask: BackgroundTask = {
-        id: 'retry-test',
-        category: 'message_sync',
-        priority: 'medium',
+    it('should retry failed tasks', () => {
+      // Create a task without the fields that addTask auto-generates
+      const mockTaskData = {
+        category: 'message_sync' as const,
+        priority: 'medium' as const,
         estimatedDuration: 1000,
         estimatedCpuUsage: 20,
         estimatedMemoryUsage: 10,
         estimatedBatteryImpact: 3,
         requiresNetwork: true,
         canRunOnMeteredConnection: false,
-        retryCount: 0,
         maxRetries: 2,
-        createdAt: Date.now(),
         data: {},
         onError: jest.fn(),
       };
+
+      // Add task to manager and get the generated ID
+      const taskId = taskManager.addTask(mockTaskData);
+      expect(taskManager.getTaskStatus(taskId)).toBe('queued');
+
+      // Get the complete task object from the queue
+      const mockTask = (taskManager as any).taskQueue.find((t: BackgroundTask) => t.id === taskId);
+      expect(mockTask).toBeDefined();
+
+      // Simulate task being moved from queue to running (like when execution starts)
+      const queueIndex = (taskManager as any).taskQueue.indexOf(mockTask);
+      (taskManager as any).taskQueue.splice(queueIndex, 1);
+      (taskManager as any).runningTasks.set(taskId, mockTask);
+
+      // Now the task should be running
+      expect(taskManager.getTaskStatus(taskId)).toBe('running');
 
       const error = new Error('Test error');
       (taskManager as any).handleTaskFailure(mockTask, error);
@@ -459,8 +491,14 @@ describe('BackgroundTaskManager', () => {
       expect(mockTask.retryCount).toBe(1);
       expect(mockTask.onError).toHaveBeenCalledWith(error);
 
-      // Task should be re-queued
-      expect(taskManager.getTaskStatus(mockTask.id)).toBe('queued');
+      // Initially the task won't be queued as there's a retry delay
+      expect(taskManager.getTaskStatus(taskId)).toBe('not_found');
+
+      // Run all pending timers to complete the retry delay
+      jest.runAllTimers();
+
+      // Now task should be re-queued
+      expect(taskManager.getTaskStatus(taskId)).toBe('queued');
     });
 
     it('should not retry tasks beyond max retries', () => {
