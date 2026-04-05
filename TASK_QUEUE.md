@@ -1090,6 +1090,83 @@
   - Dependencies: VOICE-ECO-003
   - Success: Background voice UI, quick re-engagement, visual indicators
 
+### 🔥 Live Activities & Real-time Widgets (PRD-078) - CRITICAL COMPETITIVE GAP
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 8 weeks
+**Status**: **URGENT** - Discord widget adoption at 73% daily usage, major churn risk
+
+- [ ] **LW-001**: Core Widget Infrastructure (iOS WidgetKit, Android App Widgets)
+  - Estimated: 2 weeks
+  - Dependencies: None (URGENT START)
+  - Success: Widget foundation with real-time data pipeline
+
+- [ ] **LW-002**: Voice Channel Live Activities (Dynamic Island, persistent notifications)
+  - Estimated: 2 weeks  
+  - Dependencies: LW-001
+  - Success: iOS Dynamic Island + Android voice controls with <2s latency
+
+- [ ] **LW-003**: Home Screen Widget Suite (4 sizes with real-time content)
+  - Estimated: 2 weeks
+  - Dependencies: LW-002
+  - Success: Small/Medium/Large/XL widgets showing voice status, server activity
+
+- [ ] **LW-004**: Advanced Widget Features (Material You theming, performance optimization)
+  - Estimated: 2 weeks
+  - Dependencies: LW-003
+  - Success: <1s responsiveness, <2% battery impact, haptic feedback
+
+### 🧠 AI Voice Processing & Transcription (PRD-079) - LEGAL COMPLIANCE REQUIRED
+**Target**: Q2 2026 | **Owner**: AI/ML + Mobile Teams | **Effort**: 10 weeks
+**Status**: **URGENT** - ADA compliance risk, 15% user exclusion
+
+- [ ] **AI-001**: AI Infrastructure & Model Integration (OpenAI Whisper v3, Azure backup)
+  - Estimated: 2 weeks
+  - Dependencies: None (URGENT START)
+  - Success: On-device transcription with privacy-first architecture
+
+- [ ] **AI-002**: Real-time Transcription Engine (live voice-to-text streaming)
+  - Estimated: 2 weeks
+  - Dependencies: AI-001
+  - Success: <2s latency, >93% accuracy, multi-speaker recognition
+
+- [ ] **AI-003**: Smart Communication Features (AI replies, voice summaries, noise suppression)
+  - Estimated: 2 weeks
+  - Dependencies: AI-002
+  - Success: Context-aware suggestions, 30s+ message summaries
+
+- [ ] **AI-004**: Multi-language & Accessibility (15+ languages, screen reader optimization)
+  - Estimated: 2 weeks
+  - Dependencies: AI-003
+  - Success: Translation support, WCAG 2.2 AA compliance
+
+- [ ] **AI-005**: Advanced AI & Performance (advanced noise suppression, offline capabilities)
+  - Estimated: 2 weeks
+  - Dependencies: AI-004
+  - Success: RNNoise + ML, offline transcription, <5% battery impact
+
+### 🔄 Cross-Device Continuity & Handoff (PRD-080) - MODERN UX STANDARD
+**Target**: Q3 2026 | **Owner**: Platform + Mobile Teams | **Effort**: 12 weeks
+**Status**: **HIGH PRIORITY** - 25% churn due to poor multi-device experience
+
+- [ ] **CD-001**: Cross-Device Infrastructure (device linking, secure sync protocol)
+  - Estimated: 3 weeks
+  - Dependencies: None
+  - Success: WebSocket sync, device fingerprinting, encrypted state sync
+
+- [ ] **CD-002**: Voice Call Handoff System (live call transfer between devices)
+  - Estimated: 3 weeks
+  - Dependencies: CD-001
+  - Success: <3s interruption, >95% success rate, WebRTC migration
+
+- [ ] **CD-003**: Universal State Management (conversation sync, read states, typing)
+  - Estimated: 3 weeks
+  - Dependencies: CD-002
+  - Success: <2s latency sync, notification state management
+
+- [ ] **CD-004**: Advanced Continuity (universal clipboard, smart device switching)
+  - Estimated: 3 weeks
+  - Dependencies: CD-003
+  - Success: E2E encrypted clipboard, usage-based device priority
+
 ## P1 Tasks (High Priority)
 
 ### Offline Message Queue & Conflict Resolution (PRD-005 / PRD-051)
