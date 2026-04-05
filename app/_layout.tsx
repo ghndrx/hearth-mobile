@@ -4,6 +4,7 @@ import { Slot, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "../lib/stores/auth";
 import { NotificationProvider } from "../lib/contexts/NotificationContext";
 import { BiometricProvider } from "../lib/contexts/BiometricContext";
@@ -134,28 +135,30 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ErrorBoundary
-      onError={(error, errorInfo) => {
-        analytics.logError(error, {
-          component_stack: errorInfo.componentStack,
-          error_boundary: "root",
-        });
-      }}
-    >
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <NotificationProvider>
-            <BiometricProvider>
-              <BiometricLockScreen>
-                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-                <NetworkStatusBar />
-                <RootLayoutNav />
-                <NotificationBanner />
-              </BiometricLockScreen>
-            </BiometricProvider>
-          </NotificationProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    </ErrorBoundary>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary
+        onError={(error, errorInfo) => {
+          analytics.logError(error, {
+            component_stack: errorInfo.componentStack,
+            error_boundary: "root",
+          });
+        }}
+      >
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <NotificationProvider>
+              <BiometricProvider>
+                <BiometricLockScreen>
+                  <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                  <NetworkStatusBar />
+                  <RootLayoutNav />
+                  <NotificationBanner />
+                </BiometricLockScreen>
+              </BiometricProvider>
+            </NotificationProvider>
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 }

@@ -35,3 +35,7 @@ export {
   useImageLoadPerformance,
   measureNetworkRequest,
 } from "./usePerformance";
+
+// Gesture & haptic hooks
+export { useGesture } from "./useGesture";
+export { useHaptics } from "./useHaptics";
