@@ -391,7 +391,12 @@ describe('BackgroundTaskManager', () => {
         appState: 'active' as const,
       };
 
-      const result = await (taskManager as any).runTaskByCategory(mockTask, context);
+      const resultPromise = (taskManager as any).runTaskByCategory(mockTask, context);
+
+      // Advance timers to complete the task execution
+      jest.advanceTimersByTime(1000);
+
+      const result = await resultPromise;
       expect(result).toBeDefined();
       expect(result.messagesSynced).toBeGreaterThan(0);
     }, 10000);
@@ -412,6 +417,7 @@ describe('BackgroundTaskManager', () => {
         createdAt: Date.now(),
         data: { fileSize: 1024000 },
         onProgress: jest.fn(),
+        startedAt: Date.now(),
       };
 
       const context = {
@@ -425,8 +431,11 @@ describe('BackgroundTaskManager', () => {
 
       const resultPromise = (taskManager as any).runTaskByCategory(mockTask, context);
 
-      // Fast forward to trigger progress
+      // Fast forward to trigger progress callbacks
       jest.advanceTimersByTime(500);
+
+      // Complete the task
+      jest.advanceTimersByTime(1500);
 
       const result = await resultPromise;
       expect(mockTask.onProgress).toHaveBeenCalled();
@@ -459,7 +468,10 @@ describe('BackgroundTaskManager', () => {
       expect(mockTask.retryCount).toBe(1);
       expect(mockTask.onError).toHaveBeenCalledWith(error);
 
-      // Task should be re-queued
+      // Advance timers to complete the retry delay (exponential backoff: 1000 * 2^1 = 2000ms)
+      jest.advanceTimersByTime(2000);
+
+      // Task should be re-queued after the retry delay
       expect(taskManager.getTaskStatus(mockTask.id)).toBe('queued');
     });
 

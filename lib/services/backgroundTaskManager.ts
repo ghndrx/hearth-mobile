@@ -572,7 +572,10 @@ class BackgroundTaskManager {
 
       setTimeout(() => {
         task.scheduledAt = Date.now() + retryDelay;
-        this.addTask(task);
+        // Re-add existing task to queue (can't use addTask since task already has ID)
+        this.taskQueue.push(task);
+        this.metrics.tasksQueued++;
+        this.sortTaskQueue();
       }, retryDelay);
     } else {
       console.warn(`Task ${task.id} failed permanently after ${task.maxRetries} retries:`, error);
