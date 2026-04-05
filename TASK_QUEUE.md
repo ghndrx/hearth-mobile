@@ -952,6 +952,75 @@
   - Dependencies: VP-006
   - Success: AirPods, Bluetooth headset, and car audio integration
 
+### Deep Mobile OS Integration & Smart Widgets (OS-INT-001)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 5 weeks
+
+- [ ] **OS-INT-001-A**: iOS Live Activities & Dynamic Island integration
+  - Estimated: 2 weeks
+  - Dependencies: PN-005 (rich notifications)
+  - Success: Real-time voice channel status in Dynamic Island, lock screen controls functional
+
+- [ ] **OS-INT-001-B**: Android Quick Settings & system integration
+  - Estimated: 1 week
+  - Dependencies: PN-005 
+  - Success: Quick Settings tile provides instant voice channel access
+
+- [ ] **OS-INT-001-C**: Voice assistant deep integration (Siri/Google Assistant)
+  - Estimated: 1 week
+  - Dependencies: OS-INT-001-A
+  - Success: Voice commands for joining channels, sending messages, status updates
+
+- [ ] **OS-INT-001-D**: Smart home screen widgets
+  - Estimated: 1 week
+  - Dependencies: OS-INT-001-B
+  - Success: Recent channels widget, adaptive shortcuts based on user behavior
+
+### Live Audio Reactions & Spatial Voice (SPATIAL-001)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 6 weeks
+
+- [ ] **SPATIAL-001-A**: Live audio reactions during voice calls
+  - Estimated: 1.5 weeks
+  - Dependencies: GEST-001 (haptic infrastructure)
+  - Success: Real-time emoji reactions with spatial audio positioning
+
+- [ ] **SPATIAL-001-B**: Spatial voice positioning system
+  - Estimated: 2 weeks
+  - Dependencies: SPATIAL-001-A
+  - Success: 3D audio positioning, mobile-optimized spatial controls
+
+- [ ] **SPATIAL-001-C**: Voice effects & mobile soundboard
+  - Estimated: 1.5 weeks
+  - Dependencies: SPATIAL-001-A
+  - Success: Real-time voice modulation, quick-access sound effects
+
+- [ ] **SPATIAL-001-D**: Live voice transcription with speaker identification
+  - Estimated: 1 week
+  - Dependencies: SPATIAL-001-B
+  - Success: Real-time speech-to-text with accessibility integration
+
+### Live Location Sharing & Proximity Social (LOC-001)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 8 weeks
+
+- [ ] **LOC-001-A**: Live location sharing with duration controls
+  - Estimated: 2 weeks
+  - Dependencies: Privacy/permissions infrastructure
+  - Success: Real-time location sharing in DMs/voice channels with safety controls
+
+- [ ] **LOC-001-B**: Proximity-based voice features
+  - Estimated: 3 weeks
+  - Dependencies: LOC-001-A
+  - Success: Auto-join voice channels based on physical proximity
+
+- [ ] **LOC-001-C**: Safety & privacy controls system
+  - Estimated: 2 weeks
+  - Dependencies: LOC-001-A
+  - Success: Trusted friends only, emergency broadcasting, granular permissions
+
+- [ ] **LOC-001-D**: Location-based discovery features
+  - Estimated: 1 week
+  - Dependencies: LOC-001-C
+  - Success: Nearby communities discovery with privacy-first design
+
 ## P1 Tasks (High Priority)
 
 ### Offline Message Queue & Conflict Resolution (PRD-005 / PRD-051)
