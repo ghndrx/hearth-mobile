@@ -1,7 +1,7 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: April 4, 2026
-**Next Review**: April 7, 2026
+**Last Updated**: April 5, 2026
+**Next Review**: April 8, 2026
 
 ## Legend
 - **P0**: Critical - Must have for competitive parity
@@ -1020,6 +1020,75 @@
   - Estimated: 1 week
   - Dependencies: LOC-001-C
   - Success: Nearby communities discovery with privacy-first design
+
+### Mobile Collaborative Workspace (NEW-001)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 8-10 weeks
+
+- [ ] **COLLAB-001**: Canvas infrastructure and real-time synchronization
+  - Estimated: 3 weeks
+  - Dependencies: Voice channel system
+  - Success: Multi-user drawing surface with <50ms sync latency
+
+- [ ] **COLLAB-002**: Collaborative tools and touch gestures
+  - Estimated: 3 weeks
+  - Dependencies: COLLAB-001
+  - Success: Drawing tools, text, sticky notes, multi-touch support
+
+- [ ] **COLLAB-003**: Voice channel integration
+  - Estimated: 2 weeks
+  - Dependencies: COLLAB-002
+  - Success: Canvas sharing within voice channels, permissions integration
+
+- [ ] **COLLAB-004**: Polish and optimization
+  - Estimated: 2 weeks
+  - Dependencies: COLLAB-003
+  - Success: 60fps performance, accessibility features, user testing
+
+### AI Moderation & Context Intelligence (NEW-002)
+**Target**: Q4 2026 | **Owner**: Mobile Team + AI/Safety Team | **Effort**: 12-14 weeks
+
+- [ ] **AI-MOD-001**: Foundation infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: Real-time messaging system
+  - Success: AI model integration, message processing pipeline
+
+- [ ] **AI-MOD-002**: Context intelligence engine
+  - Estimated: 4 weeks
+  - Dependencies: AI-MOD-001
+  - Success: Conversation history analysis, user relationship mapping
+
+- [ ] **AI-MOD-003**: Mobile integration and real-time warnings
+  - Estimated: 3 weeks
+  - Dependencies: AI-MOD-002
+  - Success: Real-time typing analysis, user warnings, mobile UI
+
+- [ ] **AI-MOD-004**: Advanced features and compliance
+  - Estimated: 3 weeks
+  - Dependencies: AI-MOD-003
+  - Success: Multi-modal analysis, custom training, regulatory compliance
+
+### Seamless Voice Ecosystem (NEW-003)
+**Target**: Q3 2026 | **Owner**: Mobile Team + Platform Team | **Effort**: 10-12 weeks
+
+- [ ] **VOICE-ECO-001**: Cross-device synchronization infrastructure
+  - Estimated: 3 weeks
+  - Dependencies: Voice infrastructure
+  - Success: Seamless handoff between mobile/desktop, state preservation
+
+- [ ] **VOICE-ECO-002**: Mobile platform integration
+  - Estimated: 4 weeks
+  - Dependencies: VOICE-ECO-001
+  - Success: Background audio, system mixing, battery optimization
+
+- [ ] **VOICE-ECO-003**: Extended ecosystem integration
+  - Estimated: 3 weeks
+  - Dependencies: VOICE-ECO-002
+  - Success: CarPlay/Android Auto, smart speakers, device discovery
+
+- [ ] **VOICE-ECO-004**: Ambient experience and UI
+  - Estimated: 2 weeks
+  - Dependencies: VOICE-ECO-003
+  - Success: Background voice UI, quick re-engagement, visual indicators
 
 ## P1 Tasks (High Priority)
 
