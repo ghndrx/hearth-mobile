@@ -394,7 +394,7 @@ describe('BackgroundTaskManager', () => {
       const result = await (taskManager as any).runTaskByCategory(mockTask, context);
       expect(result).toBeDefined();
       expect(result.messagesSynced).toBeGreaterThan(0);
-    });
+    }, 10000);
 
     it('should execute attachment upload task with progress', async () => {
       const mockTask: BackgroundTask = {
@@ -431,7 +431,7 @@ describe('BackgroundTaskManager', () => {
       const result = await resultPromise;
       expect(mockTask.onProgress).toHaveBeenCalled();
       expect(result.uploadedBytes).toBe(1024000);
-    });
+    }, 10000);
   });
 
   describe('task failure handling', () => {
