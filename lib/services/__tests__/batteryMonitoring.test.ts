@@ -2,15 +2,39 @@ import BatteryMonitoringService, { BatteryInfo, PowerOptimizationRecommendation 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock React Native modules
-jest.mock('react-native', () => ({
-  Platform: { OS: 'ios' },
-  NativeEventEmitter: jest.fn(),
-  NativeModules: {
-    Battery: {
-      getBatteryState: jest.fn(),
+jest.mock('react-native', () => {
+  const mockEventEmitter = {
+    addListener: jest.fn(() => ({ remove: jest.fn() })),
+    emit: jest.fn(),
+    removeListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+  };
+
+  return {
+    Platform: { OS: 'android' },
+    NativeEventEmitter: jest.fn(() => mockEventEmitter),
+    NativeModules: {
+      BatteryManager: {
+        getBatteryInfo: jest.fn(() => Promise.resolve({
+          level: 0.8,
+          isCharging: false,
+          isLowPowerMode: false,
+          temperature: 25,
+          health: 'good',
+          technology: 'Li-ion'
+        })),
+      },
+      Battery: {
+        getBatteryState: jest.fn(() => Promise.resolve({
+          level: 0.8,
+          isCharging: false,
+          isLowPowerMode: false,
+        })),
+      },
     },
-  },
-}));
+    DeviceEventEmitter: mockEventEmitter,
+  };
+});
 
 jest.mock('@react-native-async-storage/async-storage');
 
@@ -50,9 +74,12 @@ describe('BatteryMonitoringService', () => {
     it('should initialize with default battery info', () => {
       const batteryInfo = service.getCurrentBatteryInfo();
       expect(batteryInfo).toEqual({
-        level: 1.0,
+        level: 0.8,
         isCharging: false,
         isLowPowerMode: false,
+        temperature: 25,
+        health: 'good',
+        technology: 'Li-ion',
       });
     });
   });
@@ -156,13 +183,13 @@ describe('BatteryMonitoringService', () => {
     });
 
     it('should calculate usage pattern with sufficient data', () => {
-      // Add more data points
+      // Add more data points (25 hours worth for comprehensive analysis)
       const now = Date.now();
       const usageHistory = [];
-      for (let i = 0; i < 30; i++) {
+      for (let i = 24; i >= 0; i--) {
         usageHistory.push({
-          timestamp: now - (i * 60000), // Every minute
-          level: Math.max(0.1, 0.9 - (i * 0.02)), // Gradual decrease
+          timestamp: now - (i * 60 * 60 * 1000), // Every hour going back 24 hours
+          level: Math.max(0.1, 0.9 - ((24 - i) * 0.02)), // Gradual decrease over time
           isCharging: false,
         });
       }
