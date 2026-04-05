@@ -30,7 +30,6 @@ export interface TapConfig extends GestureCallbacks {
 
 export interface LongPressConfig extends GestureCallbacks {
   minDuration?: number;
-  maxDistance?: number;
   haptic?: boolean;
 }
 
@@ -120,7 +119,6 @@ export class GestureService {
   createLongPress(config: LongPressConfig = {}): GestureType {
     const {
       minDuration = 500,
-      maxDistance = 10,
       haptic = true,
       onBegin,
       onStart,
@@ -129,8 +127,7 @@ export class GestureService {
     } = config;
 
     let gesture = Gesture.LongPress()
-      .minDuration(minDuration)
-      .maxDistance(maxDistance);
+      .minDuration(minDuration);
 
     if (onBegin) gesture = gesture.onBegin(onBegin);
 

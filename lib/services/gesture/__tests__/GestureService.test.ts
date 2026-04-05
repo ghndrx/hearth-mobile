@@ -130,7 +130,6 @@ describe("GestureService", () => {
       const gesture = service.createLongPress();
       expect(Gesture.LongPress).toHaveBeenCalled();
       expect((gesture as any).minDuration).toHaveBeenCalledWith(500);
-      expect((gesture as any).maxDist).toHaveBeenCalledWith(10);
     });
 
     it("triggers heavy haptic on start", () => {
