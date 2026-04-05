@@ -3,7 +3,7 @@ const { defaults } = require('jest-config');
 module.exports = {
   preset: 'jest-expo',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   setupFiles: [], // Skip React Native setup files that are causing issues with RN 0.76
   transformIgnorePatterns: [
     // Don't transform node_modules except for React Native modules and our own code
@@ -13,6 +13,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1',
     // Mock React Native modules that cause issues in RN 0.76
     '^react-native$': '<rootDir>/__mocks__/react-native.js',
+    '^react-native-gesture-handler$': '<rootDir>/__mocks__/react-native-gesture-handler.js',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     // Mock specific polyfill files that contain Flow syntax
     '^@react-native/js-polyfills/(.*)': '<rootDir>/__mocks__/empty.js',

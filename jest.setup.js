@@ -1,5 +1,5 @@
 // Basic setup for tests
-require('react-native-gesture-handler/jestSetup');
+// require('react-native-gesture-handler/jestSetup'); // Commented out to use our custom mock
 
 // Mock AsyncStorage with improved error handling
 jest.mock('@react-native-async-storage/async-storage', () => ({

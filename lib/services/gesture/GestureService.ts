@@ -130,7 +130,7 @@ export class GestureService {
 
     let gesture = Gesture.LongPress()
       .minDuration(minDuration)
-      .maxDist(maxDistance);
+      .maxDistance(maxDistance);
 
     if (onBegin) gesture = gesture.onBegin(onBegin);
 
@@ -142,7 +142,7 @@ export class GestureService {
     if (onEnd) gesture = gesture.onEnd(onEnd);
 
     if (onFinalize) {
-      gesture = gesture.onFinalize((_event, success) => {
+      gesture = gesture.onFinalize((_event: any, success: boolean) => {
         onFinalize(success);
       });
     }
