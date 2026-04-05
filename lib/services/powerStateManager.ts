@@ -101,6 +101,8 @@ class PowerStateManager {
   private featureListeners: Array<(event: FeatureDegradationEvent) => void> = [];
   private isActive = false;
   private monitoringInterval: NodeJS.Timeout | null = null;
+  private batteryListenerCleanup: (() => void) | null = null;
+  private resourceListenerCleanup: (() => void) | null = null;
 
   private readonly POWER_PROFILES: Record<PowerState, PowerProfile> = {
     optimal: {
@@ -396,12 +398,12 @@ class PowerStateManager {
 
   private setupMonitoring(): void {
     // Listen to battery changes
-    this.batteryService.addBatteryListener((batteryInfo) => {
+    this.batteryListenerCleanup = this.batteryService.addBatteryListener((batteryInfo) => {
       this.evaluateAndApplyRules(batteryInfo);
     });
 
     // Listen to resource changes
-    this.resourceService.addListener((resourceMetrics) => {
+    this.resourceListenerCleanup = this.resourceService.addListener((resourceMetrics) => {
       this.evaluateAndApplyRules(undefined, resourceMetrics);
     });
 
@@ -637,6 +639,7 @@ class PowerStateManager {
     // Update power state if changed
     if (newState !== this.currentProfile.state) {
       const previousState = this.currentProfile.state;
+      const previousFeatures = { ...this.currentProfile.features };
 
       // Update to new base profile
       const newBaseProfile = this.POWER_PROFILES[newState];
@@ -646,6 +649,19 @@ class PowerStateManager {
       const activeRules = this.degradationRules.filter(rule => this.activeRules.has(rule.id));
       for (const rule of activeRules) {
         this.applyRule(rule);
+      }
+
+      // Notify listeners of feature changes
+      const newFeatures = this.currentProfile.features;
+      for (const featureKey of Object.keys(previousFeatures) as Array<keyof PowerProfile['features']>) {
+        if (previousFeatures[featureKey] !== newFeatures[featureKey]) {
+          this.notifyFeatureChange(
+            featureKey,
+            previousFeatures[featureKey],
+            newFeatures[featureKey],
+            'Automatic power state transition'
+          );
+        }
       }
 
       // Notify listeners
@@ -818,7 +834,22 @@ class PowerStateManager {
 
   public forceProfile(state: PowerState): void {
     const previousState = this.currentProfile.state;
+    const previousFeatures = { ...this.currentProfile.features };
+
     this.currentProfile = JSON.parse(JSON.stringify(this.POWER_PROFILES[state]));
+
+    // Notify listeners of feature changes
+    const newFeatures = this.currentProfile.features;
+    for (const featureKey of Object.keys(previousFeatures) as Array<keyof PowerProfile['features']>) {
+      if (previousFeatures[featureKey] !== newFeatures[featureKey]) {
+        this.notifyFeatureChange(
+          featureKey,
+          previousFeatures[featureKey],
+          newFeatures[featureKey],
+          'Manually forced profile'
+        );
+      }
+    }
 
     this.notifyServicesOfChanges();
     this.notifyPowerStateChange(previousState, state, 'Manually forced profile');
@@ -874,6 +905,17 @@ class PowerStateManager {
 
   public destroy(): void {
     this.stop();
+
+    // Clean up service listeners
+    if (this.batteryListenerCleanup) {
+      this.batteryListenerCleanup();
+      this.batteryListenerCleanup = null;
+    }
+    if (this.resourceListenerCleanup) {
+      this.resourceListenerCleanup();
+      this.resourceListenerCleanup = null;
+    }
+
     this.listeners = [];
     this.featureListeners = [];
     this.activeRules.clear();
