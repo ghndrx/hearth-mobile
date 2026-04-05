@@ -6,6 +6,29 @@
 import { Platform } from 'react-native';
 import PushNotificationService from '../PushNotificationService';
 
+// Mock expo-background-fetch (imported transitively via BackgroundNotificationHandler)
+jest.mock('expo-background-fetch', () => ({
+  registerTaskAsync: jest.fn().mockResolvedValue(undefined),
+  unregisterTaskAsync: jest.fn().mockResolvedValue(undefined),
+  BackgroundFetchResult: { NewData: 1, NoData: 2, Failed: 3 },
+}));
+
+jest.mock('expo-task-manager', () => ({
+  defineTask: jest.fn(),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  multiGet: jest.fn().mockResolvedValue([
+    ['@pn006/retry_queue', null],
+    ['@pn006/delivery_state', null],
+  ]),
+  multiSet: jest.fn().mockResolvedValue(undefined),
+  multiRemove: jest.fn().mockResolvedValue(undefined),
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn().mockResolvedValue(undefined),
+  removeItem: jest.fn().mockResolvedValue(undefined),
+}));
+
 // Mock expo-notifications
 jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
@@ -299,7 +322,7 @@ describe('PushNotificationService', () => {
       const onNotificationReceived = jest.fn();
       await PushNotificationService.initialize({ onNotificationReceived });
 
-      const mockNotification = { title: 'Test', body: 'Test body' };
+      const mockNotification = { request: { identifier: 'test-id-1' }, title: 'Test', body: 'Test body' };
       capturedHandler(mockNotification);
 
       expect(onNotificationReceived).toHaveBeenCalledWith(mockNotification);
@@ -320,7 +343,7 @@ describe('PushNotificationService', () => {
       const onNotificationOpened = jest.fn();
       await PushNotificationService.initialize({ onNotificationOpened });
 
-      const mockNotification = { title: 'Test', body: 'Test body' };
+      const mockNotification = { request: { identifier: 'test-id-2' }, title: 'Test', body: 'Test body' };
       capturedHandler({ notification: mockNotification });
 
       expect(onNotificationOpened).toHaveBeenCalledWith(mockNotification);

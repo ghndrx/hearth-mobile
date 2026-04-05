@@ -6,6 +6,9 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import BackgroundNotificationHandler from './BackgroundNotificationHandler';
+import type { DeliveryStats } from './BackgroundNotificationHandler';
+import DeliveryAnalytics from './DeliveryAnalytics';
 
 // Configure notification handler for foreground notifications
 Notifications.setNotificationHandler({
@@ -113,6 +116,10 @@ class PushNotificationService {
     const foregroundSubscription = Notifications.addNotificationReceivedListener(
       (notification) => {
         console.log('Foreground notification received:', notification);
+        // Track delivery confirmation
+        const id = notification.request.identifier;
+        BackgroundNotificationHandler.confirmDelivery(id);
+        DeliveryAnalytics.trackDelivery(id);
         this.config.onNotificationReceived?.(notification);
       }
     );
@@ -122,6 +129,11 @@ class PushNotificationService {
     const foregroundResponseSubscription = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         console.log('Notification response received:', response);
+        // Track notification open
+        const openId = response.notification?.request?.identifier;
+        if (openId) {
+          DeliveryAnalytics.trackOpen(openId);
+        }
         this.config.onNotificationOpened?.(response.notification);
       }
     );
@@ -271,6 +283,35 @@ class PushNotificationService {
   }
 
   /**
+   * Register background fetch task for checking pending notifications
+   */
+  async registerBackgroundFetch(): Promise<boolean> {
+    return BackgroundNotificationHandler.registerBackgroundFetch();
+  }
+
+  /**
+   * Get delivery statistics (success/failure counts and rate)
+   */
+  getDeliveryStats(): DeliveryStats {
+    return BackgroundNotificationHandler.getDeliveryStats();
+  }
+
+  /**
+   * Retry all previously failed deliveries
+   */
+  async retryFailedDeliveries(): Promise<number> {
+    return BackgroundNotificationHandler.retryFailedDeliveries();
+  }
+
+  /**
+   * Track a notification for delivery confirmation
+   */
+  async trackNotification(notificationId: string, payload: Record<string, unknown> = {}): Promise<void> {
+    await BackgroundNotificationHandler.trackNotificationSent(notificationId, payload);
+    await DeliveryAnalytics.trackSend(notificationId);
+  }
+
+  /**
    * Check if service is initialized
    */
   isServiceInitialized(): boolean {
@@ -298,6 +339,9 @@ class PushNotificationService {
       // Remove token refresh subscription
       this.tokenRefreshSubscription?.remove();
       this.tokenRefreshSubscription = undefined;
+
+      // Unregister background fetch
+      await BackgroundNotificationHandler.unregisterBackgroundFetch();
 
       this.isInitialized = false;
       console.log('Push notification service cleaned up');

@@ -8,6 +8,8 @@
 export { default as PushNotificationService } from './PushNotificationService';
 import PushNotificationService from './PushNotificationService';
 export { default as fcmService } from './fcmService';
+export { default as BackgroundNotificationHandler } from './BackgroundNotificationHandler';
+export { default as DeliveryAnalytics } from './DeliveryAnalytics';
 
 // Re-export types
 export type {
@@ -19,6 +21,17 @@ export type {
 export type {
   FCMConfig,
 } from './fcmService';
+
+export type {
+  RetryQueueItem,
+  DeliveryRecord,
+  DeliveryStats,
+} from './BackgroundNotificationHandler';
+
+export type {
+  NotificationEvent,
+  DeliveryReport,
+} from './DeliveryAnalytics';
 
 // Platform detection helpers
 export const isAndroid = (): boolean => {
