@@ -102,8 +102,8 @@ describe('NotificationDeliveryTrackingService', () => {
     it('should mark as failed after max retries', () => {
       service.trackNotificationSent('notif-maxfail', 'android');
 
-      // Exhaust all retries
-      for (let i = 0; i < 5; i++) {
+      // Exhaust all retries (maxRetries=5, so need 6 failures: retryCount goes 1..5 retrying, 6 fails)
+      for (let i = 0; i < 6; i++) {
         service.reportFailure('notif-maxfail', 'Persistent failure');
       }
 
