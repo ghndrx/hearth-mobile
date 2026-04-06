@@ -22,6 +22,25 @@ export {
   dismissAllNotifications,
   NOTIFICATION_CHANNELS,
 } from "./notifications";
+// Notification batching service (PN-004)
+export {
+  type GroupingKeyType,
+  type NotificationGroup,
+  type QueuedNotification,
+  type BatchingConfig,
+  type NotificationGroupingSettings,
+  getBatchingConfig,
+  saveBatchingConfig,
+  getGroupingSettings,
+  saveGroupingSettings,
+  queueNotification,
+  flushGroup,
+  flushAllGroups,
+  getPendingGroupCount,
+  getPendingNotificationCount,
+  clearPendingNotifications,
+  initializeBatchingService,
+} from "./notificationBatching";
 export * from "./messageQueue";
 export * from "./websocket";
 export * from "./media";
