@@ -2,7 +2,7 @@ import { CameraCaptureUploadService } from '../CameraCaptureUploadService';
 
 // Mock dependencies
 jest.mock('../CameraService');
-jest.mock('../FileUploadService');
+jest.mock('../../fileUpload/FileUploadService');
 
 describe('CameraCaptureUploadService', () => {
   let service: CameraCaptureUploadService;

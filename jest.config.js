@@ -27,6 +27,7 @@ module.exports = {
     '^expo/src/winter/(.*)$': '<rootDir>/__mocks__/expo/src/winter/index.ts',
     // Mock expo modules for testing
     '^expo-image-picker$': '<rootDir>/__mocks__/expo-image-picker.js',
+    '^expo-camera$': '<rootDir>/__mocks__/expo-camera.js',
     '^expo-file-system$': '<rootDir>/__mocks__/expo-file-system.js',
     '^expo-document-picker$': '<rootDir>/__mocks__/expo-document-picker.js',
   },
