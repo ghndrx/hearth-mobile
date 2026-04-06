@@ -47,7 +47,7 @@
 ### Rich Media & File Sharing (PRD-002)
 **Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 10 weeks
 
-- [ ] **MS-001**: File upload infrastructure and basic image support
+- [x] **MS-001**: File upload infrastructure and basic image support ✅ (PR #88)
   - Estimated: 2 weeks
   - Dependencies: CDN setup
   - Success: Can upload/display images
@@ -2166,7 +2166,87 @@
 
 ---
 
-## CRITICAL COMPETITIVE PRIORITY UPDATE - April 4, 2026
+### Voice and Video Calling Infrastructure (PRD-003)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 20 weeks
+**Priority**: P0 - CRITICAL DISCORD PARITY GAP
+
+> **Voice/video calling** represents the largest feature gap vs Discord mobile. This is blocking competitive launch.
+
+- [ ] **VOICE-001**: WebRTC integration and basic voice calling pipeline
+  - Estimated: 6 weeks
+  - Dependencies: Signaling server infrastructure, TURN servers
+  - Success: P2P voice calls functional with <150ms latency
+
+- [ ] **VOICE-002**: Advanced voice features and mobile optimizations
+  - Estimated: 4 weeks
+  - Dependencies: VOICE-001, push notification system
+  - Success: Push-to-talk, background calling, Bluetooth integration
+
+- [ ] **VIDEO-001**: Video calling and screen sharing infrastructure
+  - Estimated: 6 weeks
+  - Dependencies: VOICE-001, media pipeline
+  - Success: 720p video calls, screen sharing, Picture-in-Picture
+
+- [ ] **VOICE-003**: Performance optimization and scaling
+  - Estimated: 4 weeks
+  - Dependencies: VIDEO-001
+  - Success: 50+ users in voice channels, <10% battery drain per hour
+
+### Biometric Authentication and Security (PRD-004)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 14 weeks
+**Priority**: P0 - SECURITY PARITY REQUIREMENT
+
+> **Biometric authentication** is table-stakes for mobile communication apps in 2026.
+
+- [ ] **BIO-001**: iOS/Android biometric authentication integration
+  - Estimated: 4 weeks
+  - Dependencies: None
+  - Success: Face ID, Touch ID, fingerprint unlock functional
+
+- [ ] **SEC-003**: Privacy controls and app security features
+  - Estimated: 3 weeks
+  - Dependencies: BIO-001
+  - Success: Message encryption at rest, notification privacy, screenshot prevention
+
+- [ ] **2FA-001**: Two-factor authentication implementation
+  - Estimated: 4 weeks
+  - Dependencies: BIO-001, backend auth infrastructure
+  - Success: TOTP, SMS backup, hardware key support
+
+- [ ] **SEC-004**: Security dashboard and enterprise features
+  - Estimated: 3 weeks
+  - Dependencies: 2FA-001
+  - Success: Security overview, audit logging, compliance features
+
+### Advanced Mobile UX Features (PRD-005)
+**Target**: Q2 2026 | **Owner**: Mobile UX Team | **Effort**: 16 weeks
+**Priority**: P1 - MOBILE EXPERIENCE DIFFERENTIATION
+
+> **Gesture navigation and haptics** are critical for premium mobile UX vs Discord.
+
+- [ ] **GEST-001**: Gesture navigation and haptic feedback system
+  - Estimated: 4 weeks
+  - Dependencies: React Native Gesture Handler
+  - Success: Swipe navigation, haptic patterns, long-press menus
+
+- [ ] **OFFLINE-001**: Offline mode and local caching infrastructure
+  - Estimated: 5 weeks
+  - Dependencies: SQLite integration, sync engine
+  - Success: 7 days offline message reading, offline composition queue
+
+- [ ] **MOBILE-UX-001**: Mobile-specific UI optimizations
+  - Estimated: 4 weeks
+  - Dependencies: GEST-001
+  - Success: One-handed mode, adaptive layouts, accessibility compliance
+
+- [ ] **PERF-001**: Performance optimization and 60fps experience
+  - Estimated: 3 weeks
+  - Dependencies: MOBILE-UX-001
+  - Success: 60fps scrolling, memory optimization, battery efficiency
+
+---
+
+## CRITICAL COMPETITIVE PRIORITY UPDATE - April 6, 2026
 
 **URGENT**: The three new P0 tasks above (HOME, NAV, OS) represent the most critical competitive disadvantages vs Discord mobile. These should be prioritized over advanced features until mobile platform parity is achieved.
 
