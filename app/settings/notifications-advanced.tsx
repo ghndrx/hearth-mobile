@@ -21,6 +21,7 @@ import {
 import { useNotificationContext } from "../../lib/contexts/NotificationContext";
 import NotificationPermissionManager from "../../components/notifications/NotificationPermissionManager";
 import PermissionSettings from "../../components/notifications/PermissionSettings";
+import BatchingSettings from "../../components/notifications/BatchingSettings";
 
 export default function AdvancedNotificationSettingsScreen() {
   const colorScheme = useColorScheme();
@@ -36,7 +37,7 @@ export default function AdvancedNotificationSettingsScreen() {
   } = useNotificationContext();
 
   const [localSettings, setLocalSettings] = useState(settings);
-  const [selectedTab, setSelectedTab] = useState<'permissions' | 'settings' | 'advanced'>('permissions');
+  const [selectedTab, setSelectedTab] = useState<'permissions' | 'settings' | 'batching' | 'advanced'>('permissions');
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -220,6 +221,12 @@ export default function AdvancedNotificationSettingsScreen() {
             onPress={() => setSelectedTab('settings')}
           />
           <TabButton
+            id="batching"
+            title="Batching"
+            active={selectedTab === 'batching'}
+            onPress={() => setSelectedTab('batching')}
+          />
+          <TabButton
             id="advanced"
             title="Advanced"
             active={selectedTab === 'advanced'}
@@ -370,6 +377,13 @@ export default function AdvancedNotificationSettingsScreen() {
                 />
               </Card>
             </View>
+          </View>
+        )}
+
+        {/* Batching Tab */}
+        {selectedTab === 'batching' && (
+          <View className="mx-4 mt-4">
+            <BatchingSettings />
           </View>
         )}
 
