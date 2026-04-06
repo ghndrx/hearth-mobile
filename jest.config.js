@@ -29,6 +29,8 @@ module.exports = {
     '^expo-image-picker$': '<rootDir>/__mocks__/expo-image-picker.js',
     '^expo-file-system$': '<rootDir>/__mocks__/expo-file-system.js',
     '^expo-document-picker$': '<rootDir>/__mocks__/expo-document-picker.js',
+    '^expo-camera$': '<rootDir>/__mocks__/expo-camera.js',
+    '^expo-media-library$': '<rootDir>/__mocks__/expo-media-library.js',
   },
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',

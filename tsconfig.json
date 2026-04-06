@@ -1,0 +1,25 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-native",
+    "target": "es2020",
+    "lib": ["es2020"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "app/**/*",
+    "lib/**/*",
+    "components/**/*",
+    "global.css"
+  ],
+  "exclude": [
+    "node_modules",
+    "__tests__",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ]
+}
