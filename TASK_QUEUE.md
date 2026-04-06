@@ -29,10 +29,11 @@
   - Dependencies: PN-002
   - Success: Granular permission controls
 
-- [ ] **PN-004**: Smart notification batching and grouping
+- [x] **PN-004**: Smart notification batching and grouping ✅
   - Estimated: 1 week
-  - Dependencies: PN-003
+  - Dependencies: PN-003 (✅ COMPLETE)
   - Success: Intelligent message grouping
+  - PR: feature/20260406-ab5e5c
 
 - [ ] **PN-005**: Rich notifications with inline actions
   - Estimated: 1 week
