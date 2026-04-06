@@ -43,35 +43,35 @@ interface AuditLogEntry {
 }
 
 const getActionIcon = (type: AuditLogEntry['type']) => {
-  const iconProps = { size: 20, color: '#9CA3AF' };
-  
+  const defaultIconProps = { size: 20 };
+
   switch (type) {
     case 'member_join':
-      return <UserPlus {...iconProps} color="#10B981" />;
+      return <UserPlus {...defaultIconProps} />;
     case 'member_leave':
-      return <UserMinus {...iconProps} />;
+      return <UserMinus {...defaultIconProps} />;
     case 'member_kick':
-      return <UserMinus {...iconProps} color="#F59E0B" />;
+      return <UserMinus {...defaultIconProps} />;
     case 'member_ban':
-      return <Ban {...iconProps} color="#EF4444" />;
+      return <Ban {...defaultIconProps} />;
     case 'channel_create':
-      return <Hash {...iconProps} color="#10B981" />;
+      return <Hash {...defaultIconProps} />;
     case 'channel_edit':
-      return <Edit {...iconProps} color="#3B82F6" />;
+      return <Edit {...defaultIconProps} />;
     case 'channel_delete':
-      return <Trash2 {...iconProps} color="#EF4444" />;
+      return <Trash2 {...defaultIconProps} />;
     case 'role_create':
-      return <Shield {...iconProps} color="#10B981" />;
+      return <Shield {...defaultIconProps} />;
     case 'role_edit':
-      return <Shield {...iconProps} color="#3B82F6" />;
+      return <Shield {...defaultIconProps} />;
     case 'role_delete':
-      return <Shield {...iconProps} color="#EF4444" />;
+      return <Shield {...defaultIconProps} />;
     case 'message_delete':
-      return <MessageSquare {...iconProps} color="#F59E0B" />;
+      return <MessageSquare {...defaultIconProps} />;
     case 'settings_update':
-      return <Settings {...iconProps} color="#3B82F6" />;
+      return <Settings {...defaultIconProps} />;
     default:
-      return <AlertTriangle {...iconProps} />;
+      return <AlertTriangle {...defaultIconProps} />;
   }
 };
 

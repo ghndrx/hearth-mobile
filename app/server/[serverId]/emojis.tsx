@@ -109,7 +109,7 @@ export default function ServerEmojisScreen() {
           onPress={handleUploadEmoji}
           className="bg-indigo-600 p-4 rounded-lg mb-6 flex-row items-center justify-center"
         >
-          <Upload size={20} color="#fff" />
+          <Upload size={20} />
           <Text className="text-white font-semibold ml-2">Upload Emoji</Text>
         </TouchableOpacity>
 
@@ -165,13 +165,13 @@ export default function ServerEmojisScreen() {
                       onPress={() => handleSaveEdit(emoji.id)}
                       className="p-2"
                     >
-                      <Check size={20} color="#10B981" />
+                      <Check size={20} />
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={handleCancelEdit}
                       className="p-2"
                     >
-                      <X size={20} color="#6B7280" />
+                      <X size={20} />
                     </TouchableOpacity>
                   </View>
                 ) : (
@@ -180,13 +180,13 @@ export default function ServerEmojisScreen() {
                       onPress={() => handleStartEdit(emoji)}
                       className="p-2"
                     >
-                      <Edit2 size={20} color="#6B7280" />
+                      <Edit2 size={20} />
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => handleDeleteEmoji(emoji.id, emoji.name)}
                       className="p-2"
                     >
-                      <Trash2 size={20} color="#EF4444" />
+                      <Trash2 size={20} />
                     </TouchableOpacity>
                   </View>
                 )}
