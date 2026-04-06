@@ -48,6 +48,14 @@ export interface NotificationSettings {
   quietHoursEnabled: boolean;
   quietHoursStart: string; // "22:00"
   quietHoursEnd: string; // "07:00"
+  // Smart batching settings
+  batchingEnabled: boolean;
+  batchTimeWindow: number; // milliseconds
+  maxBatchSize: number;
+  groupByChannel: boolean;
+  groupByUser: boolean;
+  groupByType: boolean;
+  autoCollapseThreshold: number;
 }
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
@@ -65,6 +73,14 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   quietHoursEnabled: false,
   quietHoursStart: "22:00",
   quietHoursEnd: "07:00",
+  // Smart batching defaults
+  batchingEnabled: true,
+  batchTimeWindow: 30000, // 30 seconds
+  maxBatchSize: 5,
+  groupByChannel: true,
+  groupByUser: true,
+  groupByType: false,
+  autoCollapseThreshold: 3,
 };
 
 // Configure default notification behavior

@@ -332,6 +332,83 @@ export default function NotificationSettingsScreen() {
           </View>
         </View>
 
+        {/* Smart Batching */}
+        <View className="mx-4 mt-6">
+          <Text
+            className={`
+              text-xs
+              font-semibold
+              uppercase
+              mb-2
+              ${isDark ? "text-dark-400" : "text-gray-500"}
+            `}
+          >
+            Smart Batching
+          </Text>
+          <View
+            className={`
+              rounded-xl
+              overflow-hidden
+              ${isDark ? "bg-dark-800" : "bg-white"}
+              border
+              ${isDark ? "border-dark-700" : "border-gray-200"}
+              ${!localSettings.enabled ? "opacity-50" : ""}
+            `}
+          >
+            <SwitchItem
+              title="Group Similar Notifications"
+              subtitle={
+                localSettings.batchingEnabled
+                  ? "Similar notifications will be grouped together"
+                  : "Each notification displays separately"
+              }
+              value={localSettings.batchingEnabled}
+              onValueChange={(value) => handleToggle("batchingEnabled", value)}
+              disabled={!localSettings.enabled || isLoading}
+            />
+            {localSettings.batchingEnabled && (
+              <>
+                <ListDivider />
+                <SwitchItem
+                  title="Group by Channel"
+                  subtitle="Group messages from the same channel"
+                  value={localSettings.groupByChannel}
+                  onValueChange={(value) => handleToggle("groupByChannel", value)}
+                  disabled={!localSettings.enabled || !localSettings.batchingEnabled || isLoading}
+                />
+                <ListDivider />
+                <SwitchItem
+                  title="Group by User"
+                  subtitle="Group messages from the same person"
+                  value={localSettings.groupByUser}
+                  onValueChange={(value) => handleToggle("groupByUser", value)}
+                  disabled={!localSettings.enabled || !localSettings.batchingEnabled || isLoading}
+                />
+                <ListDivider />
+                <SwitchItem
+                  title="Group by Type"
+                  subtitle="Group notifications by type (mentions, DMs, etc.)"
+                  value={localSettings.groupByType}
+                  onValueChange={(value) => handleToggle("groupByType", value)}
+                  disabled={!localSettings.enabled || !localSettings.batchingEnabled || isLoading}
+                />
+              </>
+            )}
+          </View>
+          {localSettings.batchingEnabled && localSettings.enabled && (
+            <Text
+              className={`
+                text-xs
+                mt-2
+                ${isDark ? "text-dark-500" : "text-gray-400"}
+              `}
+            >
+              Similar notifications will be grouped together and shown as a single
+              notification with a count. Tap to view all messages.
+            </Text>
+          )}
+        </View>
+
         {/* Quiet Hours */}
         <View className="mx-4 mt-6">
           <Text

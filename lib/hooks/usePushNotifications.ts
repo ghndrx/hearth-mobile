@@ -22,11 +22,13 @@ import {
   type NotificationSettings,
   type NotificationPayload,
 } from '../services/notifications';
+import { notificationBatcher, type BatchedNotification } from '../../src/services/notifications/NotificationBatcher';
 
 interface UsePushNotificationsOptions {
   authToken?: string;
-  onNotificationReceived?: (notification: Notifications.Notification) => void;
+  onNotificationReceived?: (notification: Notifications.Notification, batch?: BatchedNotification) => void;
   onNotificationTapped?: (data: NotificationPayload) => void;
+  onBatchUpdated?: (batches: BatchedNotification[]) => void;
 }
 
 interface UsePushNotificationsReturn {
@@ -34,6 +36,7 @@ interface UsePushNotificationsReturn {
   notification: Notifications.Notification | null;
   settings: NotificationSettings | null;
   badgeCount: number;
+  batchedNotifications: BatchedNotification[];
   isRegistered: boolean;
   isLoading: boolean;
   error: string | null;
@@ -41,6 +44,8 @@ interface UsePushNotificationsReturn {
   updateSettings: (updates: Partial<NotificationSettings>) => Promise<void>;
   clearNotifications: () => Promise<void>;
   clearChannelNotifications: (channelId: string) => Promise<void>;
+  clearBatch: (groupKey: string) => void;
+  clearAllBatches: () => void;
   setBadge: (count: number) => Promise<void>;
   incrementBadge: () => Promise<void>;
   decrementBadge: () => Promise<void>;
@@ -108,13 +113,14 @@ function handleNotificationResponse(
 export function usePushNotifications(
   options: UsePushNotificationsOptions = {}
 ): UsePushNotificationsReturn {
-  const { authToken, onNotificationReceived, onNotificationTapped } = options;
+  const { authToken, onNotificationReceived, onNotificationTapped, onBatchUpdated } = options;
 
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notification, setNotification] =
     useState<Notifications.Notification | null>(null);
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [badgeCount, setBadgeCountState] = useState(0);
+  const [batchedNotifications, setBatchedNotifications] = useState<BatchedNotification[]>([]);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,13 +149,48 @@ export function usePushNotifications(
     loadInitialState();
   }, []);
 
-  // Set up notification listeners
+  // Set up notification listeners and batcher subscription
   useEffect(() => {
+    // Subscribe to notification batcher updates
+    const unsubscribeBatcher = notificationBatcher.addListener((batches) => {
+      setBatchedNotifications(batches);
+      onBatchUpdated?.(batches);
+
+      // Update badge count based on batched notifications
+      const totalCount = notificationBatcher.getNotificationCount();
+      setBadgeCountState(totalCount);
+      setBadgeCount(totalCount);
+    });
+
     // Listener for notifications received while app is foregrounded
     notificationListener.current =
-      Notifications.addNotificationReceivedListener((receivedNotification) => {
+      Notifications.addNotificationReceivedListener(async (receivedNotification) => {
         setNotification(receivedNotification);
-        onNotificationReceived?.(receivedNotification);
+
+        const data = receivedNotification.request.content.data as NotificationPayload;
+
+        // Check if batching is enabled in settings
+        const currentSettings = settings || await getNotificationSettings();
+
+        if (currentSettings.batchingEnabled && notificationBatcher.shouldBatchNotification(data)) {
+          // Update batcher settings from notification settings
+          await notificationBatcher.updateSettings({
+            enabled: currentSettings.batchingEnabled,
+            batchTimeWindow: currentSettings.batchTimeWindow,
+            maxBatchSize: currentSettings.maxBatchSize,
+            groupByChannel: currentSettings.groupByChannel,
+            groupByUser: currentSettings.groupByUser,
+            groupByType: currentSettings.groupByType,
+            autoCollapseThreshold: currentSettings.autoCollapseThreshold,
+          });
+
+          // Add to batch
+          const batch = await notificationBatcher.addNotification(data);
+          onNotificationReceived?.(receivedNotification, batch || undefined);
+        } else {
+          // Handle normally for non-batchable notifications
+          onNotificationReceived?.(receivedNotification);
+        }
       });
 
     // Listener for notification taps
@@ -173,11 +214,12 @@ export function usePushNotifications(
     );
 
     return () => {
+      unsubscribeBatcher();
       notificationListener.current?.remove();
       responseListener.current?.remove();
       appStateListener.current?.remove();
     };
-  }, [onNotificationReceived, onNotificationTapped]);
+  }, [onNotificationReceived, onNotificationTapped, onBatchUpdated, settings]);
 
   // Register for push notifications
   const register = useCallback(async (): Promise<boolean> => {
@@ -264,6 +306,7 @@ export function usePushNotifications(
   const handleClearNotifications = useCallback(async () => {
     await dismissAllNotifications();
     await clearBadgeCount();
+    notificationBatcher.dismissAllBatches();
     setBadgeCountState(0);
   }, []);
 
@@ -307,11 +350,24 @@ export function usePushNotifications(
     setBadgeCountState(newCount);
   }, [badgeCount]);
 
+  // Clear specific batch
+  const clearBatch = useCallback((groupKey: string) => {
+    notificationBatcher.dismissBatch(groupKey);
+    // Badge count will be updated automatically via batcher listener
+  }, []);
+
+  // Clear all batches
+  const clearAllBatches = useCallback(() => {
+    notificationBatcher.dismissAllBatches();
+    // Badge count will be updated automatically via batcher listener
+  }, []);
+
   return {
     expoPushToken,
     notification,
     settings,
     badgeCount,
+    batchedNotifications,
     isRegistered,
     isLoading,
     error,
@@ -319,6 +375,8 @@ export function usePushNotifications(
     updateSettings: handleUpdateSettings,
     clearNotifications: handleClearNotifications,
     clearChannelNotifications: handleClearChannelNotifications,
+    clearBatch,
+    clearAllBatches,
     setBadge: handleSetBadge,
     incrementBadge,
     decrementBadge,

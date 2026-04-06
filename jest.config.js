@@ -14,6 +14,8 @@ module.exports = {
     // Mock React Native modules that cause issues in RN 0.76
     '^react-native$': '<rootDir>/__mocks__/react-native.js',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    // Mock AsyncStorage
+    '^@react-native-async-storage/async-storage$': '<rootDir>/__mocks__/async-storage.js',
     // Mock specific polyfill files that contain Flow syntax
     '^@react-native/js-polyfills/(.*)': '<rootDir>/__mocks__/empty.js',
     // Mock expo to work with jest-expo
