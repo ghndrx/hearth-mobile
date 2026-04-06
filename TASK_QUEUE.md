@@ -1021,6 +1021,75 @@
   - Dependencies: LOC-001-C
   - Success: Nearby communities discovery with privacy-first design
 
+### Advanced Notification Management & Do Not Disturb (PRD-006)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 16 weeks
+
+- [ ] **NOTIF-001**: Advanced DND & Scheduling infrastructure
+  - Estimated: 4 weeks
+  - Dependencies: None
+  - Success: Time/location-based DND, device Focus integration, notification profiles
+
+- [ ] **NOTIF-002**: Intelligent notification filtering & priority scoring
+  - Estimated: 5 weeks
+  - Dependencies: NOTIF-001
+  - Success: ML-based importance classification, keyword detection, VIP breakthrough notifications
+
+- [ ] **NOTIF-003**: Contextual awareness & smart timing
+  - Estimated: 4 weeks
+  - Dependencies: NOTIF-002
+  - Success: Device usage-aware timing, calendar integration, battery-efficient processing
+
+- [ ] **NOTIF-004**: Cross-platform notification sync & advanced features
+  - Estimated: 3 weeks
+  - Dependencies: NOTIF-003
+  - Success: Unified notification state, analytics, enterprise controls
+
+### Cross-Platform Sync & Seamless Continuity (PRD-007)
+**Target**: Q2 2026 | **Owner**: Mobile Team | **Effort**: 18 weeks
+
+- [ ] **SYNC-001**: Foundation sync engine & multi-device session management
+  - Estimated: 6 weeks
+  - Dependencies: None
+  - Success: Real-time state sync, conflict resolution, device registration, preference sync
+
+- [ ] **SYNC-002**: Advanced continuity features & collaborative editing
+  - Estimated: 5 weeks
+  - Dependencies: SYNC-001
+  - Success: Draft message sync, voice call handoff, file upload continuity, search history sync
+
+- [ ] **SYNC-003**: Smart continuity & multi-device intelligence
+  - Estimated: 4 weeks
+  - Dependencies: SYNC-002
+  - Success: Intelligent device detection, notification routing, presence aggregation, handoff optimization
+
+- [ ] **SYNC-004**: Enterprise security & cross-platform analytics
+  - Estimated: 3 weeks
+  - Dependencies: SYNC-003
+  - Success: Device management, audit logging, advanced security, performance optimization
+
+### Live Activities & iOS Dynamic Island Integration (PRD-008)
+**Target**: Q2 2026 | **Owner**: iOS Team | **Effort**: 14 weeks
+
+- [ ] **LIVE-001**: iOS Live Activities foundation & voice call integration
+  - Estimated: 4 weeks
+  - Dependencies: iOS 16.1+ deployment
+  - Success: Voice call Live Activities, Lock Screen controls, real-time push updates
+
+- [ ] **LIVE-002**: Dynamic Island integration & interaction design
+  - Estimated: 3 weeks
+  - Dependencies: LIVE-001, iPhone 14+ compatibility
+  - Success: Compact/minimal/expanded Dynamic Island states, touch interactions, animations
+
+- [ ] **LIVE-003**: Messaging Live Activities & advanced features
+  - Estimated: 4 weeks
+  - Dependencies: LIVE-002
+  - Success: DM typing indicators, channel notifications, quick reply, event countdowns
+
+- [ ] **LIVE-004**: Performance optimization & iOS system integration
+  - Estimated: 3 weeks
+  - Dependencies: LIVE-003
+  - Success: Battery efficiency, CallKit integration, Focus mode respect, accessibility compliance
+
 ## P1 Tasks (High Priority)
 
 ### Offline Message Queue & Conflict Resolution (PRD-005 / PRD-051)
