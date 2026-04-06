@@ -1,8 +1,35 @@
 import { CameraCaptureUploadService } from '../CameraCaptureUploadService';
 
 // Mock dependencies
-jest.mock('../CameraService');
-jest.mock('../../fileUpload/FileUploadService');
+jest.mock('../CameraService', () => ({
+  CameraService: {
+    getInstance: jest.fn(() => ({
+      isAvailable: jest.fn(() => Promise.resolve(true)),
+      hasCameraPermission: jest.fn(() => Promise.resolve(true)),
+      requestCameraPermission: jest.fn(() => Promise.resolve(true)),
+      capturePhoto: jest.fn(() => Promise.resolve({
+        uri: 'test-uri',
+        filename: 'test-photo.jpg',
+        filesize: 1000,
+        mimeType: 'image/jpeg',
+        createdAt: new Date().toISOString(),
+      })),
+    })),
+  },
+}));
+jest.mock('../../fileUpload/FileUploadService', () => ({
+  FileUploadService: {
+    getInstance: jest.fn(() => ({
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      uploadFile: jest.fn(() => Promise.resolve({ id: 'test-upload-id', url: 'test-url' })),
+      isUploading: jest.fn(() => false),
+      getActiveUploadCount: jest.fn(() => 0),
+      getQueuedUploadCount: jest.fn(() => 0),
+      configure: jest.fn(),
+    })),
+  },
+}));
 
 describe('CameraCaptureUploadService', () => {
   let service: CameraCaptureUploadService;

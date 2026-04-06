@@ -28,11 +28,15 @@
     "components/**/*",
     "**/*.ts",
     "**/*.tsx",
-    "global.css.ts"
+    "global.css.ts",
+    "jest.d.ts"
   ],
   "exclude": [
     "node_modules",
     ".expo",
-    "dist"
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**"
   ]
 }
