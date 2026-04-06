@@ -32,3 +32,16 @@ export * from "./deepLinking";
 export * from "./quickActions";
 export * from "./spotlight";
 export * as deviceService from "./devices";
+export * from "./CameraService";
+export {
+  type UploadOptions,
+  type CaptureUploadSession,
+  type UploadState,
+  cameraCaptureUploadService,
+} from "./CameraCaptureUploadService";
+export {
+  type VideoCompressionOptions,
+  type VideoCompressionResult,
+  type CompressionProgress,
+  videoCompressionService,
+} from "./VideoCompressionService";
