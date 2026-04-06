@@ -72,12 +72,15 @@ import {
   getStoredPushToken,
   clearPushToken,
   getPermissionStatus,
+  getPermissionStatusDetails,
+  requestPermissionsWithOptions,
   setBadgeCount,
   clearBadgeCount,
   scheduleLocalNotification,
   cancelNotification,
   cancelAllNotifications,
   dismissAllNotifications,
+  isQuietHours,
   DEFAULT_NOTIFICATION_SETTINGS,
 } from '../../lib/services/notifications';
 
@@ -338,14 +341,19 @@ describe('Notifications Service', () => {
 
   describe('quiet hours functionality', () => {
     // Mock the current date/time for consistent testing
+    let dateSpy: jest.SpyInstance | null = null;
+
     const mockDate = (hour: number, minute: number = 0) => {
       const date = new Date();
       date.setHours(hour, minute, 0, 0);
-      jest.spyOn(global, 'Date').mockImplementation(() => date);
+      dateSpy = jest.spyOn(global, 'Date').mockImplementation(() => date as unknown as Date);
     };
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      if (dateSpy) {
+        dateSpy.mockRestore();
+        dateSpy = null;
+      }
     });
 
     it('should detect quiet hours correctly for overnight period', async () => {
@@ -382,6 +390,230 @@ describe('Notifications Service', () => {
       // Test that notification settings are managed
       const result = await getNotificationSettings();
       expect(result.quietHoursEnabled).toBe(true);
+    });
+
+    it('should correctly identify overnight quiet hours boundary', () => {
+      // Test overnight: 22:00 - 07:00
+      const settings = {
+        quietHoursEnabled: true,
+        quietHoursStart: '22:00',
+        quietHoursEnd: '07:00',
+      };
+
+      // At 23:30 - should be in quiet hours
+      mockDate(23, 30);
+      expect(isQuietHours(settings as any)).toBe(true);
+
+      // At 03:00 - should be in quiet hours
+      mockDate(3, 0);
+      expect(isQuietHours(settings as any)).toBe(true);
+
+      // At 07:30 - should NOT be in quiet hours (boundary)
+      mockDate(7, 30);
+      expect(isQuietHours(settings as any)).toBe(false);
+
+      // At 14:00 - should NOT be in quiet hours
+      mockDate(14, 0);
+      expect(isQuietHours(settings as any)).toBe(false);
+
+      // At 21:59 - should NOT be in quiet hours
+      mockDate(21, 59);
+      expect(isQuietHours(settings as any)).toBe(false);
+
+      // At 22:00 - should be in quiet hours (boundary)
+      mockDate(22, 0);
+      expect(isQuietHours(settings as any)).toBe(true);
+    });
+
+    it('should correctly identify same-day quiet hours', () => {
+      // Test same day: 13:00 - 14:00
+      const settings = {
+        quietHoursEnabled: true,
+        quietHoursStart: '13:00',
+        quietHoursEnd: '14:00',
+      };
+
+      // At 12:59 - should NOT be in quiet hours
+      mockDate(12, 59);
+      expect(isQuietHours(settings as any)).toBe(false);
+
+      // At 13:00 - should be in quiet hours (boundary)
+      mockDate(13, 0);
+      expect(isQuietHours(settings as any)).toBe(true);
+
+      // At 13:30 - should be in quiet hours
+      mockDate(13, 30);
+      expect(isQuietHours(settings as any)).toBe(true);
+
+      // At 14:00 - should NOT be in quiet hours (boundary)
+      mockDate(14, 0);
+      expect(isQuietHours(settings as any)).toBe(false);
+
+      // At 14:01 - should NOT be in quiet hours
+      mockDate(14, 1);
+      expect(isQuietHours(settings as any)).toBe(false);
+    });
+
+    it('should return false when quiet hours disabled', () => {
+      const settings = {
+        quietHoursEnabled: false,
+        quietHoursStart: '22:00',
+        quietHoursEnd: '07:00',
+      };
+
+      // No date mock needed since function returns early when disabled
+      expect(isQuietHours(settings as any)).toBe(false);
+    });
+  });
+
+  describe('granular permission controls', () => {
+    it('should get detailed permission status on iOS', async () => {
+      mockNotifications.getPermissionsAsync.mockResolvedValue({
+        status: 'granted',
+        expires: 'never',
+        ios: {
+          allowsAlert: true,
+          allowsBadge: true,
+          allowsSound: true,
+          allowsCriticalAlerts: false,
+          providesAppNotificationSettings: true,
+        },
+      } as any);
+
+      const details = await getPermissionStatusDetails();
+
+      expect(details.status).toBe('granted');
+      expect(details.granted).toBe(true);
+      expect(details.expires).toBe('never');
+      expect(details.ios).toBeDefined();
+      expect(details.ios?.allowsAlert).toBe(true);
+      expect(details.ios?.allowsBadge).toBe(true);
+      expect(details.ios?.allowsSound).toBe(true);
+      expect(details.ios?.allowsCriticalAlerts).toBe(false);
+      
+    });
+
+    it('should get detailed permission status on Android', async () => {
+      // Set platform to android for this test
+      const originalOS = mockPlatform.OS;
+      mockPlatform.OS = 'android';
+
+      mockNotifications.getPermissionsAsync.mockResolvedValue({
+        status: 'granted',
+        expires: 'never',
+        android: {
+          importance: 4,
+        },
+      } as any);
+
+      const details = await getPermissionStatusDetails();
+
+      expect(details.status).toBe('granted');
+      expect(details.granted).toBe(true);
+      expect(details.android).toBeDefined();
+      expect(details.android?.importance).toBe(4);
+
+      // Restore original platform
+      mockPlatform.OS = originalOS;
+    });
+
+    it('should return granted=false when not granted', async () => {
+      mockNotifications.getPermissionsAsync.mockResolvedValue({
+        status: 'denied',
+        expires: 'never',
+      } as any);
+
+      const details = await getPermissionStatusDetails();
+
+      expect(details.status).toBe('denied');
+      expect(details.granted).toBe(false);
+    });
+
+    it('should request permissions with options on iOS', async () => {
+      mockNotifications.requestPermissionsAsync.mockResolvedValue({
+        status: 'granted',
+        expires: 'never',
+        ios: {
+          allowsAlert: true,
+          allowsBadge: true,
+          allowsSound: false,
+          allowsCriticalAlerts: false,
+          providesAppNotificationSettings: true,
+        },
+      } as any);
+
+      const details = await requestPermissionsWithOptions({
+        ios: {
+          allowAlert: true,
+          allowBadge: true,
+          allowSound: false,
+        },
+      });
+
+      expect(mockNotifications.requestPermissionsAsync).toHaveBeenCalledWith({
+        ios: {
+          allowAlert: true,
+          allowBadge: true,
+          allowSound: false,
+        },
+        android: undefined,
+      });
+      expect(details.status).toBe('granted');
+      expect(details.ios?.allowsAlert).toBe(true);
+      expect(details.ios?.allowsBadge).toBe(true);
+      expect(details.ios?.allowsSound).toBe(false);
+    });
+
+    it('should request permissions with channel on Android', async () => {
+      const originalOS = mockPlatform.OS;
+      mockPlatform.OS = 'android';
+
+      mockNotifications.requestPermissionsAsync.mockResolvedValue({
+        status: 'granted',
+        expires: 'never',
+        android: {
+          importance: 4,
+        },
+      } as any);
+
+      const details = await requestPermissionsWithOptions({
+        android: {
+          channelId: 'high-priority',
+        },
+      });
+
+      expect(mockNotifications.requestPermissionsAsync).toHaveBeenCalledWith({
+        ios: undefined,
+        android: {
+          channelId: 'high-priority',
+        },
+      });
+      expect(details.status).toBe('granted');
+
+      // Restore original platform
+      mockPlatform.OS = originalOS;
+    });
+
+    it('should handle provisional permission on iOS', async () => {
+      mockNotifications.getPermissionsAsync.mockResolvedValue({
+        status: 'granted',
+        expires: 'never',
+        ios: {
+          allowsAlert: true,
+          allowsBadge: false,
+          allowsSound: false,
+          allowsCriticalAlerts: false,
+          providesAppNotificationSettings: false,
+        },
+      } as any);
+
+      const details = await getPermissionStatusDetails();
+
+      expect(details.status).toBe('granted');
+      expect(details.granted).toBe(true);
+      
+      expect(details.ios?.allowsBadge).toBe(false);
+      expect(details.ios?.allowsSound).toBe(false);
     });
   });
 });

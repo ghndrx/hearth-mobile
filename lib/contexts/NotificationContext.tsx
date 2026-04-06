@@ -5,8 +5,12 @@ import React, {
 } from "react";
 import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "../hooks/usePushNotifications";
-import { useNotificationPermission } from "../hooks/useNotifications";
-import { NotificationSettings, Notification, DEFAULT_NOTIFICATION_SETTINGS } from "../services/notifications";
+import {
+  NotificationSettings,
+  NotificationPermissionDetails,
+  Notification,
+  DEFAULT_NOTIFICATION_SETTINGS,
+} from "../services/notifications";
 
 interface NotificationContextValue {
   // Push token
@@ -19,17 +23,26 @@ interface NotificationContextValue {
   settings: NotificationSettings;
   updateSettings: (updates: Partial<NotificationSettings>) => Promise<void>;
 
-  // Permission
+  // Permission - basic
   permissionStatus: Notifications.PermissionStatus | null;
   isPermissionGranted: boolean;
+
+  // Permission - granular details
+  permissionDetails: NotificationPermissionDetails | null;
+  isProvisional: boolean;
+
+  // Quiet hours
+  isInQuietHours: boolean;
+
+  // Actions
   requestPermission: () => Promise<boolean>;
+  requestPermissionWithOptions: (options: Parameters<NotificationContextValue["requestPermissionWithOptions"]>[0]) => Promise<NotificationPermissionDetails>;
+  refreshPermissionStatus: () => Promise<void>;
+  clearAllNotifications: () => Promise<void>;
 
   // State
   isLoading: boolean;
   error: string | null;
-
-  // Actions
-  clearAllNotifications: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
@@ -43,23 +56,31 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     expoPushToken,
     notification,
     settings,
+    permissionStatus,
+    permissionDetails,
     isLoading,
     error,
     register,
     updateSettings,
     clearNotifications,
+    requestPermissionWithOptions,
+    refreshPermissionStatus,
+    isInQuietHours,
   } = usePushNotifications();
-
-  const { isGranted } = useNotificationPermission();
 
   const value: NotificationContextValue = {
     expoPushToken,
     notification,
     settings: settings || DEFAULT_NOTIFICATION_SETTINGS,
     updateSettings,
-    permissionStatus: null, // usePushNotifications doesn't provide this directly
-    isPermissionGranted: isGranted,
+    permissionStatus,
+    isPermissionGranted: permissionStatus === "granted",
+    permissionDetails,
+    isProvisional: permissionDetails?.ios?.provisional ?? false,
+    isInQuietHours,
     requestPermission: register,
+    requestPermissionWithOptions,
+    refreshPermissionStatus,
     isLoading,
     error,
     clearAllNotifications: clearNotifications,

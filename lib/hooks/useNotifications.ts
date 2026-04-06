@@ -6,8 +6,13 @@ import {
   getNotificationSettings,
   saveNotificationSettings,
   getPermissionStatus,
+  getPermissionStatusDetails,
+  requestPermissionsWithOptions,
   clearBadgeCount,
+  isQuietHours,
   NotificationSettings,
+  NotificationPermissionDetails,
+  RequestPermissionOptions,
   DEFAULT_NOTIFICATION_SETTINGS,
   NotificationResponse,
   Notification,
@@ -26,11 +31,15 @@ interface UseNotificationsResult {
   notification: Notification | null;
   settings: NotificationSettings;
   permissionStatus: Notifications.PermissionStatus | null;
+  permissionDetails: NotificationPermissionDetails | null;
   isLoading: boolean;
   error: string | null;
   registerForNotifications: () => Promise<void>;
   updateSettings: (updates: Partial<NotificationSettings>) => Promise<void>;
   clearAllNotifications: () => Promise<void>;
+  requestPermissionWithOptions: (options: RequestPermissionOptions) => Promise<NotificationPermissionDetails>;
+  refreshPermissionStatus: () => Promise<void>;
+  isInQuietHours: boolean;
 }
 
 export function useNotifications(): UseNotificationsResult {
@@ -41,11 +50,15 @@ export function useNotifications(): UseNotificationsResult {
   );
   const [permissionStatus, setPermissionStatus] =
     useState<Notifications.PermissionStatus | null>(null);
+  const [permissionDetails, setPermissionDetails] =
+    useState<NotificationPermissionDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isInQuietHours, setIsInQuietHours] = useState(false);
 
   const notificationListener = useRef<Notifications.EventSubscription>();
   const responseListener = useRef<Notifications.EventSubscription>();
+  const quietHoursIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Handle notification tap navigation
   const handleNotificationResponse = useCallback(
@@ -102,6 +115,58 @@ export function useNotifications(): UseNotificationsResult {
     []
   );
 
+  // Check quiet hours periodically
+  useEffect(() => {
+    const checkQuietHours = () => {
+      setIsInQuietHours(isQuietHours(settings));
+    };
+
+    checkQuietHours(); // Initial check
+    quietHoursIntervalRef.current = setInterval(checkQuietHours, 60000); // Check every minute
+
+    return () => {
+      if (quietHoursIntervalRef.current) {
+        clearInterval(quietHoursIntervalRef.current);
+      }
+    };
+  }, [settings]);
+
+  // Refresh permission status
+  const refreshPermissionStatus = useCallback(async () => {
+    try {
+      const details = await getPermissionStatusDetails();
+      setPermissionStatus(details.status);
+      setPermissionDetails(details);
+    } catch (err) {
+      console.error("Failed to refresh permission status:", err);
+    }
+  }, []);
+
+  // Request permission with granular options
+  const requestPermissionWithOptions = useCallback(
+    async (options: RequestPermissionOptions): Promise<NotificationPermissionDetails> => {
+      try {
+        setError(null);
+        const details = await requestPermissionsWithOptions(options);
+        setPermissionStatus(details.status);
+        setPermissionDetails(details);
+
+        if (details.granted) {
+          const token = await registerForPushNotifications();
+          setExpoPushToken(token);
+        }
+
+        return details;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to request permissions";
+        setError(message);
+        console.error("Permission request error:", err);
+        throw err;
+      }
+    },
+    []
+  );
+
   // Initial setup
   useEffect(() => {
     async function init() {
@@ -113,12 +178,13 @@ export function useNotifications(): UseNotificationsResult {
         const savedSettings = await getNotificationSettings();
         setSettings(savedSettings);
 
-        // Check permission status
-        const status = await getPermissionStatus();
-        setPermissionStatus(status);
+        // Check permission status with full details
+        const details = await getPermissionStatusDetails();
+        setPermissionStatus(details.status);
+        setPermissionDetails(details);
 
         // If already granted, get push token
-        if (status === "granted") {
+        if (details.status === "granted") {
           const token = await registerForPushNotifications();
           setExpoPushToken(token);
         }
@@ -162,18 +228,17 @@ export function useNotifications(): UseNotificationsResult {
     };
   }, [handleNotificationResponse]);
 
-  // Register for push notifications
+  // Register for push notifications (legacy, uses basic permissions)
   const registerForNotifications = useCallback(async () => {
     try {
       setError(null);
       const token = await registerForPushNotifications();
-      const newStatus = await getPermissionStatus();
-      setPermissionStatus(newStatus);
+      const details = await getPermissionStatusDetails();
+      setPermissionStatus(details.status);
+      setPermissionDetails(details);
 
       if (token) {
         setExpoPushToken(token);
-        // TODO: Send token to your backend server
-        // await api.registerPushToken(token);
       }
     } catch (err) {
       setError(
@@ -226,36 +291,61 @@ export function useNotifications(): UseNotificationsResult {
     notification,
     settings,
     permissionStatus,
+    permissionDetails,
     isLoading,
     error,
     registerForNotifications,
     updateSettings,
     clearAllNotifications,
+    requestPermissionWithOptions,
+    refreshPermissionStatus,
+    isInQuietHours,
   };
 }
 
-// Convenience hook for just checking notification permissions
+// Convenience hook for just checking notification permissions with granular details
 export function useNotificationPermission(): {
   status: Notifications.PermissionStatus | null;
+  details: NotificationPermissionDetails | null;
   isGranted: boolean;
+  isProvisional: boolean;
   requestPermission: () => Promise<boolean>;
+  requestPermissionWithOptions: (options: RequestPermissionOptions) => Promise<NotificationPermissionDetails>;
 } {
   const [status, setStatus] = useState<Notifications.PermissionStatus | null>(null);
+  const [details, setDetails] = useState<NotificationPermissionDetails | null>(null);
 
   useEffect(() => {
-    getPermissionStatus().then(setStatus);
+    getPermissionStatusDetails().then((d) => {
+      setStatus(d.status);
+      setDetails(d);
+    });
   }, []);
 
   const requestPermission = useCallback(async () => {
     const token = await registerForPushNotifications();
-    const newStatus = await getPermissionStatus();
-    setStatus(newStatus);
+    const newDetails = await getPermissionStatusDetails();
+    setStatus(newDetails.status);
+    setDetails(newDetails);
     return token !== null;
   }, []);
 
+  const requestPermissionWithOptions = useCallback(
+    async (options: RequestPermissionOptions): Promise<NotificationPermissionDetails> => {
+      const newDetails = await requestPermissionsWithOptions(options);
+      setStatus(newDetails.status);
+      setDetails(newDetails);
+      return newDetails;
+    },
+    []
+  );
+
   return {
     status,
+    details,
     isGranted: status === "granted",
+    isProvisional: details?.ios?.provisional ?? false,
     requestPermission,
+    requestPermissionWithOptions,
   };
 }

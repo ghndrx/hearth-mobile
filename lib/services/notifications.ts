@@ -33,6 +33,41 @@ export interface NotificationPayload {
   imageUrl?: string;
 }
 
+// Detailed permission status with iOS-specific granularity
+export interface NotificationPermissionDetails {
+  status: Notifications.PermissionStatus;
+  granted: boolean;
+  expires: Notifications.PermissionExpiration;
+  // iOS-specific granular permissions
+  ios?: {
+    allowsAlert: boolean;
+    allowsBadge: boolean;
+    allowsSound: boolean;
+    allowsCriticalAlerts: boolean;
+    providesAppNotificationSettings: boolean;
+    alertStyle: number;
+  };
+  android?: {
+    importance: number;
+    interruptionFilter?: number;
+  };
+}
+
+// Options for requesting notification permissions with granular controls
+export interface RequestPermissionOptions {
+  ios?: {
+    allowAlert?: boolean;
+    allowBadge?: boolean;
+    allowSound?: boolean;
+    allowCriticalAlerts?: boolean;
+    allowProvisional?: boolean;
+    provideAppNotificationSettings?: boolean;
+  };
+  android?: {
+    channelId?: string;
+  };
+}
+
 export interface NotificationSettings {
   enabled: boolean;
   messages: boolean;
@@ -46,8 +81,8 @@ export interface NotificationSettings {
   badgeCount: boolean;
   showPreviews: boolean;
   quietHoursEnabled: boolean;
-  quietHoursStart: string; // "22:00"
-  quietHoursEnd: string; // "07:00"
+  quietHoursStart: string; // "HH:MM" format (24-hour)
+  quietHoursEnd: string; // "HH:MM" format (24-hour)
 }
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
@@ -71,7 +106,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
 Notifications.setNotificationHandler({
   handleNotification: async (_notification) => {
     const settings = await getNotificationSettings();
-    
+
     // Check quiet hours
     if (settings.quietHoursEnabled && isQuietHours(settings)) {
       return {
@@ -93,19 +128,107 @@ Notifications.setNotificationHandler({
   },
 });
 
-function isQuietHours(settings: NotificationSettings): boolean {
+/**
+ * Check if current time is within quiet hours
+ * Supports overnight periods (e.g., 22:00 - 07:00)
+ */
+export function isQuietHours(settings: NotificationSettings): boolean {
   const now = new Date();
   const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-  
+
   const start = settings.quietHoursStart;
   const end = settings.quietHoursEnd;
-  
+
   // Handle overnight quiet hours (e.g., 22:00 - 07:00)
   if (start > end) {
     return currentTime >= start || currentTime < end;
   }
-  
+
   return currentTime >= start && currentTime < end;
+}
+
+/**
+ * Get detailed notification permission status with platform-specific granularity
+ */
+export async function getPermissionStatusDetails(): Promise<NotificationPermissionDetails> {
+  const result = await Notifications.getPermissionsAsync();
+
+  const details: NotificationPermissionDetails = {
+    status: result.status,
+    granted: result.status === "granted",
+    expires: result.expires,
+  };
+
+  // iOS-specific permissions
+  if (Platform.OS === "ios" && result.ios) {
+    details.ios = {
+      allowsAlert: result.ios.allowsAlert ?? false,
+      allowsBadge: result.ios.allowsBadge ?? false,
+      allowsSound: result.ios.allowsSound ?? false,
+      allowsCriticalAlerts: result.ios.allowsCriticalAlerts ?? false,
+      providesAppNotificationSettings: result.ios.providesAppNotificationSettings ?? false,
+      alertStyle: result.ios.alertStyle ?? 0,
+    };
+  }
+
+  // Android-specific permissions
+  if (Platform.OS === "android" && result.android) {
+    details.android = {
+      importance: result.android.importance ?? 0,
+      interruptionFilter: result.android.interruptionFilter,
+    };
+  }
+
+  return details;
+}
+
+/**
+ * Request notification permissions with optional granular controls
+ * On iOS, allows requesting specific permission types (alert, badge, sound, etc.)
+ * On Android, allows specifying a channel ID
+ */
+export async function requestPermissionsWithOptions(
+  options: RequestPermissionOptions = {}
+): Promise<NotificationPermissionDetails> {
+  const result = await Notifications.requestPermissionsAsync({
+    ios: options.ios ? {
+      allowAlert: options.ios.allowAlert,
+      allowBadge: options.ios.allowBadge,
+      allowSound: options.ios.allowSound,
+      allowCriticalAlerts: options.ios.allowCriticalAlerts,
+      allowProvisional: options.ios.allowProvisional,
+      provideAppNotificationSettings: options.ios.provideAppNotificationSettings,
+    } : undefined,
+    android: options.android ? {
+      channelId: options.android.channelId,
+    } : undefined,
+  });
+
+  const details: NotificationPermissionDetails = {
+    status: result.status,
+    granted: result.status === "granted",
+    expires: result.expires,
+  };
+
+  if (Platform.OS === "ios" && result.ios) {
+    details.ios = {
+      allowsAlert: result.ios.allowsAlert ?? false,
+      allowsBadge: result.ios.allowsBadge ?? false,
+      allowsSound: result.ios.allowsSound ?? false,
+      allowsCriticalAlerts: result.ios.allowsCriticalAlerts ?? false,
+      providesAppNotificationSettings: result.ios.providesAppNotificationSettings ?? false,
+      alertStyle: result.ios.alertStyle ?? 0,
+    };
+  }
+
+  if (Platform.OS === "android" && result.android) {
+    details.android = {
+      importance: result.android.importance ?? 0,
+      interruptionFilter: result.android.interruptionFilter,
+    };
+  }
+
+  return details;
 }
 
 export async function getNotificationSettings(): Promise<NotificationSettings> {

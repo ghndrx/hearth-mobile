@@ -6,6 +6,7 @@
  * - Listeners for received/tapped notifications
  * - Settings management
  * - Badge management
+ * - Granular permission controls (iOS alert, badge, sound, critical, provisional)
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -16,11 +17,16 @@ import {
   registerForPushNotifications,
   getNotificationSettings,
   saveNotificationSettings,
+  getPermissionStatusDetails,
+  requestPermissionsWithOptions,
   setBadgeCount,
   clearBadgeCount,
   dismissAllNotifications,
+  isQuietHours,
   type NotificationSettings,
+  type NotificationPermissionDetails,
   type NotificationPayload,
+  type RequestPermissionOptions,
 } from '../services/notifications';
 
 interface UsePushNotificationsOptions {
@@ -37,6 +43,15 @@ interface UsePushNotificationsReturn {
   isRegistered: boolean;
   isLoading: boolean;
   error: string | null;
+  // Permission - basic
+  permissionStatus: Notifications.PermissionStatus | null;
+  isPermissionGranted: boolean;
+  // Permission - granular details
+  permissionDetails: NotificationPermissionDetails | null;
+  isProvisional: boolean;
+  // Quiet hours
+  isInQuietHours: boolean;
+  // Actions
   register: () => Promise<boolean>;
   updateSettings: (updates: Partial<NotificationSettings>) => Promise<void>;
   clearNotifications: () => Promise<void>;
@@ -44,6 +59,8 @@ interface UsePushNotificationsReturn {
   setBadge: (count: number) => Promise<void>;
   incrementBadge: () => Promise<void>;
   decrementBadge: () => Promise<void>;
+  requestPermissionWithOptions: (options: RequestPermissionOptions) => Promise<NotificationPermissionDetails>;
+  refreshPermissionStatus: () => Promise<void>;
 }
 
 /**
@@ -118,21 +135,88 @@ export function usePushNotifications(
   const [isRegistered, setIsRegistered] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [permissionStatus, setPermissionStatus] =
+    useState<Notifications.PermissionStatus | null>(null);
+  const [permissionDetails, setPermissionDetails] =
+    useState<NotificationPermissionDetails | null>(null);
+  const [isInQuietHours, setIsInQuietHours] = useState(false);
 
   const notificationListener = useRef<Notifications.EventSubscription>();
   const responseListener = useRef<Notifications.EventSubscription>();
   const appStateListener = useRef<ReturnType<typeof AppState.addEventListener>>();
+  const quietHoursIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Refresh permission status
+  const refreshPermissionStatus = useCallback(async () => {
+    try {
+      const details = await getPermissionStatusDetails();
+      setPermissionStatus(details.status);
+      setPermissionDetails(details);
+    } catch (err) {
+      console.error('Failed to refresh permission status:', err);
+    }
+  }, []);
+
+  // Request permission with granular options
+  const requestPermissionWithOptions = useCallback(
+    async (opts: RequestPermissionOptions): Promise<NotificationPermissionDetails> => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const details = await requestPermissionsWithOptions(opts);
+        setPermissionStatus(details.status);
+        setPermissionDetails(details);
+
+        if (details.granted) {
+          const token = await registerForPushNotifications();
+          setExpoPushToken(token);
+          setIsRegistered(true);
+        }
+
+        setIsLoading(false);
+        return details;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Permission request failed';
+        setError(message);
+        setIsLoading(false);
+        throw err;
+      }
+    },
+    []
+  );
+
+  // Check quiet hours periodically
+  useEffect(() => {
+    const checkQuietHours = () => {
+      if (settings) {
+        setIsInQuietHours(isQuietHours(settings));
+      }
+    };
+
+    checkQuietHours();
+    quietHoursIntervalRef.current = setInterval(checkQuietHours, 60000);
+
+    return () => {
+      if (quietHoursIntervalRef.current) {
+        clearInterval(quietHoursIntervalRef.current);
+      }
+    };
+  }, [settings]);
 
   // Load settings and badge count on mount
   useEffect(() => {
     const loadInitialState = async () => {
       try {
-        const [loadedSettings, badge] = await Promise.all([
+        const [loadedSettings, badge, perms] = await Promise.all([
           getNotificationSettings(),
           Notifications.getBadgeCountAsync(),
+          getPermissionStatusDetails(),
         ]);
         setSettings(loadedSettings);
         setBadgeCountState(badge);
+        setPermissionStatus(perms.status);
+        setPermissionDetails(perms);
       } catch (err) {
         console.error('Failed to load notification state:', err);
       } finally {
@@ -168,6 +252,7 @@ export function usePushNotifications(
         if (nextAppState === 'active') {
           const badge = await Notifications.getBadgeCountAsync();
           setBadgeCountState(badge);
+          await refreshPermissionStatus();
         }
       }
     );
@@ -177,7 +262,7 @@ export function usePushNotifications(
       responseListener.current?.remove();
       appStateListener.current?.remove();
     };
-  }, [onNotificationReceived, onNotificationTapped]);
+  }, [onNotificationReceived, onNotificationTapped, refreshPermissionStatus]);
 
   // Register for push notifications
   const register = useCallback(async (): Promise<boolean> => {
@@ -222,6 +307,7 @@ export function usePushNotifications(
       }
 
       setIsRegistered(true);
+      await refreshPermissionStatus();
       setIsLoading(false);
       return true;
     } catch (err) {
@@ -231,7 +317,7 @@ export function usePushNotifications(
       setIsLoading(false);
       return false;
     }
-  }, [authToken]);
+  }, [authToken, refreshPermissionStatus]);
 
   // Auto-register when auth token becomes available
   useEffect(() => {
@@ -315,6 +401,11 @@ export function usePushNotifications(
     isRegistered,
     isLoading,
     error,
+    permissionStatus,
+    isPermissionGranted: permissionStatus === 'granted',
+    permissionDetails,
+    isProvisional: permissionDetails?.ios?.provisional ?? false,
+    isInQuietHours,
     register,
     updateSettings: handleUpdateSettings,
     clearNotifications: handleClearNotifications,
@@ -322,6 +413,8 @@ export function usePushNotifications(
     setBadge: handleSetBadge,
     incrementBadge,
     decrementBadge,
+    requestPermissionWithOptions,
+    refreshPermissionStatus,
   };
 }
 
