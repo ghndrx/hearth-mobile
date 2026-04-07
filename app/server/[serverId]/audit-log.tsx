@@ -43,8 +43,8 @@ interface AuditLogEntry {
 }
 
 const getActionIcon = (type: AuditLogEntry['type']) => {
-  const iconProps = { size: 20, color: '#9CA3AF' };
-  
+  const iconProps = { size: 20, stroke: '#9CA3AF' };
+
   switch (type) {
     case 'member_join':
       return <UserPlus {...iconProps} color="#10B981" />;
