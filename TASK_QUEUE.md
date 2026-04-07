@@ -1,7 +1,7 @@
 # Hearth Mobile Task Queue
 
-**Last Updated**: March 28, 2026
-**Next Review**: April 7, 2026
+**Last Updated**: April 7, 2026
+**Next Review**: April 14, 2026
 
 ## Legend
 - **P0**: Critical - Must have for competitive parity
@@ -778,6 +778,95 @@
   - Estimated: 1 week
   - Dependencies: CMI-005
   - Success: Pattern recognition for routine tasks with automation
+
+### Stage Channels — Live Audio Broadcasting (PRD-CI-030)
+**Target**: Q3 2026 | **Owner**: Mobile Team | **Effort**: 12 weeks
+
+- [ ] **SC-001**: Stage channel creation and configuration
+  - Estimated: 2 weeks
+  - Dependencies: LiveKit room extension
+  - Success: Stage channels can be created with title, description, and scheduled time
+
+- [ ] **SC-002**: Live broadcasting (speaker view) with low-latency audio
+  - Estimated: 3 weeks
+  - Dependencies: SC-001, LiveKit SFU topology for one-to-many
+  - Success: Speaker audio latency <3s for 500+ listeners
+
+- [ ] **SC-003**: Audience view with emoji reactions and raise hand
+  - Estimated: 2 weeks
+  - Dependencies: SC-002
+  - Success: One-tap join, emoji reactions visible to speakers
+
+- [ ] **SC-004**: Stage discovery and push notifications for live stages
+  - Estimated: 2 weeks
+  - Dependencies: SC-003, notification service
+  - Success: Live Now badge, push notification on stage start
+
+- [ ] **SC-005**: Stage moderation controls (mute, remove, ban, lock)
+  - Estimated: 2 weeks
+  - Dependencies: SC-004
+  - Success: Moderators can manage speakers and audience
+
+- [ ] **SC-006**: Stage recording and VOD playback (future phase)
+  - Estimated: 3 weeks
+  - Dependencies: SC-005
+  - Success: Recorded stages available for replay
+
+### Server Monetization — Boost Ecosystem & Creator Revenue (PRD-CI-031)
+**Target**: Q3-Q4 2026 | **Owner**: Mobile Team + Backend | **Effort**: 16 weeks
+
+- [ ] **SM-001**: Server boost system and boost tier unlocks
+  - Estimated: 3 weeks
+  - Dependencies: Entitlements service extension
+  - Success: Members can boost servers, perks unlock at 2/7/14 boosts
+
+- [ ] **SM-002**: Premium server perks (custom banner, audio quality, upload limits)
+  - Estimated: 3 weeks
+  - Dependencies: SM-001
+  - Success: Boost tiers correctly apply server features
+
+- [ ] **SM-003**: Creator tips and Stripe Connect payout integration
+  - Estimated: 4 weeks
+  - Dependencies: SM-001, Stripe Connect
+  - Success: Tip flow working, first payouts processed
+
+- [ ] **SM-004**: Hearth Premium subscription (mobile SDK and paywall)
+  - Estimated: 3 weeks
+  - Dependencies: SM-003
+  - Success: Premium subscription purchasable on mobile
+
+- [ ] **SM-005**: Creator monetization dashboard and analytics
+  - Estimated: 3 weeks
+  - Dependencies: SM-003
+  - Success: Creators can view earnings, subscriber counts, payout history
+
+### AI Social Features — Smart Recommendations & Automated Moderation (PRD-CI-032)
+**Target**: Q4 2026 | **Owner**: Mobile Team + AI/ML Team | **Effort**: 14 weeks
+
+- [ ] **AI-001**: AI-powered content moderation pipeline
+  - Estimated: 4 weeks
+  - Dependencies: ML inference infrastructure
+  - Success: Real-time message classification, automated actions
+
+- [ ] **AI-002**: Spam and abuse detection system
+  - Estimated: 3 weeks
+  - Dependencies: AI-001
+  - Success: Account behavior analysis, spam burst detection
+
+- [ ] **AI-003**: Personalized server and friend recommendations
+  - Estimated: 3 weeks
+  - Dependencies: AI-001, collaborative filtering model
+  - Success: Recommendation CTR >15% on Discover tab
+
+- [ ] **AI-004**: Content quality ranking (Learning-to-Rank model)
+  - Estimated: 2 weeks
+  - Dependencies: AI-003
+  - Success: Quality-ranked sort option available in channels
+
+- [ ] **AI-005**: Moderation dashboard and weekly health reports
+  - Estimated: 2 weeks
+  - Dependencies: AI-002
+  - Success: Admins can review AI actions, view community health
 
 ## P1 Tasks (High Priority)
 
