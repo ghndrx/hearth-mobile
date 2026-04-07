@@ -6,6 +6,14 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import {
+  registerRichNotificationCategories,
+  extractReplyText,
+  isReplyAction,
+  parseNotificationReplyData,
+  NotificationReplyData,
+  NOTIFICATION_ACTION,
+} from './richNotificationCategories';
 
 // Configure notification handler for foreground notifications
 Notifications.setNotificationHandler({
@@ -23,6 +31,11 @@ export interface PushNotificationConfig {
   onTokenRefresh?: (token: string) => void;
   onNotificationReceived?: (notification: Notifications.Notification) => void;
   onNotificationOpened?: (notification: Notifications.Notification) => void;
+  /**
+   * Callback for inline notification replies
+   * Called when user replies directly from the notification
+   */
+  onNotificationReply?: (replyData: NotificationReplyData, replyText: string) => void;
 }
 
 export interface DeviceRegistration {
@@ -284,6 +297,113 @@ class PushNotificationService {
     return Platform.OS === 'ios' || Platform.OS === 'android'
       ? Platform.OS
       : 'unknown';
+  }
+
+  /**
+   * Initialize rich notification support (inline replies)
+   * Call this after initialize() to enable rich notification categories
+   * and reply handling on both iOS and Android.
+   */
+  async initializeRichNotifications(): Promise<boolean> {
+    if (!this.isInitialized) {
+      console.error('Push notification service must be initialized first');
+      return false;
+    }
+
+    try {
+      // Register rich notification categories with actions
+      await registerRichNotificationCategories();
+
+      // Set up notification response listener for replies
+      this.setupRichNotificationResponseListener();
+
+      console.log('Rich notification support initialized successfully');
+      return true;
+    } catch (error) {
+      console.error('Failed to initialize rich notifications:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Set up notification response listener for inline replies
+   * Handles both reply actions and other action types
+   */
+  private setupRichNotificationResponseListener(): void {
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener(
+      async (response) => {
+        console.log('Notification response received (rich):', response.actionIdentifier);
+
+        // Check if this is a reply action
+        if (isReplyAction(response)) {
+          const replyText = extractReplyText(response);
+
+          if (replyText && replyText.length > 0) {
+            console.log('Inline reply received:', replyText);
+
+            // Parse the original notification data
+            const replyData = parseNotificationReplyData(response.notification);
+
+            if (replyData) {
+              // Add the reply text to the data
+              const replyDataWithText: NotificationReplyData = {
+                ...replyData,
+                text: replyText,
+              };
+
+              // Call the reply callback if provided
+              this.config.onNotificationReply?.(replyDataWithText, replyText);
+
+              // Also call the general notification opened callback
+              this.config.onNotificationOpened?.(response.notification);
+            } else {
+              console.warn('Could not parse notification reply data');
+            }
+          } else {
+            console.warn('Reply action but no text provided');
+          }
+        } else {
+          // Not a reply action, treat as regular notification opened
+          this.config.onNotificationOpened?.(response.notification);
+        }
+      }
+    );
+
+    this.notificationListeners.push(responseSubscription);
+  }
+
+  /**
+   * Handle a notification reply by sending the message via existing service.
+   * This method can be used as the onNotificationReply callback or called directly.
+   * 
+   * @param replyData - Parsed notification data including conversation and sender info
+   * @param replyText - The text the user typed as a reply
+   * @returns Promise<boolean> - True if message was sent successfully
+   */
+  async handleNotificationReply(
+    replyData: NotificationReplyData,
+    replyText: string
+  ): Promise<boolean> {
+    try {
+      console.log('Handling notification reply:', {
+        conversationId: replyData.conversationId,
+        senderId: replyData.senderId,
+        textLength: replyText.length,
+      });
+
+      // TODO: Integrate with actual message service
+      // For now, this is a placeholder that logs the reply
+      // The actual implementation would call:
+      // await messageService.sendMessage(replyData.conversationId, replyText);
+
+      console.log('Notification reply would be sent to conversation:', replyData.conversationId);
+      console.log('Reply text:', replyText);
+
+      return true;
+    } catch (error) {
+      console.error('Failed to handle notification reply:', error);
+      return false;
+    }
   }
 
   /**

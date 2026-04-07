@@ -9,6 +9,26 @@ export { default as PushNotificationService } from './PushNotificationService';
 import PushNotificationService from './PushNotificationService';
 export { default as fcmService } from './fcmService';
 
+// Re-export rich notification utilities
+export {
+  registerRichNotificationCategories,
+  extractReplyText,
+  buildChatReplyNotificationContent,
+  buildMentionNotificationContent,
+  parseNotificationReplyData,
+  isReplyAction,
+  isChatReplyNotification,
+  isMentionNotification,
+  NOTIFICATION_CATEGORY,
+  NOTIFICATION_ACTION,
+  NOTIFICATION_DATA_KEYS,
+} from './richNotificationCategories';
+
+export type {
+  RichNotificationCategory,
+  NotificationReplyData,
+} from './richNotificationCategories';
+
 // Re-export types
 export type {
   PushNotificationConfig,
